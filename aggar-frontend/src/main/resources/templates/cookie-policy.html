@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Cookie Policy - Aggar Real Estate</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+        .cookie-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .cookie-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .cookie-header h1 {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .cookie-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        .section-title {
+            color: #333;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+        .subsection-title {
+            color: #555;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .cookie-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .contact-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+        .last-updated {
+            font-style: italic;
+            color: #888;
+            text-align: center;
+            margin-top: 30px;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .cookie-table {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .cookie-table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 600;
+        }
+        .cookie-table td, .cookie-table th {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+        }
+        .cookie-category {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .cookie-category h5 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .btn-cookie {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-accept {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-customize {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Include header fragment -->
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <div class="cookie-container">
+        <div class="cookie-header">
+            <h1>Cookie Policy</h1>
+            <p>This policy explains how Aggar Real Estate uses cookies and similar technologies to enhance your experience on our website.</p>
+        </div>
+
+        <div class="cookie-content">
+            <strong>Effective Date:</strong> January 1, 2025
+        </div>
+
+        <h2 class="section-title">1. What Are Cookies?</h2>
+        <div class="cookie-content">
+            Cookies are small text files that are stored on your device (computer, tablet, or mobile) when you visit a website. They allow the website to remember your actions and preferences over time, providing a more personalized and efficient experience.
+        </div>
+
+        <h2 class="section-title">2. How We Use Cookies</h2>
+        <div class="cookie-content">
+            We use cookies for several purposes:
+        </div>
+        <ul>
+            <li><strong>Essential Cookies:</strong> Required for basic website functionality</li>
+            <li><strong>Performance Cookies:</strong> Help us understand how visitors interact with our site</li>
+            <li><strong>Functional Cookies:</strong> Remember your preferences and settings</li>
+            <li><strong>Targeting Cookies:</strong> Deliver relevant advertisements and content</li>
+            <li><strong>Social Media Cookies:</strong> Enable social media integration and sharing</li>
+        </ul>
+
+        <h2 class="section-title">3. Types of Cookies We Use</h2>
+
+        <div class="cookie-category">
+            <h5>Essential Cookies</h5>
+            <div class="cookie-content">
+                These cookies are necessary for the website to function and cannot be switched off in our systems. They are usually only set in response to actions made by you which amount to a request for services.
+            </div>
+        </div>
+
+        <div class="cookie-category">
+            <h5>Performance Cookies</h5>
+            <div class="cookie-content">
+                These cookies allow us to count visits and traffic sources so we can measure and improve the performance of our site. They help us to know which pages are the most and least popular and see how visitors move around the site.
+            </div>
+        </div>
+
+        <div class="cookie-category">
+            <h5>Functional Cookies</h5>
+            <div class="cookie-content">
+                These cookies enable the website to provide enhanced functionality and personalization. They may be set by us or by third-party providers whose services we have added to our pages.
+            </div>
+        </div>
+
+        <div class="cookie-category">
+            <h5>Targeting Cookies</h5>
+            <div class="cookie-content">
+                These cookies may be set through our site by our advertising partners. They may be used by those companies to build a profile of your interests and show you relevant adverts on other sites.
+            </div>
+        </div>
+
+        <h2 class="section-title">4. Detailed Cookie Information</h2>
+        <div class="cookie-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Cookie Name</th>
+                        <th>Purpose</th>
+                        <th>Category</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>session_id</td>
+                        <td>Maintains user session</td>
+                        <td>Essential</td>
+                        <td>Session</td>
+                    </tr>
+                    <tr>
+                        <td>csrf_token</td>
+                        <td>Security protection</td>
+                        <td>Essential</td>
+                        <td>Session</td>
+                    </tr>
+                    <tr>
+                        <td>user_preferences</td>
+                        <td>Remembers user settings</td>
+                        <td>Functional</td>
+                        <td>30 days</td>
+                    </tr>
+                    <tr>
+                        <td>property_search_history</td>
+                        <td>Saves recent searches</td>
+                        <td>Functional</td>
+                        <td>7 days</td>
+                    </tr>
+                    <tr>
+                        <td>_ga</td>
+                        <td>Google Analytics</td>
+                        <td>Performance</td>
+                        <td>2 years</td>
+                    </tr>
+                    <tr>
+                        <td>_gid</td>
+                        <td>Google Analytics</td>
+                        <td>Performance</td>
+                        <td>24 hours</td>
+                    </tr>
+                    <tr>
+                        <td>ad_storage</td>
+                        <td>Advertisement targeting</td>
+                        <td>Targeting</td>
+                        <td>1 year</td>
+                    </tr>
+                    <tr>
+                        <td>social_media_auth</td>
+                        <td>Social media login</td>
+                        <td>Functional</td>
+                        <td>90 days</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="section-title">5. Third-Party Cookies</h2>
+        <div class="cookie-content">
+            We use various third-party services that may place cookies on your device:
+        </div>
+        <ul>
+            <li><strong>Google Analytics:</strong> For website analytics and performance monitoring</li>
+            <li><strong>Google Ads:</strong> For advertising and remarketing purposes</li>
+            <li><strong>Facebook Pixel:</strong> For social media advertising and analytics</li>
+            <li><strong>LinkedIn Insight Tag:</strong> For professional networking and advertising</li>
+            <li><strong>YouTube:</strong> For video embedding and analytics</li>
+            <li><strong>Map Services:</strong> For property location and mapping features</li>
+        </ul>
+
+        <h2 class="section-title">6. Managing Your Cookie Preferences</h2>
+        
+        <h3 class="subsection-title">Cookie Consent Banner</h3>
+        <div class="cookie-content">
+            When you first visit our website, you'll see a cookie consent banner where you can:
+        </div>
+        <div class="action-buttons">
+            <a href="#" class="btn-cookie btn-accept">Accept All Cookies</a>
+            <a href="#" class="btn-cookie btn-reject">Reject Non-Essential</a>
+            <a href="#" class="btn-cookie btn-customize">Customize Settings</a>
+        </div>
+
+        <h3 class="subsection-title">Browser Settings</h3>
+        <div class="cookie-content">
+            You can control and/or delete cookies as you wish. You can delete all cookies that are already on your device and you can set most browsers to prevent them from being placed. However, if you do this, you may have to manually adjust some preferences every time you visit a site and some services may not function properly.
+        </div>
+
+        <h3 class="subsection-title">Browser-Specific Instructions</h3>
+        <div class="cookie-content">
+            <strong>Chrome:</strong> Settings → Privacy and security → Cookies and other site data<br>
+            <strong>Firefox:</strong> Options → Privacy & Security → Cookies and Site Data<br>
+            <strong>Safari:</strong> Preferences → Privacy → Cookies and website data<br>
+            <strong>Edge:</strong> Settings → Cookies and site permissions
+        </div>
+
+        <h2 class="section-title">7. Cookie Lifespan</h2>
+        <div class="cookie-content">
+            Cookies have different lifespans:
+        </div>
+        <ul>
+            <li><strong>Session Cookies:</strong> Deleted when you close your browser</li>
+            <li><strong>Persistent Cookies:</strong> Remain on your device for a set period or until you delete them</li>
+            <li><strong>First-Party Cookies:</strong> Set by our website directly</li>
+            <li><strong>Third-Party Cookies:</strong> Set by external services we use</li>
+        </ul>
+
+        <h2 class="section-title">8. Your Rights</h2>
+        <div class="cookie-content">
+            You have the right to:
+        </div>
+        <ul>
+            <li>Accept or reject cookies</li>
+            <li>Withdraw consent at any time</li>
+            <li>View what cookies are stored on your device</li>
+            <li>Delete cookies from your browser</li>
+            <li>Configure browser settings to block cookies</li>
+        </div>
+
+        <h2 class="section-title">9. Updates to This Policy</h2>
+        <div class="cookie-content">
+            We may update this cookie policy from time to time to reflect changes in our use of cookies or applicable laws. Any changes will be posted on this page with an updated effective date.
+        </div>
+
+        <h2 class="section-title">10. Contact Information</h2>
+        <div class="cookie-content">
+            If you have any questions about our use of cookies, please contact us:
+        </div>
+        
+        <div class="contact-info">
+            <ul>
+                <li><strong>Email:</strong> privacy@aggar.com</li>
+                <li><strong>Phone:</strong> +1 (555) 123-4567</li>
+                <li><strong>Address:</strong> 123 Business Ave, Suite 100, New York, NY 10001</li>
+                <li><strong>Website:</strong> www.aggar.com</li>
+            </ul>
+        </div>
+
+        <div class="last-updated">
+            <p>Last updated: January 1, 2025</p>
+        </div>
+    </div>
+</div>
+
+<!-- Include footer fragment -->
+<div th:replace="fragments/footer :: footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

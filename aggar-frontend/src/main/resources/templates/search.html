@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Search Results - Aggar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+
+<!-- Include header fragment -->
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Search Results</h1>
+        <div>
+            <span class="text-muted" th:text="'Showing ' + ${#lists.size(properties)} + ' results for: '"></span>
+            <strong th:text="${searchQuery}">search query</strong>
+        </div>
+    </div>
+
+    <div th:if="${properties == null or #lists.isEmpty(properties)}">
+        <div class="alert alert-info">
+            <h4>No properties found</h4>
+            <p>Try adjusting your search terms or <a th:href="@{/}">browse all properties</a>.</p>
+        </div>
+    </div>
+
+    <div class="row" th:if="${properties != null}">
+        <div class="col-md-4 mb-3" th:each="prop : ${properties}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${prop.title}">Property title</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <span th:text="${prop.listingType}">sale/rent</span> -
+                        <span th:text="${prop.currency}">USD</span>
+                        <span th:text="${prop.price}">0.00</span>
+                    </h6>
+
+                    <p class="card-text">
+                        <strong th:text="${prop.city}">City</strong>
+                        <span th:if="${prop.neighborhood != null}"> - <span th:text="${prop.neighborhood}">Neighborhood</span></span>
+                    </p>
+
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <span th:text="${prop.bedrooms}">0</span> beds •
+                            <span th:text="${prop.bathrooms}">0</span> baths
+                        </small>
+                    </p>
+
+                    <a th:href="@{'/properties/' + ${prop.id}}" class="btn btn-primary">View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include footer fragment -->
+<div th:replace="fragments/footer :: footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
