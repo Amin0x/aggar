@@ -2,12 +2,11 @@ package com.amin.aggar.api.controller;
 
 import com.amin.aggar.api.dto.StateDto;
 import com.amin.aggar.service.StateService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/states")
@@ -20,8 +19,8 @@ public class StateController {
     }
 
     @GetMapping
-    public Page<StateDto> list(Pageable pageable) {
-        return stateService.list(pageable);
+    public List<StateDto> list() {
+        return stateService.list();
     }
 
     @GetMapping("/{id}")

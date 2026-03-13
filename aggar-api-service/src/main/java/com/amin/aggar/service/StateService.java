@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,8 +39,8 @@ public class StateService {
         return s;
     }
 
-    public Page<StateDto> list(Pageable pageable) {
-        return stateRepository.findAll(pageable).map(this::toDto);
+    public List<StateDto> list() {
+        return stateRepository.findAll().stream().map(this::toDto).toList();
     }
 
     public Optional<StateDto> findById(Integer id) {

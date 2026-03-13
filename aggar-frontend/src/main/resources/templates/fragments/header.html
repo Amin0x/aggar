@@ -4,7 +4,7 @@
 <div th:fragment="header">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" th:href="@{/}">Aggar</a>
+            <a class="navbar-brand" th:href="@{/}" th:text="#{header.brand}">Aggar</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -12,59 +12,59 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" th:classappend="${selectedListingType == null}? ' active' : ''" th:href="@{/}">All</a>
+                        <a class="nav-link" th:classappend="${selectedListingType == null}? ' active' : ''" th:href="@{/}" th:text="#{header.all}">All</a>
                     </li>
-                    <li class="nav-item" th:each="lt : ${listingTypes}">
+                    <li class="nav-item" th:each="ltype : ${listingTypes}">
                         <a class="nav-link"
-                           th:href="@{'/'(listingType=${lt}, city=${selectedCity}, q=${q})}"
-                           th:text="${lt}"
-                           th:classappend="${lt == selectedListingType}? ' active' : ''">Sale/Rent</a>
+                           th:href="@{'/'(listingType=${ltype}, city=${selectedCity}, q=${q})}"
+                           th:text="${ltype}"
+                           th:classappend="${ltype == selectedListingType}? ' active' : ''">Sale/Rent</a>
                     </li>
 
                     <!-- Property Categories Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-th-large me-1"></i> Categories
+                            <i class="fas fa-th-large me-1"></i> <span th:text="#{header.categories}">Categories</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="categoriesDropdown" style="min-width: 250px;">
-                            <li><h6 class="dropdown-header">Property Type</h6></li>
+                            <li><h6 class="dropdown-header" th:text="#{header.property.type}">Property Type</h6></li>
                             <li><a class="dropdown-item" th:href="@{'/'(category='apartment', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-building me-2 text-primary"></i> Apartments
+                                <i class="fas fa-building me-2 text-primary"></i> <span th:text="#{header.apartments}">Apartments</span>
                             </a></li>
                             <li><a class="dropdown-item" th:href="@{'/'(category='house', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-home me-2 text-success"></i> Houses
+                                <i class="fas fa-home me-2 text-success"></i> <span th:text="#{header.houses}">Houses</span>
                             </a></li>
                             <li><a class="dropdown-item" th:href="@{'/'(category='condo', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-city me-2 text-info"></i> Condos
+                                <i class="fas fa-city me-2 text-info"></i> <span th:text="#{header.condos}">Condos</span>
                             </a></li>
                             <li><a class="dropdown-item" th:href="@{'/'(category='townhouse', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-house-user me-2 text-warning"></i> Townhouses
+                                <i class="fas fa-house-user me-2 text-warning"></i> <span th:text="#{header.townhouses}">Townhouses</span>
                             </a></li>
                             <li><a class="dropdown-item" th:href="@{'/'(category='villa', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-crown me-2 text-danger"></i> Villas
+                                <i class="fas fa-crown me-2 text-danger"></i> <span th:text="#{header.villas}">Villas</span>
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Commercial</h6></li>
+                            <li><h6 class="dropdown-header" th:text="#{header.commercial}">Commercial</h6></li>
                             <li><a class="dropdown-item" th:href="@{'/'(category='office', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-briefcase me-2 text-secondary"></i> Office Spaces
+                                <i class="fas fa-briefcase me-2 text-secondary"></i> <span th:text="#{header.office.spaces}">Office Spaces</span>
                             </a></li>
                             <li><a class="dropdown-item" th:href="@{'/'(category='retail', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-store me-2 text-dark"></i> Retail Spaces
+                                <i class="fas fa-store me-2 text-dark"></i> <span th:text="#{header.retail.spaces}">Retail Spaces</span>
                             </a></li>
                             <li><a class="dropdown-item" th:href="@{'/'(category='land', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-mountain me-2 text-success"></i> Land & Plots
+                                <i class="fas fa-mountain me-2 text-success"></i> <span th:text="#{header.land.plots}">Land & Plots</span>
                             </a></li>
                         </ul>
                     </li>
 
                     <li class="nav-item dropdown" th:if="${cities != null}">
                         <a class="nav-link dropdown-toggle" href="#" id="citiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Cities
+                            <span th:text="#{header.cities}">Cities</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="citiesDropdown">
                             <li>
                                 <a class="dropdown-item" th:href="@{'/'(listingType=${selectedListingType}, q=${q})}"
-                                   th:classappend="${selectedCity == null}? ' active' : ''">All Cities</a>
+                                   th:classappend="${selectedCity == null}? ' active' : ''" th:text="#{header.all.cities}">All Cities</a>
                             </li>
                             <li th:each="c : ${cities}">
                                 <a class="dropdown-item"
@@ -80,36 +80,36 @@
                     <!-- Add Property Link -->
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/properties/add}">
-                            <i class="fas fa-plus-circle me-1"></i> Add Property
+                            <i class="fas fa-plus-circle me-1"></i> <span th:text="#{header.add.property}">Add Property</span>
                         </a>
                     </li>
                     
                     <!-- Show Profile for authenticated users -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-1"></i> Profile
+                            <i class="fas fa-user-circle me-1"></i> <span th:text="#{header.profile}">Profile</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-                            <li><a class="dropdown-item" th:href="@{/profile}">My Profile</a></li>
-                            <li><a class="dropdown-item" th:href="@{/profile}#saved">Saved Properties</a></li>
-                            <li><a class="dropdown-item" th:href="@{/profile}#settings">Settings</a></li>
+                            <li><a class="dropdown-item" th:href="@{/profile}" th:text="#{header.my.profile}">My Profile</a></li>
+                            <li><a class="dropdown-item" th:href="@{/profile/saved}" th:text="#{header.saved.properties}">Saved Properties</a></li>
+                            <li><a class="dropdown-item" th:href="@{/profile/settings}" th:text="#{header.settings}">Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" th:href="@{/logout}">Sign Out</a></li>
+                            <li><a class="dropdown-item" th:href="@{/logout}" th:text="#{header.sign.out}">Sign Out</a></li>
                         </ul>
                     </li>
                     
                     <!-- Show Login/Register for guests -->
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/login}">Login</a>
+                        <a class="nav-link" th:href="@{/login}" th:text="#{header.login}">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/register}">Register</a>
+                        <a class="nav-link" th:href="@{/register}" th:text="#{header.register}">Register</a>
                     </li>
                 </ul>
 
                 <form class="d-flex" th:action="@{/search}" method="get">
-                    <input class="form-control me-2" type="search" placeholder="Search properties..." aria-label="Search" name="q" th:value="${q}" required>
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                    <input class="form-control me-2" type="search" th:placeholder="#{header.search.placeholder}" aria-label="Search" name="q" th:value="${q}" required>
+                    <button class="btn btn-outline-success" type="submit" th:text="#{header.search}">Search</button>
                 </form>
             </div>
         </div>

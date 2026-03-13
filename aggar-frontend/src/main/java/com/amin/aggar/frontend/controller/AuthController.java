@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
+
 @Controller
 public class AuthController {
 
@@ -25,6 +27,10 @@ public class AuthController {
         if (logout != null) {
             model.addAttribute("message", "You have been logged out successfully");
         }
+        
+        // Add required attributes for header fragment
+        model.addAttribute("listingTypes", Collections.emptyList());
+        model.addAttribute("cities", Collections.emptyList());
         
         return "login";
     }
@@ -58,6 +64,10 @@ public class AuthController {
         if (error != null) {
             model.addAttribute("errorMessage", "Registration failed. Please try again.");
         }
+        
+        // Add required attributes for header fragment
+        model.addAttribute("listingTypes", Collections.emptyList());
+        model.addAttribute("cities", Collections.emptyList());
         
         return "register";
     }
@@ -96,12 +106,17 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public String profile(Model model) {
+    public String profilePage(Model model) {
         // TODO: Get actual user data from session/database
         // For now, using mock data
         model.addAttribute("user", getMockUser());
         model.addAttribute("savedProperties", getMockSavedProperties());
         model.addAttribute("recentSearches", getMockRecentSearches());
+        
+        // Add required attributes for header fragment
+        model.addAttribute("listingTypes", Collections.emptyList());
+        model.addAttribute("cities", Collections.emptyList());
+        
         return "profile";
     }
 
@@ -119,6 +134,10 @@ public class AuthController {
         model.addAttribute("user", getMockUser());
         model.addAttribute("savedProperties", getMockSavedProperties());
         model.addAttribute("recentSearches", getMockRecentSearches());
+        
+        // Add required attributes for header fragment
+        model.addAttribute("listingTypes", Collections.emptyList());
+        model.addAttribute("cities", Collections.emptyList());
         
         return "profile";
     }

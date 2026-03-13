@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,6 +75,11 @@ public class PropertyController {
             }
 
             model.addAttribute("property", property);
+            
+            // Add required attributes for header fragment
+            model.addAttribute("listingTypes", Collections.emptyList());
+            model.addAttribute("cities", Collections.emptyList());
+            
             return "property-detail";
         } catch (Exception ex) {
             log.error("Failed to fetch property {} from API {}", id, propertiesApiUrl, ex);
@@ -84,12 +90,17 @@ public class PropertyController {
     @GetMapping("/properties/add")
     public String addPropertyForm(Model model) {
         model.addAttribute("property", new PropertyDto());
+        
+        // Add required attributes for header fragment
+        model.addAttribute("listingTypes", Collections.emptyList());
+        model.addAttribute("cities", Collections.emptyList());
+        
         return "add-property";
     }
 
     @PostMapping("/properties/add")
     public String addProperty(@ModelAttribute("property") PropertyDto property, 
-                             BindingResult result, 
+                             BindingResult result,
                              RedirectAttributes redirectAttributes) {
         try {
             // Basic validation

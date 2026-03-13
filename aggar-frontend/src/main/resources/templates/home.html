@@ -1,20 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <title>Properties - Home</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <title th:text="#{header.brand} + ' - ' + #{home.latest.properties}">Aggar - Home</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
 <!-- Include header fragment -->
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container mt-4">
-    <h1>Latest Properties</h1>
+    <h1 th:text="#{home.latest.properties}">Latest Properties</h1>
 
     <div th:if="${properties == null or #lists.isEmpty(properties)}">
-        <div class="alert alert-info">No properties found.</div>
+        <div class="alert alert-info" th:text="#{home.no.properties}">No properties found.</div>
     </div>
 
     <div class="row" th:if="${properties != null}">
@@ -35,12 +43,12 @@
 
                     <p class="card-text">
                         <small class="text-muted">
-                            <span th:text="${prop.bedrooms}">0</span> beds •
-                            <span th:text="${prop.bathrooms}">0</span> baths
+                            <span th:text="${prop.bedrooms}">0</span> <span th:text="#{home.beds}">beds</span> •
+                            <span th:text="${prop.bathrooms}">0</span> <span th:text="#{home.baths}">baths</span>
                         </small>
                     </p>
 
-                    <a th:href="@{'/properties/' + ${prop.id}}" class="btn btn-primary">View</a>
+                    <a th:href="@{'/properties/' + ${prop.id}}" class="btn btn-primary" th:text="#{home.view}">View</a>
                 </div>
             </div>
         </div>
@@ -48,7 +56,7 @@
 </div>
 
 <!-- Include footer fragment -->
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
