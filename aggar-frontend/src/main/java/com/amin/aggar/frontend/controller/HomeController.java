@@ -2,6 +2,7 @@ package com.amin.aggar.frontend.controller;
 
 import com.amin.aggar.frontend.dto.PropertyDto;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -32,11 +33,12 @@ public class HomeController {
         this.restTemplate = restTemplate;
         this.propertiesApiUrl = propertiesApiUrl;
         this.objectMapper = new ObjectMapper();
+        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     @GetMapping("/search")
     public String search(Model model,
-                        @RequestParam String q) {
+                        @RequestParam("q") String q) {
         List<PropertyDto> properties;
         try {
             String url = UriComponentsBuilder.fromUriString(propertiesApiUrl)
@@ -72,10 +74,10 @@ public class HomeController {
     }
 
     @GetMapping({"/", "/home"})
-    public String home(@RequestParam(required = false) String listingType,
-                       @RequestParam(required = false) String city,
-                       @RequestParam(required = false) String category,
-                       @RequestParam(required = false) String q,
+    public String home(@RequestParam(name = "listingType", required = false) String listingType,
+                       @RequestParam(name = "city", required = false) String city,
+                       @RequestParam(name = "category", required = false) String category,
+                       @RequestParam(name = "q", required = false) String q,
                        Model model) {
         List<PropertyDto> properties;
         try {

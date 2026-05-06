@@ -25,7 +25,7 @@ public class PropertyDto {
     private Double locationLat;
     private Double locationLng;
     private List<ImageDto> images;
-    private List<String> amenities;
+    private List<AmenityDto> amenities;
 
     // For form display - temporary fields to hold names before conversion to IDs
     private String state;
@@ -84,8 +84,8 @@ public class PropertyDto {
     public void setLocationLng(Double locationLng) { this.locationLng = locationLng; }
     public List<ImageDto> getImages() { return images; }
     public void setImages(List<ImageDto> images) { this.images = images; }
-    public List<String> getAmenities() { return amenities; }
-    public void setAmenities(List<String> amenities) { this.amenities = amenities; }
+    public List<AmenityDto> getAmenities() { return amenities; }
+    public void setAmenities(List<AmenityDto> amenities) { this.amenities = amenities; }
     
     // Temporary form fields
     public String getState() { return state; }

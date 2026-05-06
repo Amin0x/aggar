@@ -48,7 +48,7 @@
             <div th:if="${property.amenities != null}">
                 <h5 class="mt-3">Amenities</h5>
                 <ul>
-                    <li th:each="a : ${property.amenities}" th:text="${a}">Amenity</li>
+                    <li th:each="a : ${property.amenities}" th:text="${a.name}">Amenity</li>
                 </ul>
             </div>
         </div>

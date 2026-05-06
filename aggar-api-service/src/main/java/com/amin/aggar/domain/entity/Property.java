@@ -102,9 +102,11 @@ public class Property {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
+    @org.hibernate.annotations.BatchSize(size = 50)
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PropertyImage> images;
 
+    @org.hibernate.annotations.BatchSize(size = 50)
     @ManyToMany
     @JoinTable(name = "property_amenities",
             joinColumns = @JoinColumn(name = "property_id"),

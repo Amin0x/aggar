@@ -7,6 +7,7 @@ import com.amin.aggar.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -131,7 +132,8 @@ public class PropertyService {
     }
 
     public Page<PropertyDto> list(Pageable pageable) {
-        return propertyRepository.findAll(pageable).map(this::toDto);
+        Page<Property> page = propertyRepository.findAll(pageable);
+        return page.map(this::toDto);
     }
 
     public Page<PropertyDto> search(String listingType, String city, String category, String q, Pageable pageable) {
@@ -140,6 +142,13 @@ public class PropertyService {
         // 1. Create the Data Query
         CriteriaQuery<Property> query = cb.createQuery(Property.class);
         Root<Property> root = query.from(Property.class);
+
+        // Fetch *ToOne associations to avoid N+1 selects
+        root.fetch("state", JoinType.LEFT);
+        root.fetch("city", JoinType.LEFT);
+        root.fetch("neighborhood", JoinType.LEFT);
+        root.fetch("owner", JoinType.LEFT);
+        root.fetch("agent", JoinType.LEFT);
 
         // 2. Build the Predicate (Extracted for reuse in the count query)
         jakarta.persistence.criteria.Predicate predicate = buildPredicate(cb, root, listingType, city, category, q);
