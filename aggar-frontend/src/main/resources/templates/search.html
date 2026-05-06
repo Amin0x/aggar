@@ -4,59 +4,122 @@
     <meta charset="UTF-8" />
     <title>Search Results - Aggar</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-<!-- Include header fragment -->
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Search Results</h1>
-        <div>
-            <span class="text-muted" th:text="'Showing ' + ${#lists.size(properties)} + ' results for: '"></span>
-            <strong th:text="${searchQuery}">search query</strong>
-        </div>
-    </div>
-
-    <div th:if="${properties == null or #lists.isEmpty(properties)}">
-        <div class="alert alert-info">
-            <h4>No properties found</h4>
-            <p>Try adjusting your search terms or <a th:href="@{/}">browse all properties</a>.</p>
-        </div>
-    </div>
-
-    <div class="row" th:if="${properties != null}">
-        <div class="col-md-4 mb-3" th:each="prop : ${properties}">
-            <div class="card h-100">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${prop.title}">Property title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">
-                        <span th:text="${prop.listingType}">sale/rent</span> -
-                        <span th:text="${prop.currency}">USD</span>
-                        <span th:text="${prop.price}">0.00</span>
-                    </h6>
+                    <form th:action="@{/search}" method="get">
+                        <input type="hidden" name="q" th:value="${searchQuery}">
 
-                    <p class="card-text">
-                        <strong th:text="${prop.city}">City</strong>
-                        <span th:if="${prop.neighborhood != null}"> - <span th:text="${prop.neighborhood}">Neighborhood</span></span>
-                    </p>
+                        <div class="mb-3">
+                            <label class="form-label">Listing Type</label>
+                            <select name="listingType" class="form-select">
+                                <option value="">All Types</option>
+                                <option value="sale">For Sale</option>
+                                <option value="rent">For Rent</option>
+                            </select>
+                        </div>
 
-                    <p class="card-text">
-                        <small class="text-muted">
-                            <span th:text="${prop.bedrooms}">0</span> beds •
-                            <span th:text="${prop.bathrooms}">0</span> baths
-                        </small>
-                    </p>
+                        <div class="mb-3">
+                            <label class="form-label">Min Price</label>
+                            <input type="number" name="minPrice" class="form-control" placeholder="Min">
+                        </div>
 
-                    <a th:href="@{'/properties/' + ${prop.id}}" class="btn btn-primary">View</a>
+                        <div class="mb-3">
+                            <label class="form-label">Max Price</label>
+                            <input type="number" name="maxPrice" class="form-control" placeholder="Max">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Bedrooms</label>
+                            <select name="bedrooms" class="form-select">
+                                <option value="">Any</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                                <option value="5">5+</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Bathrooms</label>
+                            <select name="bathrooms" class="form-select">
+                                <option value="">Any</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Search Results</h1>
+                <div>
+                    <span class="text-muted" th:text="'Showing ' + ${#lists.size(properties)} + ' results'"></span>
+                </div>
+            </div>
+
+            <div th:if="${properties == null or #lists.isEmpty(properties)}" class="alert alert-info">
+                <h4>No properties found</h4>
+                <p>Try adjusting your search terms or <a th:href="@{/}">browse all properties</a>.</p>
+            </div>
+
+            <div class="row" th:if="${properties != null and not #lists.isEmpty(properties)}">
+                <div class="col-md-6 mb-3" th:each="prop : ${properties}">
+                    <div class="card h-100">
+                        <img th:if="${prop.images != null and not #lists.isEmpty(prop.images)}"
+                             th:src="${prop.images[0].url}"
+                             class="card-img-top" style="height: 200px; object-fit: cover;" alt="Property">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${prop.title}">Property title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                <span th:text="${prop.listingType}">sale/rent</span> -
+                                <span th:text="${prop.currency}">USD</span>
+                                <span th:text="${prop.price}">0.00</span>
+                                <small th:if="${prop.listingType == 'rent'}">/ <span th:text="${prop.pricePeriod}">monthly</span></small>
+                            </h6>
+                            <p class="card-text">
+                                <strong th:text="${prop.city}">City</strong>
+                                <span th:if="${prop.neighborhood != null}"> - <span th:text="${prop.neighborhood}">Neighborhood</span></span>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <span th:text="${prop.bedrooms}">0</span> beds •
+                                    <span th:text="${prop.bathrooms}">0</span> baths
+                                </small>
+                            </p>
+                            <a th:href="@{'/properties/' + ${prop.id}}" class="btn btn-primary">View</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Include footer fragment -->
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

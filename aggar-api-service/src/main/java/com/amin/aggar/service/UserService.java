@@ -24,6 +24,8 @@ public class UserService {
         if (u == null) return null;
         UserDto d = new UserDto();
         d.setId(u.getId());
+        d.setUsername(u.getUsername());
+        d.setPassword(u.getPassword());
         d.setName(u.getName());
         d.setEmail(u.getEmail());
         d.setPhone(u.getPhone());
@@ -36,12 +38,23 @@ public class UserService {
         if (d == null) return null;
         User u = new User();
         u.setId(d.getId());
+        u.setUsername(d.getUsername());
+        u.setPassword(d.getPassword());
         u.setName(d.getName());
         u.setEmail(d.getEmail());
         u.setPhone(d.getPhone());
         u.setRole(d.getRole());
         u.setCreatedAt(d.getCreatedAt() == null ? LocalDateTime.now() : d.getCreatedAt());
         return u;
+    }
+
+    public Optional<UserDto> findByUsername(String username) {
+        return userRepository.findByUsername(username).map(this::toDto);
+    }
+
+    public boolean validatePassword(String rawPassword, String encodedPassword) {
+        // Simple password check - in production, use BCrypt or similar
+        return rawPassword != null && rawPassword.equals(encodedPassword);
     }
 
     public List<UserDto> listAll() {

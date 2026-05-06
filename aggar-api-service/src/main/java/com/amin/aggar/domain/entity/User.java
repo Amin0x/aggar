@@ -22,6 +22,12 @@ public class User {
     @Column(length = 30)
     private String phone;
 
+    @Column(nullable = false, unique = true, length = 250)
+    private String username;
+
+    @Column(nullable = false, length = 250)
+    private String password;
+
     @Column(length = 50)
     private String role;
 
@@ -86,6 +92,22 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public LocalDateTime getCreatedAt() {
