@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
 <head>
     <meta charset="UTF-8" />
-    <title th:text="#{header.brand} + ' - Saved Properties'">Aggar - Saved Properties</title>
+    <title th:text="#{header.brand} + ' - ' + #{saved.properties.title}">Aggar - Saved Properties</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -15,11 +15,11 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container mt-4">
-    <h1>Saved Properties</h1>
+    <h1 th:text="#{saved.properties.title}">Saved Properties</h1>
 
     <div th:if="${#lists.isEmpty(savedProperties)}" class="alert alert-info">
-        You haven't saved any properties yet.
-        <a th:href="@{/}" class="alert-link">Browse properties</a>
+        <span th:text="#{saved.properties.no.properties}">You haven't saved any properties yet.</span>
+        <a th:href="@{/}" class="alert-link" th:text="#{saved.properties.browse}">Browse properties</a>
     </div>
 
     <div class="row" th:if="${not #lists.isEmpty(savedProperties)}">
@@ -27,7 +27,7 @@
             <div class="card h-100">
                 <img th:if="${prop.images != null and not #lists.isEmpty(prop.images)}"
                      th:src="${prop.images[0].url}"
-                     class="card-img-top" style="height: 200px; object-fit: cover;" alt="Property image">
+                     class="card-img-top" style="height: 200px; object-fit: cover;" th:alt="#{saved.properties.image.alt}">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${prop.title}">Property title</h5>
                     <h6 class="card-subtitle mb-2 text-muted">
@@ -38,10 +38,12 @@
                     <p class="card-text">
                         <strong th:text="${prop.city}">City</strong>
                     </p>
-                    <a th:href="@{'/properties/' + ${prop.id}}" class="btn btn-primary">View</a>
+                    <a th:href="@{'/properties/' + ${prop.slug != null ? prop.slug : prop.id}}" class="btn btn-primary" th:text="#{saved.properties.view}">View</a>
                     <button class="btn btn-outline-danger btn-sm" onclick="unsaveProperty(this)"
-                            th:data-property-id="${prop.id}">
-                        <i class="fas fa-heart"></i> Remove
+                            th:data-property-id="${prop.id}"
+                            th:data-confirm-remove="#{saved.properties.remove.confirm}"
+                            th:data-removed="#{saved.properties.remove.success}">
+                        <i class="fas fa-heart"></i> <span th:text="#{saved.properties.remove}">Remove</span>
                     </button>
                 </div>
             </div>
@@ -55,9 +57,9 @@
 <script>
     function unsaveProperty(button) {
         const propertyId = button.getAttribute('data-property-id');
-        if (confirm('Remove this property from saved list?')) {
+        if (confirm(button.dataset.confirmRemove)) {
             // TODO: Implement actual unsave logic via API
-            alert('Property removed from saved list');
+            alert(button.dataset.removed);
             location.reload();
         }
     }

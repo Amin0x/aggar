@@ -5,6 +5,7 @@ import com.amin.aggar.domain.enums.PricePeriod;
 import com.amin.aggar.domain.enums.ListingTypeConverter;
 import com.amin.aggar.domain.enums.PricePeriodConverter;
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -17,9 +18,11 @@ import java.util.Set;
 @Entity
 @Table(name = "properties",
        indexes = {
-               @Index(name = "idx_properties_listing_city_price", columnList = "listing_type,city_id,price"),
-               @Index(name = "idx_properties_city_bedrooms_price", columnList = "city_id,bedrooms,price"),
-               @Index(name = "idx_properties_status_published", columnList = "status,published_at")
+               @Index(name = "idx_properties_listing_city_price", columnList = "listing_type, city_id, price"),
+               @Index(name = "idx_properties_city_bedrooms_price", columnList = "city_id, bedrooms, price"),
+               @Index(name = "idx_properties_status_published", columnList = "status, published_at"),
+               @Index(name = "idx_properties_slug", columnList = "slug"),
+               @Index(name = "idx_properties_category", columnList = "category")
        })
 public class Property {
 
@@ -31,14 +34,24 @@ public class Property {
     @Column(name = "listing_type", nullable = false, length = 10)
     private ListingType listingType;
 
+    @Column(length = 50)
+    private String category;
+
     @Column(nullable = false, length = 255)
     private String title;
 
-    @Lob
+    @Column(nullable = false, unique = true, length = 255)
+    private String slug;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal price;
+
+    @Column(name = "view_count", nullable = false)
+    @ColumnDefault("0")
+    private Long viewCount = 0L;
 
     @Column(nullable = false, length = 3)
     @ColumnDefault("'USD'")
@@ -102,11 +115,13 @@ public class Property {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @org.hibernate.annotations.BatchSize(size = 50)
+
+
+    @BatchSize(size = 50)
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PropertyImage> images;
 
-    @org.hibernate.annotations.BatchSize(size = 50)
+    @BatchSize(size = 50)
     @ManyToMany
     @JoinTable(name = "property_amenities",
             joinColumns = @JoinColumn(name = "property_id"),
@@ -123,12 +138,18 @@ public class Property {
     public void setId(Long id) { this.id = id; }
     public ListingType getListingType() { return listingType; }
     public void setListingType(ListingType listingType) { this.listingType = listingType; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    public String getSlug() { return slug; }
+    public void setSlug(String slug) { this.slug = slug; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
+    public Long getViewCount() { return viewCount; }
+    public void setViewCount(Long viewCount) { this.viewCount = viewCount; }
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
     public PricePeriod getPricePeriod() { return pricePeriod; }

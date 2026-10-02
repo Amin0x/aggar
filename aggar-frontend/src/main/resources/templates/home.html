@@ -1,63 +1,369 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ar" dir="rtl">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="#{header.brand} + ' - ' + #{home.latest.properties}">Aggar - Home</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'sans-serif'],
+                        'english': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#1E40AF',
+                        'primary-light': '#3B82F6',
+                        'primary-dark': '#1E3A8A',
+                        'secondary': '#0D9488',
+                        'accent': '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body {
-            font-family: 'Cairo', sans-serif;
+        body { font-family: 'Cairo', sans-serif; }
+
+        html { scroll-behavior: smooth; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+
+        .animation-delay-100 { animation-delay: 0.1s; opacity: 0; }
+        .animation-delay-200 { animation-delay: 0.2s; opacity: 0; }
+        .animation-delay-300 { animation-delay: 0.3s; opacity: 0; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6, #0D9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .property-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="font-arabic antialiased">
 
-<!-- Include header fragment -->
-<div th:replace="~{fragments/header :: header}"></div>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500" id="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-primary text-white p-2.5 rounded-xl">
+                        <i class="fas fa-building text-2xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800" th:text="#{header.brand}">Aggar</span>
+                </a>
 
-<div class="container mt-4">
-    <h1 th:text="#{home.latest.properties}">Latest Properties</h1>
+                <div class="hidden lg:flex items-center space-x-1 space-x-reverse">
+                    <a th:href="@{/}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-home ml-1"></i>
+                        <span th:text="#{header.all}">All</span>
+                    </a>
+                    <th:block th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
+                        <a th:href="@{'/' (listingType=${ltype})}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                            <span th:text="${ltype}">Sale/Rent</span>
+                        </a>
+                    </th:block>
+                    <a th:href="@{/about}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-info-circle ml-1"></i>
+                        <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                </div>
 
-    <div th:if="${properties == null or #lists.isEmpty(properties)}">
-        <div class="alert alert-info" th:text="#{home.no.properties}">No properties found.</div>
-    </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-lg">
+                        <i class="fas fa-plus-circle ml-1"></i>
+                        <span th:text="#{header.add.property}">Add Property</span>
+                    </a>
+                    <div th:if="${isAuthenticated}" class="hidden md:flex items-center space-x-2 space-x-reverse bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-user-circle text-xl text-primary"></i>
+                        <span th:if="${currentUser != null}" th:text="${currentUser.name}" class="text-sm font-medium text-gray-700">User</span>
+                    </div>
+                    <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-600 text-2xl focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
 
-    <div class="row" th:if="${properties != null}">
-        <div class="col-md-4 mb-3" th:each="prop : ${properties}">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${prop.title}">Property title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">
-                        <span th:text="${prop.listingType}">sale/rent</span> -
-                        <span th:text="${prop.currency}">USD</span>
-                        <span th:text="${prop.price}">0.00</span>
-                    </h6>
-
-                    <p class="card-text">
-                        <strong th:text="${prop.city}">City</strong>
-                        <span th:if="${prop.neighborhood != null}"> - <span th:text="${prop.neighborhood}">Neighborhood</span></span>
-                    </p>
-
-                    <p class="card-text">
-                        <small class="text-muted">
-                            <span th:text="${prop.bedrooms}">0</span> <span th:text="#{home.beds}">beds</span> •
-                            <span th:text="${prop.bathrooms}">0</span> <span th:text="#{home.baths}">baths</span>
-                        </small>
-                    </p>
-
-                    <a th:href="@{'/properties/' + ${prop.id}}" class="btn btn-primary" th:text="#{home.view}">View</a>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="lg:hidden hidden pb-6">
+                <div class="bg-gray-50 rounded-2xl p-4 space-y-2 mt-2">
+                    <a th:href="@{/}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-home ml-2"></i> <span th:text="#{header.all}">All</span>
+                    </a>
+                    <th:block th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
+                        <a th:href="@{'/' (listingType=${ltype})}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                            <span th:text="${ltype}">Sale/Rent</span>
+                        </a>
+                    </th:block>
+                    <a th:href="@{/about}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-info-circle ml-2"></i> <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                    <hr class="border-gray-200 my-2">
+                    <a th:href="@{/profile}" th:if="${isAuthenticated}" class="block px-4 py-3 text-gray-700 hover:bg-white rounded-lg">
+                        <i class="fas fa-user ml-2"></i> <span th:text="#{header.my.profile}">My Profile</span>
+                    </a>
+                    <a th:href="@{/logout}" th:if="${isAuthenticated}" class="block px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+                        <i class="fas fa-sign-out-alt ml-2"></i> <span th:text="#{header.sign.out}">Sign Out</span>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </nav>
 
-<!-- Include footer fragment -->
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <!-- Hero Section (EXACTLY as-is from original) -->
+    <section class="hero-pattern relative min-h-screen-75 flex items-center justify-center">
+        <div class="absolute inset-0 bg-gradient-to-b from-black/70 to-black/40"></div>
+        <div class="relative z-10 text-center text-white px-4 max-w-4xl mx-auto animate-fade-in-up">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                ابحث عن منزلك
+                <span class="text-accent">الأحلام</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-gray-200">
+                نحن نساعدك في العثور على أفضل العقارات للبيع والإيجار في أفضل المواقع
+            </p>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <!-- Search Bar -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-3xl mx-auto animate-fade-in-up animation-delay-100">
+                <form th:action="@{/search}" method="get" class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" name="q" th:value="${q}" class="w-full pr-12 pl-4 py-4 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none text-gray-800" th:placeholder="#{header.search.placeholder}">
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-xl font-semibold transition-colors flex items-center justify-center">
+                        <i class="fas fa-search ml-2"></i>
+                        <span>بحث</span>
+                    </button>
+                </form>
+
+                <!-- Quick Filters -->
+                <div class="flex flex-wrap gap-2 mt-4 justify-center">
+                    <a th:href="@{/}" class="px-4 py-2 bg-gray-100 hover:bg-primary hover:text-white rounded-full text-sm transition-all" th:text="#{header.all}">All</a>
+                    <th:block th:if="${listingTypes != null}" th:each="ltype : ${listingTypes}">
+                        <a th:href="@{'/' (listingType=${ltype})}" class="px-4 py-2 bg-gray-100 hover:bg-primary hover:text-white rounded-full text-sm transition-all" th:text="${ltype}">Type</a>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Properties Section (EXACTLY as-is from original) -->
+    <section class="py-16 px-4">
+        <div class="container mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">أحدث العقارات</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">اكتشف أحدث العقارات المتاحة للبيع والإيجار في أفضل المواقع</p>
+                <div class="w-24 h-1 bg-primary mx-auto mt-4"></div>
+            </div>
+
+            <!-- No Properties Message -->
+            <div th:if="${properties == null or #lists.isEmpty(properties)}" class="text-center py-16 reveal">
+                <div class="text-6xl text-gray-300 mb-4">
+                    <i class="fas fa-home"></i>
+                </div>
+                <p class="text-gray-500 text-lg" th:text="#{home.no.properties}">No properties found.</p>
+            </div>
+
+            <!-- Properties Grid -->
+            <div th:if="${properties != null and !#lists.isEmpty(properties)}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div th:each="prop : ${properties}" class="property-card bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 reveal">
+                    <!-- Property Image -->
+                    <div class="relative h-56 bg-gray-200">
+                        <img th:if="${prop.images != null and !#lists.isEmpty(prop.images)}"
+                             th:src="${prop.images[0].url}" class="w-full h-full object-cover" alt="Property">
+                        <div th:unless="${prop.images != null and !#lists.isEmpty(prop.images)}"
+                             class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40">
+                            <i class="fas fa-home text-4xl text-primary/50"></i>
+                        </div>
+                        <!-- Listing Type Badge -->
+                        <div class="absolute top-4 right-4">
+                            <span th:text="${prop.listingType == 'sale'} ? 'للبيع' : 'للإيجار'"
+                                  class="px-3 py-1 rounded-full text-xs font-semibold text-white"
+                                  th:classappend="${prop.listingType == 'sale'} ? 'bg-green-500' : 'bg-blue-500'">For Sale</span>
+                        </div>
+                        <!-- Price -->
+                        <div class="absolute bottom-4 left-4">
+                            <span class="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full font-bold text-primary text-lg">
+                                <span th:text="${prop.currency}">USD</span>
+                                <span th:text="${#numbers.formatDecimal(prop.price, 0, 0)}">0</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Property Info -->
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2" th:text="${prop.title}">Property Title</h3>
+
+                        <div class="flex items-center text-gray-500 mb-3">
+                            <i class="fas fa-map-marker-alt ml-1 text-primary"></i>
+                            <span th:text="${prop.city}">City</span>
+                            <span th:if="${prop.neighborhood != null}" class="mr-1">- <span th:text="${prop.neighborhood}">Neighborhood</span></span>
+                        </div>
+
+                        <!-- Property Features -->
+                        <div class="flex items-center gap-4 mb-4 text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-bed ml-1 text-primary"></i>
+                                <span th:text="${prop.bedrooms}">0</span>
+                                <span class="text-sm mr-1" th:text="#{home.beds}">beds</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-bath ml-1 text-primary"></i>
+                                <span th:text="${prop.bathrooms}">0</span>
+                                <span class="text-sm mr-1" th:text="#{home.baths}">baths</span>
+                            </div>
+                            <div th:if="${prop.area != null}" class="flex items-center">
+                                <i class="fas fa-expand ml-1 text-primary"></i>
+                                <span th:text="${prop.area}">0</span>
+                                <span class="mr-1">م²</span>
+                            </div>
+                        </div>
+
+                        <!-- View Button -->
+                        <a th:href="@{'/properties/' + ${prop.slug != null ? prop.slug : prop.id}}" class="block w-full text-center bg-primary hover:bg-primary-dark text-white py-3 rounded-xl font-semibold transition-colors">
+                            <i class="fas fa-eye ml-2"></i>
+                            <span th:text="#{home.view}">View Details</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View All Button -->
+            <div th:if="${properties != null and !#lists.isEmpty(properties)}" class="text-center mt-12 reveal">
+                <a th:href="@{/search}" class="inline-flex items-center bg-white text-primary px-8 py-4 rounded-full font-semibold border-2 border-primary hover:bg-primary hover:text-white transition-all duration-300">
+                    <span>عرض جميع العقارات</span>
+                    <i class="fas fa-arrow-left mr-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section (EXACTLY as-is from original) -->
+    <section class="bg-primary py-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center text-white reveal">
+                    <div class="text-4xl md:text-5xl font-bold mb-2">1,200+</div>
+                    <div class="text-lg opacity-90">عقار متاح</div>
+                </div>
+                <div class="text-center text-white reveal animation-delay-100">
+                    <div class="text-4xl md:text-5xl font-bold mb-2">850+</div>
+                    <div class="text-lg opacity-90">عميل سعيد</div>
+                </div>
+                <div class="text-center text-white reveal animation-delay-200">
+                    <div class="text-4xl md:text-5xl font-bold mb-2">15+</div>
+                    <div class="text-lg opacity-90">مدينة</div>
+                </div>
+                <div class="text-center text-white reveal animation-delay-300">
+                    <div class="text-4xl md:text-5xl font-bold mb-2">98%</div>
+                    <div class="text-lg opacity-90">رضا العملاء</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section (EXACTLY as-is from original) -->
+    <section class="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">هل تريد بيع أو تأجير عقارك؟</h2>
+            <p class="text-gray-600 mb-8 max-w-2xl mx-auto">انضم إلى آلاف الملاك الذين يثقون بنا لإدارة وبيع عقاراتهم</p>
+            <a th:href="@{/properties/add}" class="inline-flex items-center bg-accent hover:bg-yellow-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                <i class="fas fa-plus-circle ml-2"></i>
+                <span>أضف عقارك الآن</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-2xl');
+            } else {
+                navbar.classList.remove('shadow-2xl');
+            }
+        });
+
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
 </body>
 </html>

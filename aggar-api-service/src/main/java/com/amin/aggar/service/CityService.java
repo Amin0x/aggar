@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,6 +29,8 @@ public class CityService {
         CityDto d = new CityDto();
         d.setId(c.getId());
         d.setStateId(c.getState() != null ? c.getState().getId() : null);
+        d.setStateName(c.getState() != null ? c.getState().getName() : null);
+        d.setStateNameAr(c.getState() != null ? c.getState().getNameAr() : null);
         d.setName(c.getName());
         return d;
     }
@@ -48,6 +51,10 @@ public class CityService {
         return cityRepository.findAll(pageable).map(this::toDto);
     }
 
+    public List<CityDto> findByStateId(Integer stateId) {
+        return cityRepository.findAllByStateId(stateId).stream().map(this::toDto).toList();
+    }
+
     public Optional<CityDto> findById(Integer id) {
         return cityRepository.findById(id).map(this::toDto);
     }
@@ -64,10 +71,10 @@ public class CityService {
     public Optional<CityDto> update(Integer id, CityDto dto) {
         return cityRepository.findById(id).map(existing -> {
             existing.setName(dto.getName());
-            if (dto.getStateId() != null) {
-                State s = stateRepository.findById(dto.getStateId()).orElse(null);
-                existing.setState(s);
-            }
+            State state = dto.getStateId() == null
+                    ? null
+                    : stateRepository.findById(dto.getStateId()).orElse(null);
+            existing.setState(state);
             return toDto(cityRepository.save(existing));
         });
     }
@@ -80,4 +87,3 @@ public class CityService {
         }).orElse(false);
     }
 }
-

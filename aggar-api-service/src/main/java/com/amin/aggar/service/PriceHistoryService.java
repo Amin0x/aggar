@@ -2,8 +2,6 @@ package com.amin.aggar.service;
 
 import com.amin.aggar.api.dto.PriceHistoryDto;
 import com.amin.aggar.domain.entity.PriceHistory;
-import com.amin.aggar.domain.entity.Property;
-import com.amin.aggar.domain.entity.User;
 import com.amin.aggar.repository.PriceHistoryRepository;
 import com.amin.aggar.repository.PropertyRepository;
 import com.amin.aggar.repository.UserRepository;

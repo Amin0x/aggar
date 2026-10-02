@@ -1,6 +1,7 @@
 package com.amin.aggar.service;
 
 import com.amin.aggar.api.dto.UserDto;
+import com.amin.aggar.api.dto.AuthenticatedUserDto;
 import com.amin.aggar.domain.entity.User;
 import com.amin.aggar.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -57,11 +58,32 @@ public class UserService {
         return rawPassword != null && rawPassword.equals(encodedPassword);
     }
 
+    public Optional<AuthenticatedUserDto> authenticate(String identifier, String rawPassword) {
+        if (identifier == null || identifier.isBlank() || rawPassword == null) {
+            return Optional.empty();
+        }
+
+        String normalizedIdentifier = identifier.trim();
+        Optional<User> user = userRepository.findByUsername(normalizedIdentifier)
+                .or(() -> userRepository.findByEmailIgnoreCase(normalizedIdentifier));
+
+        return user.filter(candidate -> validatePassword(rawPassword, candidate.getPassword()))
+                .map(candidate -> new AuthenticatedUserDto(
+                        candidate.getId(),
+                        candidate.getUsername(),
+                        candidate.getName(),
+                        candidate.getEmail(),
+                        candidate.getPhone(),
+                        candidate.getRole(),
+                        candidate.getCreatedAt()
+                ));
+    }
+
     public List<UserDto> listAll() {
         return userRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
     }
 
-    public Optional<UserDto> findById(Integer id) {
+    public Optional<UserDto> findById(Long id) {
         return userRepository.findById(id).map(this::toDto);
     }
 
@@ -74,7 +96,7 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<UserDto> update(Integer id, UserDto dto) {
+    public Optional<UserDto> update(Long id, UserDto dto) {
         return userRepository.findById(id).map(existing -> {
             existing.setName(dto.getName());
             existing.setEmail(dto.getEmail());
@@ -86,11 +108,10 @@ public class UserService {
     }
 
     @Transactional
-    public boolean delete(Integer id) {
+    public boolean delete(Long id) {
         return userRepository.findById(id).map(u -> {
             userRepository.delete(u);
             return true;
         }).orElse(false);
     }
 }
-

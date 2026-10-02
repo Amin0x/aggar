@@ -28,6 +28,7 @@ public class NeighborhoodService {
         NeighborhoodDto d = new NeighborhoodDto();
         d.setId(n.getId());
         d.setCityId(n.getCity() != null ? n.getCity().getId() : null);
+        d.setCityName(n.getCity() != null ? n.getCity().getName() : null);
         d.setName(n.getName());
         return d;
     }

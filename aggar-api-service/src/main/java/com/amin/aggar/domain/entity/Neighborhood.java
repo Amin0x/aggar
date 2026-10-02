@@ -1,6 +1,7 @@
 package com.amin.aggar.domain.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +20,8 @@ public class Neighborhood {
     @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     public Neighborhood() {}

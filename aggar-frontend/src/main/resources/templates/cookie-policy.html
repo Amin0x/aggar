@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
 <head>
     <meta charset="UTF-8" />
-    <title>Cookie Policy - Aggar Real Estate</title>
+    <title th:text="#{cookie.policy.title} + ' - ' + #{header.brand}">Cookie Policy - Aggar Real Estate</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <style>
         .cookie-container {
@@ -119,207 +119,185 @@
 <div class="container">
     <div class="cookie-container">
         <div class="cookie-header">
-            <h1>Cookie Policy</h1>
-            <p>This policy explains how Aggar Real Estate uses cookies and similar technologies to enhance your experience on our website.</p>
+            <h1 th:text="#{cookie.policy.title}">Cookie Policy</h1>
+            <p th:text="#{cookie.policy.subtitle}">This policy explains how Aggar Real Estate uses cookies and similar technologies to enhance your experience on our website.</p>
         </div>
 
         <div class="cookie-content">
-            <strong>Effective Date:</strong> January 1, 2025
+            <strong th:text="#{terms.effective.date}">Effective Date:</strong> <span th:text="#{cookie.effective.date}">January 1, 2025</span>
         </div>
 
-        <h2 class="section-title">1. What Are Cookies?</h2>
-        <div class="cookie-content">
-            Cookies are small text files that are stored on your device (computer, tablet, or mobile) when you visit a website. They allow the website to remember your actions and preferences over time, providing a more personalized and efficient experience.
-        </div>
+        <h2 class="section-title" th:text="#{cookie.section1.title}">1. What Are Cookies?</h2>
+        <div class="cookie-content" th:text="#{cookie.section1.content}">Cookies are small text files stored on your device when you visit a website.</div>
 
-        <h2 class="section-title">2. How We Use Cookies</h2>
-        <div class="cookie-content">
-            We use cookies for several purposes:
-        </div>
+        <h2 class="section-title" th:text="#{cookie.section2.title}">2. How We Use Cookies</h2>
+        <div class="cookie-content" th:text="#{cookie.section2.intro}">We use cookies for several purposes:</div>
         <ul>
-            <li><strong>Essential Cookies:</strong> Required for basic website functionality</li>
-            <li><strong>Performance Cookies:</strong> Help us understand how visitors interact with our site</li>
-            <li><strong>Functional Cookies:</strong> Remember your preferences and settings</li>
-            <li><strong>Targeting Cookies:</strong> Deliver relevant advertisements and content</li>
-            <li><strong>Social Media Cookies:</strong> Enable social media integration and sharing</li>
+            <li th:text="#{cookie.essential.short}">Essential Cookies: Required for basic website functionality</li>
+            <li th:text="#{cookie.performance.short}">Performance Cookies: Help us understand how visitors interact with our site</li>
+            <li th:text="#{cookie.functional.short}">Functional Cookies: Remember your preferences and settings</li>
+            <li th:text="#{cookie.targeting.short}">Targeting Cookies: Deliver relevant advertisements and content</li>
+            <li th:text="#{cookie.social.short}">Social Media Cookies: Enable social media integration and sharing</li>
         </ul>
 
-        <h2 class="section-title">3. Types of Cookies We Use</h2>
+        <h2 class="section-title" th:text="#{cookie.section3.title}">3. Types of Cookies We Use</h2>
 
         <div class="cookie-category">
-            <h5>Essential Cookies</h5>
-            <div class="cookie-content">
-                These cookies are necessary for the website to function and cannot be switched off in our systems. They are usually only set in response to actions made by you which amount to a request for services.
-            </div>
+            <h5 th:text="#{cookie.essential.title}">Essential Cookies</h5>
+            <div class="cookie-content" th:text="#{cookie.essential.content}">These cookies are necessary for the website to function.</div>
         </div>
 
         <div class="cookie-category">
-            <h5>Performance Cookies</h5>
-            <div class="cookie-content">
-                These cookies allow us to count visits and traffic sources so we can measure and improve the performance of our site. They help us to know which pages are the most and least popular and see how visitors move around the site.
-            </div>
+            <h5 th:text="#{cookie.performance.title}">Performance Cookies</h5>
+            <div class="cookie-content" th:text="#{cookie.performance.content}">These cookies help measure and improve site performance.</div>
         </div>
 
         <div class="cookie-category">
-            <h5>Functional Cookies</h5>
-            <div class="cookie-content">
+            <h5 th:text="#{cookie.functional.title}">Functional Cookies</h5>
+            <div class="cookie-content" th:text="#{cookie.functional.content}">
                 These cookies enable the website to provide enhanced functionality and personalization. They may be set by us or by third-party providers whose services we have added to our pages.
             </div>
         </div>
 
         <div class="cookie-category">
-            <h5>Targeting Cookies</h5>
-            <div class="cookie-content">
+            <h5 th:text="#{cookie.targeting.title}">Targeting Cookies</h5>
+            <div class="cookie-content" th:text="#{cookie.targeting.content}">
                 These cookies may be set through our site by our advertising partners. They may be used by those companies to build a profile of your interests and show you relevant adverts on other sites.
             </div>
         </div>
 
-        <h2 class="section-title">4. Detailed Cookie Information</h2>
+        <h2 class="section-title" th:text="#{cookie.section4.title}">4. Detailed Cookie Information</h2>
         <div class="cookie-table">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Cookie Name</th>
-                        <th>Purpose</th>
-                        <th>Category</th>
-                        <th>Duration</th>
+                        <th th:text="#{cookie.table.name}">Cookie Name</th>
+                        <th th:text="#{cookie.table.purpose}">Purpose</th>
+                        <th th:text="#{cookie.table.category}">Category</th>
+                        <th th:text="#{cookie.table.duration}">Duration</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>session_id</td>
-                        <td>Maintains user session</td>
-                        <td>Essential</td>
-                        <td>Session</td>
+                        <td th:text="#{cookie.table.session-purpose}">Maintains user session</td>
+                        <td th:text="#{cookie.essential.title}">Essential</td>
+                        <td th:text="#{cookie.duration.session}">Session</td>
                     </tr>
                     <tr>
                         <td>csrf_token</td>
-                        <td>Security protection</td>
-                        <td>Essential</td>
-                        <td>Session</td>
+                        <td th:text="#{cookie.table.security-purpose}">Security protection</td>
+                        <td th:text="#{cookie.essential.title}">Essential</td>
+                        <td th:text="#{cookie.duration.session}">Session</td>
                     </tr>
                     <tr>
                         <td>user_preferences</td>
-                        <td>Remembers user settings</td>
-                        <td>Functional</td>
-                        <td>30 days</td>
+                        <td th:text="#{cookie.table.preferences-purpose}">Remembers user settings</td>
+                        <td th:text="#{cookie.functional.title}">Functional</td>
+                        <td th:text="#{cookie.duration.30days}">30 days</td>
                     </tr>
                     <tr>
                         <td>property_search_history</td>
-                        <td>Saves recent searches</td>
-                        <td>Functional</td>
-                        <td>7 days</td>
+                        <td th:text="#{cookie.table.search-purpose}">Saves recent searches</td>
+                        <td th:text="#{cookie.functional.title}">Functional</td>
+                        <td th:text="#{cookie.duration.7days}">7 days</td>
                     </tr>
                     <tr>
                         <td>_ga</td>
                         <td>Google Analytics</td>
-                        <td>Performance</td>
-                        <td>2 years</td>
+                        <td th:text="#{cookie.performance.title}">Performance</td>
+                        <td th:text="#{cookie.duration.2years}">2 years</td>
                     </tr>
                     <tr>
                         <td>_gid</td>
                         <td>Google Analytics</td>
-                        <td>Performance</td>
-                        <td>24 hours</td>
+                        <td th:text="#{cookie.performance.title}">Performance</td>
+                        <td th:text="#{cookie.duration.24hours}">24 hours</td>
                     </tr>
                     <tr>
                         <td>ad_storage</td>
-                        <td>Advertisement targeting</td>
-                        <td>Targeting</td>
-                        <td>1 year</td>
+                        <td th:text="#{cookie.table.ad-purpose}">Advertisement targeting</td>
+                        <td th:text="#{cookie.targeting.title}">Targeting</td>
+                        <td th:text="#{cookie.duration.1year}">1 year</td>
                     </tr>
                     <tr>
                         <td>social_media_auth</td>
-                        <td>Social media login</td>
-                        <td>Functional</td>
-                        <td>90 days</td>
+                        <td th:text="#{cookie.table.social-purpose}">Social media login</td>
+                        <td th:text="#{cookie.functional.title}">Functional</td>
+                        <td th:text="#{cookie.duration.90days}">90 days</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <h2 class="section-title">5. Third-Party Cookies</h2>
-        <div class="cookie-content">
-            We use various third-party services that may place cookies on your device:
-        </div>
+        <h2 class="section-title" th:text="#{cookie.section5.title}">5. Third-Party Cookies</h2>
+        <div class="cookie-content" th:text="#{cookie.section5.intro}">We use various third-party services that may place cookies on your device:</div>
         <ul>
-            <li><strong>Google Analytics:</strong> For website analytics and performance monitoring</li>
-            <li><strong>Google Ads:</strong> For advertising and remarketing purposes</li>
-            <li><strong>Facebook Pixel:</strong> For social media advertising and analytics</li>
-            <li><strong>LinkedIn Insight Tag:</strong> For professional networking and advertising</li>
-            <li><strong>YouTube:</strong> For video embedding and analytics</li>
-            <li><strong>Map Services:</strong> For property location and mapping features</li>
+            <li th:text="#{cookie.third-party.analytics}">Google Analytics: For website analytics and performance monitoring</li>
+            <li th:text="#{cookie.third-party.ads}">Google Ads: For advertising and remarketing purposes</li>
+            <li th:text="#{cookie.third-party.facebook}">Facebook Pixel: For social media advertising and analytics</li>
+            <li th:text="#{cookie.third-party.linkedin}">LinkedIn Insight Tag: For professional networking and advertising</li>
+            <li th:text="#{cookie.third-party.youtube}">YouTube: For video embedding and analytics</li>
+            <li th:text="#{cookie.third-party.maps}">Map Services: For property location and mapping features</li>
         </ul>
 
-        <h2 class="section-title">6. Managing Your Cookie Preferences</h2>
+        <h2 class="section-title" th:text="#{cookie.section6.title}">6. Managing Your Cookie Preferences</h2>
         
-        <h3 class="subsection-title">Cookie Consent Banner</h3>
-        <div class="cookie-content">
-            When you first visit our website, you'll see a cookie consent banner where you can:
-        </div>
+        <h3 class="subsection-title" th:text="#{cookie.consent.title}">Cookie Consent Banner</h3>
+        <div class="cookie-content" th:text="#{cookie.consent.intro}">When you first visit our website, you'll see a cookie consent banner where you can:</div>
         <div class="action-buttons">
-            <a href="#" class="btn-cookie btn-accept">Accept All Cookies</a>
-            <a href="#" class="btn-cookie btn-reject">Reject Non-Essential</a>
-            <a href="#" class="btn-cookie btn-customize">Customize Settings</a>
+            <a href="#" class="btn-cookie btn-accept" th:text="#{cookie.consent.accept}">Accept All Cookies</a>
+            <a href="#" class="btn-cookie btn-reject" th:text="#{cookie.consent.reject}">Reject Non-Essential</a>
+            <a href="#" class="btn-cookie btn-customize" th:text="#{cookie.consent.customize}">Customize Settings</a>
         </div>
 
-        <h3 class="subsection-title">Browser Settings</h3>
+        <h3 class="subsection-title" th:text="#{cookie.browser.title}">Browser Settings</h3>
+        <div class="cookie-content" th:text="#{cookie.browser.content}">You can control and delete cookies in your browser settings.</div>
+
+        <h3 class="subsection-title" th:text="#{cookie.browser.instructions}">Browser-Specific Instructions</h3>
         <div class="cookie-content">
-            You can control and/or delete cookies as you wish. You can delete all cookies that are already on your device and you can set most browsers to prevent them from being placed. However, if you do this, you may have to manually adjust some preferences every time you visit a site and some services may not function properly.
+            <strong>Chrome:</strong> <span th:text="#{cookie.browser.chrome}">Settings → Privacy and security → Cookies and other site data</span><br>
+            <strong>Firefox:</strong> <span th:text="#{cookie.browser.firefox}">Options → Privacy &amp; Security → Cookies and Site Data</span><br>
+            <strong>Safari:</strong> <span th:text="#{cookie.browser.safari}">Preferences → Privacy → Cookies and website data</span><br>
+            <strong>Edge:</strong> <span th:text="#{cookie.browser.edge}">Settings → Cookies and site permissions</span>
         </div>
 
-        <h3 class="subsection-title">Browser-Specific Instructions</h3>
-        <div class="cookie-content">
-            <strong>Chrome:</strong> Settings → Privacy and security → Cookies and other site data<br>
-            <strong>Firefox:</strong> Options → Privacy & Security → Cookies and Site Data<br>
-            <strong>Safari:</strong> Preferences → Privacy → Cookies and website data<br>
-            <strong>Edge:</strong> Settings → Cookies and site permissions
-        </div>
-
-        <h2 class="section-title">7. Cookie Lifespan</h2>
-        <div class="cookie-content">
-            Cookies have different lifespans:
-        </div>
+        <h2 class="section-title" th:text="#{cookie.section7.title}">7. Cookie Lifespan</h2>
+        <div class="cookie-content" th:text="#{cookie.section7.intro}">Cookies have different lifespans:</div>
         <ul>
-            <li><strong>Session Cookies:</strong> Deleted when you close your browser</li>
-            <li><strong>Persistent Cookies:</strong> Remain on your device for a set period or until you delete them</li>
-            <li><strong>First-Party Cookies:</strong> Set by our website directly</li>
-            <li><strong>Third-Party Cookies:</strong> Set by external services we use</li>
+            <li th:text="#{cookie.lifespan.session}">Session Cookies: Deleted when you close your browser</li>
+            <li th:text="#{cookie.lifespan.persistent}">Persistent Cookies: Remain on your device for a set period or until you delete them</li>
+            <li th:text="#{cookie.lifespan.first-party}">First-Party Cookies: Set by our website directly</li>
+            <li th:text="#{cookie.lifespan.third-party}">Third-Party Cookies: Set by external services we use</li>
         </ul>
 
-        <h2 class="section-title">8. Your Rights</h2>
-        <div class="cookie-content">
-            You have the right to:
-        </div>
+        <h2 class="section-title" th:text="#{cookie.section8.title}">8. Your Rights</h2>
+        <div class="cookie-content" th:text="#{cookie.section8.intro}">You have the right to:</div>
         <ul>
-            <li>Accept or reject cookies</li>
-            <li>Withdraw consent at any time</li>
-            <li>View what cookies are stored on your device</li>
-            <li>Delete cookies from your browser</li>
-            <li>Configure browser settings to block cookies</li>
+            <li th:text="#{cookie.right.accept-reject}">Accept or reject cookies</li>
+            <li th:text="#{cookie.right.withdraw}">Withdraw consent at any time</li>
+            <li th:text="#{cookie.right.view}">View what cookies are stored on your device</li>
+            <li th:text="#{cookie.right.delete}">Delete cookies from your browser</li>
+            <li th:text="#{cookie.right.configure}">Configure browser settings to block cookies</li>
         </div>
 
-        <h2 class="section-title">9. Updates to This Policy</h2>
-        <div class="cookie-content">
-            We may update this cookie policy from time to time to reflect changes in our use of cookies or applicable laws. Any changes will be posted on this page with an updated effective date.
-        </div>
+        <h2 class="section-title" th:text="#{cookie.section9.title}">9. Updates to This Policy</h2>
+        <div class="cookie-content" th:text="#{cookie.section9.content}">We may update this cookie policy from time to time.</div>
 
-        <h2 class="section-title">10. Contact Information</h2>
-        <div class="cookie-content">
-            If you have any questions about our use of cookies, please contact us:
-        </div>
+        <h2 class="section-title" th:text="#{cookie.section10.title}">10. Contact Information</h2>
+        <div class="cookie-content" th:text="#{cookie.section10.intro}">If you have any questions about our use of cookies, please contact us:</div>
         
         <div class="contact-info">
             <ul>
-                <li><strong>Email:</strong> privacy@aggar.com</li>
-                <li><strong>Phone:</strong> +1 (555) 123-4567</li>
-                <li><strong>Address:</strong> 123 Business Ave, Suite 100, New York, NY 10001</li>
-                <li><strong>Website:</strong> www.aggar.com</li>
+                <li><strong th:text="#{cookie.email}">Email:</strong> privacy@aggar.com</li>
+                <li><strong th:text="#{cookie.phone}">Phone:</strong> +1 (555) 123-4567</li>
+                <li><strong th:text="#{cookie.address}">Address:</strong> 123 Business Ave, Suite 100, New York, NY 10001</li>
+                <li><strong th:text="#{cookie.website}">Website:</strong> www.aggar.com</li>
             </ul>
         </div>
 
         <div class="last-updated">
-            <p>Last updated: January 1, 2025</p>
+            <p><span th:text="#{privacy.policy.last.updated}">Last updated</span>: <span th:text="#{cookie.effective.date}">January 1, 2025</span></p>
         </div>
     </div>
 </div>

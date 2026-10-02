@@ -14,8 +14,7 @@ public class PropertyImage {
     @JoinColumn(name = "property_id", nullable = false)
     private Property property;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String url;
 
     @Column(name = "is_primary")

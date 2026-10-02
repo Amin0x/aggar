@@ -1,6 +1,7 @@
 package com.amin.aggar.domain.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,14 +14,15 @@ public class City {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "state_id", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "state_id", nullable = true)
     private State state;
 
     @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "city")

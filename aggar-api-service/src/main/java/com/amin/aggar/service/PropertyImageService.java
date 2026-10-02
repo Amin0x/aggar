@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PropertyImageService {
@@ -44,6 +45,15 @@ public class PropertyImageService {
 
     @Transactional
     public List<String> uploadImages(Long propertyId, MultipartFile[] files) {
+        if (files == null || files.length > 8) {
+            throw new IllegalArgumentException("A maximum of 8 images can be uploaded");
+        }
+        for (MultipartFile file : files) {
+            if (!file.isEmpty() && !isSupportedImage(file.getContentType())) {
+                throw new IllegalArgumentException("Only JPEG, PNG, GIF, WebP, AVIF, and BMP images are allowed");
+            }
+        }
+
         Optional<Property> propertyOpt = propertyRepository.findById(propertyId);
         if (!propertyOpt.isPresent()) {
             throw new RuntimeException("Property not found");
@@ -56,8 +66,9 @@ public class PropertyImageService {
         for (MultipartFile file : files) {
             if (file.isEmpty()) continue;
             try {
-                String fileName = propertyId + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                Path filePath = Paths.get(uploadDir + fileName);
+                String extension = imageExtension(file.getContentType());
+                String fileName = propertyId + "_" + UUID.randomUUID() + extension;
+                Path filePath = Paths.get(uploadDir).resolve(fileName);
                 Files.copy(file.getInputStream(), filePath);
 
                 String url = "/images/" + fileName;
@@ -77,6 +88,25 @@ public class PropertyImageService {
             }
         }
         return uploadedUrls;
+    }
+
+    private boolean isSupportedImage(String contentType) {
+        return contentType != null && switch (contentType.toLowerCase()) {
+            case "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp" -> true;
+            default -> false;
+        };
+    }
+
+    private String imageExtension(String contentType) {
+        return switch (contentType.toLowerCase()) {
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/gif" -> ".gif";
+            case "image/webp" -> ".webp";
+            case "image/avif" -> ".avif";
+            case "image/bmp" -> ".bmp";
+            default -> throw new IllegalArgumentException("Unsupported image type");
+        };
     }
 
     @Transactional

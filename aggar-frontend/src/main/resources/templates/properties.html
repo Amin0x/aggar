@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>العقارات - Aggar</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'sans-serif'],
+                        'english': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#1E40AF',
+                        'primary-light': '#3B82F6',
+                        'primary-dark': '#1E3A8A',
+                        'secondary': '#0D9488',
+                        'accent': '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+
+        html { scroll-behavior: smooth; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-slide-in-left { animation: slideInLeft 0.6s ease-out forwards; }
+        .animate-slide-in-right { animation: slideInRight 0.6s ease-out forwards; }
+
+        .animation-delay-100 { animation-delay: 0.1s; opacity: 0; }
+        .animation-delay-200 { animation-delay: 0.2s; opacity: 0; }
+        .animation-delay-300 { animation-delay: 0.3s; opacity: 0; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6, #0D9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Custom form styling */
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") right 1rem center / 1.5em no-repeat;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Property card */
+        .property-card {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .property-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Filter sidebar sticky */
+        .filter-sidebar {
+            position: sticky;
+            top: 6rem;
+        }
+
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Floating shapes */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Active filter badge */
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: #1E40AF;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .filter-badge .remove-btn {
+            margin-right: 0.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .filter-badge .remove-btn:hover {
+            opacity: 1;
+        }
+
+        /* Alert */
+        .alert-message {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .alert-info {
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            color: #1E40AF;
+        }
+
+        /* Category button */
+        .category-btn {
+            padding: 0.75rem 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.95rem;
+            background: white;
+            text-align: center;
+        }
+
+        .category-btn:hover {
+            border-color: #3B82F6;
+            background: rgba(59, 130, 246, 0.02);
+        }
+
+        .category-btn.active {
+            border-color: #3B82F6;
+            background: rgba(59, 130, 246, 0.05);
+            color: #1E40AF;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-arabic antialiased">
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500" id="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-primary text-white p-2.5 rounded-xl">
+                        <i class="fas fa-building text-2xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800" th:text="#{header.brand}">Aggar</span>
+                </a>
+
+                <div class="hidden lg:flex items-center space-x-1 space-x-reverse">
+                    <a th:href="@{/}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-home ml-1"></i>
+                        <span th:text="#{header.all}">All</span>
+                    </a>
+                    <th:block th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
+                        <a th:href="@{'/' (listingType=${ltype})}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                            <span th:text="${ltype}">Sale/Rent</span>
+                        </a>
+                    </th:block>
+                    <a th:href="@{/properties}" class="px-4 py-2 text-primary bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-th-large ml-1"></i>
+                        العقارات
+                    </a>
+                    <a th:href="@{/about}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-info-circle ml-1"></i>
+                        <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-lg">
+                        <i class="fas fa-plus-circle ml-1"></i>
+                        <span th:text="#{header.add.property}">Add Property</span>
+                    </a>
+                    <div th:if="${isAuthenticated}" class="hidden md:flex items-center space-x-2 space-x-reverse bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-user-circle text-xl text-primary"></i>
+                        <span th:if="${currentUser != null}" th:text="${currentUser.name}" class="text-sm font-medium text-gray-700">User</span>
+                    </div>
+                    <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-600 text-2xl focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="lg:hidden hidden pb-6">
+                <div class="bg-gray-50 rounded-2xl p-4 space-y-2 mt-2">
+                    <a th:href="@{/}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-home ml-2"></i> <span th:text="#{header.all}">All</span>
+                    </a>
+                    <a th:href="@{/properties}" class="block px-4 py-3 text-primary bg-blue-50 rounded-lg">
+                        <i class="fas fa-th-large ml-2"></i> العقارات
+                    </a>
+                    <a th:href="@{/about}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-info-circle ml-2"></i> <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                    <hr class="border-gray-200 my-2">
+                    <a th:href="@{/profile}" th:if="${isAuthenticated}" class="block px-4 py-3 text-gray-700 hover:bg-white rounded-lg">
+                        <i class="fas fa-user ml-2"></i> <span th:text="#{header.my.profile}">My Profile</span>
+                    </a>
+                    <a th:href="@{/logout}" th:if="${isAuthenticated}" class="block px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+                        <i class="fas fa-sign-out-alt ml-2"></i> <span th:text="#{header.sign.out}">Sign Out</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section class="pt-32 pb-20 bg-gradient-to-br from-primary via-primary-dark to-gray-900 text-white relative overflow-hidden">
+        <!-- Floating shapes -->
+        <div class="floating-shape w-64 h-64 bg-white" style="top: 10%; right: 5%; animation-delay: 0s;"></div>
+        <div class="floating-shape w-40 h-40 bg-accent" style="bottom: 20%; left: 10%; animation-delay: 2s;"></div>
+
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center animate-fade-in-up">
+                <div class="inline-flex items-center bg-white/10 glass rounded-full px-6 py-2.5 mb-6">
+                    <i class="fas fa-th-large text-accent ml-2"></i>
+                    <span class="text-white/90 text-sm font-medium">جميع العقارات</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-8 leading-tight">
+                    تصفح <span class="text-accent">العقارات</span> المتاحة
+                </h1>
+
+                <!-- Search Bar -->
+                <form th:action="@{/properties}" method="get" class="max-w-3xl mx-auto animate-fade-in-up animation-delay-100">
+                    <input type="hidden" name="state" th:value="${selectedState}">
+                    <input type="hidden" name="city" th:value="${selectedCity}">
+                    <input type="hidden" name="category" th:value="${selectedCategory}">
+                    <input type="hidden" name="listing" th:value="${selectedListing}">
+                    <input type="hidden" name="minPrice" th:value="${minPrice}">
+                    <input type="hidden" name="maxPrice" th:value="${maxPrice}">
+                    <input type="hidden" name="order" th:value="${selectedOrder}">
+                    <div class="flex items-center bg-white rounded-2xl shadow-2xl overflow-hidden p-2">
+                        <input type="text" name="q" th:value="${q}"
+                               class="flex-1 px-6 py-4 text-gray-800 text-lg outline-none font-medium"
+                               placeholder="ابحث عن عقار، مدينة، أو منطقة...">
+                        <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold flex items-center">
+                            <i class="fas fa-search ml-2"></i> بحث
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Wave divider -->
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 80L1440 80L1440 0C1200 40 960 60 720 60C480 60 240 40 0 0L0 80Z" fill="#F9FAFB"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ========== MAIN CONTENT: FILTERS + RESULTS ========== -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-8">
+
+                <!-- Filters Sidebar -->
+                <div class="lg:w-1/4 animate-slide-in-right">
+                    <div class="bg-white rounded-3xl shadow-lg p-6 filter-sidebar reveal">
+                        <div class="flex items-center justify-between mb-8">
+                            <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                                <i class="fas fa-filter text-primary ml-2"></i>
+                                تصفية النتائج
+                            </h3>
+                            <button onclick="resetFilters()" class="text-sm text-primary hover:underline font-medium">
+                                إعادة ضبط
+                            </button>
+                        </div>
+
+                        <form th:action="@{/properties}" method="get" id="filterForm">
+                            <input type="hidden" name="q" th:value="${q}">
+
+                            <!-- Active Filters Display -->
+                            <div th:if="${selectedState != null or selectedCity != null or selectedCategory != null or selectedListing != null or minPrice != null or maxPrice != null or selectedOrder != null}"
+                                 class="mb-6 p-4 bg-blue-50 rounded-xl">
+                                <div class="text-xs font-semibold text-primary mb-2">الفلاتر النشطة:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span th:if="${selectedState != null}" class="filter-badge">
+                                        <span th:text="${selectedStateName != null ? selectedStateName : selectedState}">State</span>
+                                        <i class="fas fa-times remove-btn" onclick="removeFilter('state')"></i>
+                                    </span>
+                                    <span th:if="${selectedCity != null}" class="filter-badge">
+                                        <span th:text="${selectedCityName != null ? selectedCityName : selectedCity}">City</span>
+                                        <i class="fas fa-times remove-btn" onclick="removeFilter('city')"></i>
+                                    </span>
+                                    <span th:if="${selectedCategory != null}" class="filter-badge">
+                                        <span th:text="${selectedCategory}">Category</span>
+                                        <i class="fas fa-times remove-btn" onclick="removeFilter('category')"></i>
+                                    </span>
+                                    <span th:if="${selectedListing != null}" class="filter-badge">
+                                        <span th:text="${selectedListing == 'sale' ? 'للبيع' : 'للإيجار'}">Listing</span>
+                                        <i class="fas fa-times remove-btn" onclick="removeFilter('listing')"></i>
+                                    </span>
+                                    <span th:if="${minPrice != null}" class="filter-badge">
+                                        <span th:text="'من ' + ${minPrice}">Min Price</span>
+                                        <i class="fas fa-times remove-btn" onclick="removeFilter('minPrice')"></i>
+                                    </span>
+                                    <span th:if="${maxPrice != null}" class="filter-badge">
+                                        <span th:text="'إلى ' + ${maxPrice}">Max Price</span>
+                                        <i class="fas fa-times remove-btn" onclick="removeFilter('maxPrice')"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- State Filter -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-map-marker-alt ml-1 text-primary"></i> الولاية/المحافظة
+                                </label>
+                                <select name="state" class="form-select" th:value="${selectedState}" onchange="onStateChange(this.value)">
+                                    <option value="">جميع الولايات</option>
+                                    <option th:each="state : ${states}" th:value="${state.id}" th:text="${currentLanguage == 'ar' and !#strings.isEmpty(state.nameAr) ? state.nameAr : state.name}" th:selected="${selectedState != null and selectedState == state.id.toString()}">State</option>
+                                </select>
+                            </div>
+
+                            <!-- City Filter -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-city ml-1 text-primary"></i> المدينة
+                                </label>
+                                <select name="city" class="form-select" id="citySelect" th:value="${selectedCity}">
+                                    <option value="">جميع المدن</option>
+                                    <option th:each="city : ${cities}" th:value="${city.id}" th:text="${city.name}" th:selected="${selectedCity != null and selectedCity == city.id.toString()}">City</option>
+                                </select>
+                            </div>
+
+                            <!-- Category Filter -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-home ml-1 text-primary"></i> نوع العقار
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" onclick="setCategory('apartment')" th:class="${selectedCategory == 'apartment'} ? 'category-btn active' : 'category-btn'">
+                                        <i class="fas fa-building text-primary mb-1"></i>
+                                        <div>شقة</div>
+                                    </button>
+                                    <button type="button" onclick="setCategory('house')" th:class="${selectedCategory == 'house'} ? 'category-btn active' : 'category-btn'">
+                                        <i class="fas fa-home text-green-500 mb-1"></i>
+                                        <div>منزل</div>
+                                    </button>
+                                    <button type="button" onclick="setCategory('villa')" th:class="${selectedCategory == 'villa'} ? 'category-btn active' : 'category-btn'">
+                                        <i class="fas fa-crown text-red-500 mb-1"></i>
+                                        <div>فيلا</div>
+                                    </button>
+                                    <button type="button" onclick="setCategory('land')" th:class="${selectedCategory == 'land'} ? 'category-btn active' : 'category-btn'">
+                                        <i class="fas fa-mountain text-green-600 mb-1"></i>
+                                        <div>أرض</div>
+                                    </button>
+                                    <button type="button" onclick="setCategory('office')" th:class="${selectedCategory == 'office'} ? 'category-btn active' : 'category-btn'">
+                                        <i class="fas fa-briefcase text-gray-600 mb-1"></i>
+                                        <div>مكتب</div>
+                                    </button>
+                                </div>
+                                <input type="hidden" name="category" id="categoryInput" th:value="${selectedCategory}">
+                            </div>
+
+                            <!-- Listing Type Filter -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-tag ml-1 text-primary"></i> نوع العرض
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" onclick="setListing('sale')" th:class="${selectedListing == 'sale'} ? 'category-btn active' : 'category-btn'">
+                                        <i class="fas fa-dollar-sign text-green-500 mb-1"></i>
+                                        <div>للبيع</div>
+                                    </button>
+                                    <button type="button" onclick="setListing('rent')" th:class="${selectedListing == 'rent'} ? 'category-btn active' : 'category-btn'">
+                                        <i class="fas fa-key text-blue-500 mb-1"></i>
+                                        <div>للإيجار</div>
+                                    </button>
+                                </div>
+                                <input type="hidden" name="listing" id="listingInput" th:value="${selectedListing}">
+                            </div>
+
+                            <!-- Price Range -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-dollar-sign ml-1 text-primary"></i> السعر (USD)
+                                </label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <input type="number" name="minPrice" class="form-input" th:value="${minPrice}"
+                                               placeholder="الأدنى" min="0">
+                                    </div>
+                                    <div>
+                                        <input type="number" name="maxPrice" class="form-input" th:value="${maxPrice}"
+                                               placeholder="الأقصى" min="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sort/Order Filter -->
+                            <div class="mb-8">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-sort ml-1 text-primary"></i> ترتيب النتائج
+                                </label>
+                                <select name="order" class="form-select" th:value="${selectedOrder}">
+                                    <option value="">الافتراضي</option>
+                                    <option value="price_asc" th:selected="${selectedOrder == 'price_asc'}">السعر (منخفض لمرتفع)</option>
+                                    <option value="price_desc" th:selected="${selectedOrder == 'price_desc'}">السعر (مرتفع لمنخفض)</option>
+                                    <option value="newest" th:selected="${selectedOrder == 'newest'}">الأحدث</option>
+                                    <option value="oldest" th:selected="${selectedOrder == 'oldest'}">الأقدم</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="w-full bg-gradient-to-r from-primary to-primary-light text-white py-4 rounded-xl font-bold hover:from-primary-dark hover:to-primary transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center">
+                                <i class="fas fa-filter ml-2"></i>
+                                <span>تطبيق الفلاتر</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Properties Results -->
+                <div class="lg:w-3/4">
+                    <!-- Results Header -->
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 reveal">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4 md:mb-0 flex items-center">
+                            <i class="fas fa-th-large text-primary ml-2"></i>
+                            العقارات
+                            <span class="mr-3 text-gray-400 font-normal text-lg" th:text="'(' + ${totalElements} + ' عقار)'">0</span>
+                        </h2>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div th:if="${error != null}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+                        <i class="fas fa-exclamation-circle ml-2"></i>
+                        <span th:text="${error}">Error message</span>
+                    </div>
+
+                    <!-- No Results -->
+                    <div th:if="${properties == null or #lists.isEmpty(properties)}" class="text-center py-16 bg-white rounded-3xl shadow-lg reveal">
+                        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-search text-4xl text-gray-300"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-3">لم يتم العثور على نتائج</h3>
+                        <p class="text-gray-500 mb-8 max-w-md mx-auto">جرب تغيير معايير البحث أو <a th:href="@{/properties}" class="text-primary hover:underline font-medium">تصفح جميع العقارات</a></p>
+                    </div>
+
+                    <!-- Results Grid -->
+                    <div th:if="${properties != null and !#lists.isEmpty(properties)}" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div th:each="prop : ${properties}" class="property-card reveal">
+                            <!-- Property Image -->
+                            <div class="relative h-48 bg-gray-200">
+                                <img th:if="${prop.images != null and !#lists.isEmpty(prop.images)}"
+                                     th:src="${prop.images[0].url}" class="w-full h-full object-cover"
+                                     th:alt="${prop.title}">
+                                <div th:unless="${prop.images != null and !#lists.isEmpty(prop.images)}"
+                                     class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
+                                    <i class="fas fa-home text-4xl text-blue-300"></i>
+                                </div>
+
+                                <!-- Listing Type Badge -->
+                                <div class="absolute top-3 right-3">
+                                    <span th:text="${prop.listingType == 'sale'} ? 'للبيع' : 'للإيجار'"
+                                          class="px-3 py-1 rounded-full text-xs font-semibold text-white"
+                                          th:classappend="${prop.listingType == 'sale'} ? 'bg-green-500' : 'bg-blue-500'">For Sale</span>
+                                </div>
+
+                                <!-- Save Button -->
+                                <button class="absolute top-3 left-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all group">
+                                    <i class="far fa-heart text-sm group-hover:text-red-500"></i>
+                                </button>
+
+                                <!-- Gradient Overlay -->
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+
+                            <!-- Property Info -->
+                            <div class="p-5">
+                                <h3 class="text-lg font-bold text-gray-900 mb-2 hover:text-primary transition-colors">
+                                    <a th:href="@{'/properties/' + ${prop.slug != null ? prop.slug : prop.id}}" th:text="${prop.title}">Property Title</a>
+                                </h3>
+
+                                <div class="flex items-center text-gray-500 text-sm mb-3">
+                                    <i class="fas fa-map-marker-alt ml-1 text-primary"></i>
+                                    <span th:text="${prop.city}">City</span>
+                                    <span th:if="${prop.neighborhood != null}" class="mr-1">- <span th:text="${prop.neighborhood}">Neighborhood</span></span>
+                                </div>
+
+                                <div class="flex items-center gap-4 mb-4 text-gray-600 text-sm">
+                                    <div class="flex items-center" th:if="${prop.bedrooms != null}">
+                                        <i class="fas fa-bed ml-1 text-primary"></i>
+                                        <span th:text="${prop.bedrooms}">0</span>
+                                    </div>
+                                    <div class="flex items-center" th:if="${prop.bathrooms != null}">
+                                        <i class="fas fa-bath ml-1 text-primary"></i>
+                                        <span th:text="${prop.bathrooms}">0</span>
+                                    </div>
+                                    <div th:if="${prop.area != null}" class="flex items-center">
+                                        <i class="fas fa-expand ml-1 text-primary"></i>
+                                        <span th:text="${prop.area}">0</span>
+                                        <span class="mr-1">م²</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                                    <div>
+                                        <span class="text-xl font-black text-primary" th:text="${#numbers.formatDecimal(prop.price, 0, 0)}">0</span>
+                                        <span class="text-gray-500 mr-1" th:text="${prop.currency}">USD</span>
+                                        <span th:if="${prop.listingType == 'rent'}" class="text-gray-400 text-sm mr-1">/ <span th:text="${prop.pricePeriod}">monthly</span></span>
+                                    </div>
+                                    <a th:href="@{'/properties/' + ${prop.slug != null ? prop.slug : prop.id}}" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center">
+                                        عرض التفاصيل <i class="fas fa-arrow-left mr-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div th:if="${totalPages > 1}" class="flex items-center justify-center gap-2 mt-10">
+                        <button th:if="${currentPage > 0}"
+                           th:data-page="${currentPage - 1}"
+                           onclick="goToPage(Number(this.dataset.page))"
+                           class="px-4 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 transition">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+
+                        <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                            <button th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}"
+                               th:data-page="${pageNum}"
+                               onclick="goToPage(Number(this.dataset.page))"
+                               th:text="${pageNum + 1}"
+                               th:class="${pageNum == currentPage} ? 'w-10 h-10 rounded-lg text-sm font-medium bg-primary-600 text-white' : 'w-10 h-10 rounded-lg text-sm font-medium bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'">
+                            </button>
+                        </th:block>
+
+                        <button th:if="${currentPage < totalPages - 1}"
+                           th:data-page="${currentPage + 1}"
+                           onclick="goToPage(Number(this.dataset.page))"
+                           class="px-4 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 transition">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+
+
+    <!-- ========== SCRIPTS ========== -->
+    <script th:inline="javascript">
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Cities data organized by state (from server-side)
+        const citiesByState = {};
+        /*[# th:each="city : ${allCities}"]*/
+            /*[[${city.stateId}]]*/ null;
+            /*[[${city.id}]]*/ null;
+            /*[[${city.name}]]*/ '';
+        /*[/]*/
+
+        // Initialize citiesByState from Thymeleaf data
+        /*[# th:each="city : ${allCities}"]*/
+        (function() {
+            var sid = /*[[${city.stateId}]]*/ null;
+            var cid = /*[[${city.id}]]*/ null;
+            var cname = /*[[${city.name}]]*/ '';
+            if (sid) {
+                if (!citiesByState[sid]) {
+                    citiesByState[sid] = [];
+                }
+                citiesByState[sid].push({ id: cid, name: cname });
+            }
+        })();
+        /*[/]*/
+
+        // State change handler - update city dropdown via JavaScript
+        function onStateChange(stateId) {
+            const citySelect = document.getElementById('citySelect');
+            citySelect.innerHTML = '<option value="">جميع المدن</option>';
+
+            if (stateId && citiesByState[stateId]) {
+                citiesByState[stateId].forEach(function(city) {
+                    const option = document.createElement('option');
+                    option.value = city.id;
+                    option.textContent = city.name;
+                    citySelect.appendChild(option);
+                });
+            }
+        }
+
+        // Pagination - go to specific page
+        function goToPage(pageNum) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', pageNum);
+            window.location.href = url.toString();
+        }
+
+        // Category selection
+        function setCategory(category) {
+            const input = document.getElementById('categoryInput');
+            if (input.value === category) {
+                input.value = '';
+            } else {
+                input.value = category;
+            }
+            document.getElementById('filterForm').submit();
+        }
+
+        // Listing type selection
+        function setListing(listing) {
+            const input = document.getElementById('listingInput');
+            if (input.value === listing) {
+                input.value = '';
+            } else {
+                input.value = listing;
+            }
+            document.getElementById('filterForm').submit();
+        }
+
+        // Remove individual filter
+        function removeFilter(filterName) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete(filterName);
+            window.location = url.toString();
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            window.location = '/properties';
+        }
+
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-2xl');
+            } else {
+                navbar.classList.remove('shadow-2xl');
+            }
+        });
+
+        // Save button toggle
+        document.querySelectorAll('.property-card button[class*="fa-heart"]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('far')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas', 'text-red-500');
+                    this.classList.add('bg-red-50');
+                    this.classList.remove('bg-white/90');
+                } else {
+                    icon.classList.remove('fas', 'text-red-500');
+                    icon.classList.add('far');
+                    this.classList.remove('bg-red-50');
+                    this.classList.add('bg-white/90');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

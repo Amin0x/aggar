@@ -1,126 +1,219 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    </head>
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
 <body>
-<div th:fragment="header">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" th:href="@{/}" th:text="#{header.brand}">Aggar</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" th:classappend="${selectedListingType == null}? ' active' : ''" th:href="@{/}" th:text="#{header.all}">All</a>
-                    </li>
-                    <li class="nav-item" th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
-                        <a class="nav-link"
-                           th:href="@{'/'(listingType=${ltype}, city=${selectedCity}, q=${q})}"
-                           th:text="${ltype}"
-                           th:classappend="${ltype == selectedListingType}? ' active' : ''">Sale/Rent</a>
-                    </li>
+<div th:fragment="header" class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-20">
+            <!-- Brand Logo -->
+            <a th:href="@{/}" class="flex items-center space-x-2 space-x-reverse">
+                <div class="bg-primary text-white p-2 rounded-lg">
+                    <i class="fas fa-building text-2xl"></i>
+                </div>
+                <span class="text-2xl font-bold text-gray-800" th:text="#{header.brand}">Aggar</span>
+            </a>
 
-                    <!-- Property Categories Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-th-large me-1"></i> <span th:text="#{header.categories}">Categories</span>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown" style="min-width: 250px;">
-                            <li><h6 class="dropdown-header" th:text="#{header.property.type}">Property Type</h6></li>
-                            <li><a class="dropdown-item" th:href="@{'/'(category='apartment', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-building me-2 text-primary"></i> <span th:text="#{header.apartments}">Apartments</span>
-                            </a></li>
-                            <li><a class="dropdown-item" th:href="@{'/'(category='house', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-home me-2 text-success"></i> <span th:text="#{header.houses}">Houses</span>
-                            </a></li>
-                            <li><a class="dropdown-item" th:href="@{'/'(category='condo', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-city me-2 text-info"></i> <span th:text="#{header.condos}">Condos</span>
-                            </a></li>
-                            <li><a class="dropdown-item" th:href="@{'/'(category='townhouse', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-house-user me-2 text-warning"></i> <span th:text="#{header.townhouses}">Townhouses</span>
-                            </a></li>
-                            <li><a class="dropdown-item" th:href="@{'/'(category='villa', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-crown me-2 text-danger"></i> <span th:text="#{header.villas}">Villas</span>
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header" th:text="#{header.commercial}">Commercial</h6></li>
-                            <li><a class="dropdown-item" th:href="@{'/'(category='office', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-briefcase me-2 text-secondary"></i> <span th:text="#{header.office.spaces}">Office Spaces</span>
-                            </a></li>
-                            <li><a class="dropdown-item" th:href="@{'/'(category='retail', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-store me-2 text-dark"></i> <span th:text="#{header.retail.spaces}">Retail Spaces</span>
-                            </a></li>
-                            <li><a class="dropdown-item" th:href="@{'/'(category='land', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}">
-                                <i class="fas fa-mountain me-2 text-success"></i> <span th:text="#{header.land.plots}">Land & Plots</span>
-                            </a></li>
-                        </ul>
-                    </li>
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-6 space-x-reverse">
+                <a th:href="@{/}" class="nav-link" th:classappend="${selectedListingType == null}? 'text-primary font-semibold' : 'text-gray-600 hover:text-primary'">
+                    <i class="fas fa-home ml-1"></i>
+                    <span th:text="#{header.all}">All</span>
+                </a>
 
-                    <li class="nav-item dropdown" th:if="${cities != null and !cities.isEmpty()}">
-                        <a class="nav-link dropdown-toggle" href="#" id="citiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span th:text="#{header.cities}">Cities</span>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="citiesDropdown">
-                            <li>
-                                <a class="dropdown-item" th:href="@{'/'(listingType=${selectedListingType}, q=${q})}"
-                                   th:classappend="${selectedCity == null}? ' active' : ''" th:text="#{header.all.cities}">All Cities</a>
-                            </li>
-                            <li th:each="c : ${cities}">
-                                <a class="dropdown-item"
-                                   th:href="@{'/'(city=${c}, listingType=${selectedListingType}, q=${q})}"
-                                   th:text="${c}"
-                                   th:classappend="${c == selectedCity}? ' active' : ''">City</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+                <!-- Listing Types -->
+                <th:block th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
+                    <a th:href="@{'/'(listingType=${ltype}, city=${selectedCity}, q=${q})}"
+                       class="nav-link text-gray-600 hover:text-primary transition-colors"
+                       th:classappend="${ltype == selectedListingType}? 'text-primary font-semibold' : 'text-gray-600 hover:text-primary'">
+                        <span th:text="${ltype}">Sale/Rent</span>
+                    </a>
+                </th:block>
 
-                <ul class="navbar-nav">
-                    <!-- Add Property Link (only for authenticated users) -->
-                    <li class="nav-item" th:if="${isAuthenticated}">
-                        <a class="nav-link" th:href="@{/properties/add}">
-                            <i class="fas fa-plus-circle me-1"></i> <span th:text="#{header.add.property}">Add Property</span>
-                        </a>
-                    </li>
+                <!-- Categories Dropdown -->
+                <div class="relative group">
+                    <button class="nav-link text-gray-600 hover:text-primary flex items-center">
+                        <i class="fas fa-th-large ml-1"></i>
+                        <span th:text="#{header.categories}">Categories</span>
+                        <i class="fas fa-chevron-down mr-1 text-xs"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                        <div class="p-4">
+                            <p class="text-xs font-semibold text-gray-400 uppercase mb-3" th:text="#{header.property.type}">Property Type</p>
+                            <a th:href="@{'/'(category='apartment', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-building ml-3 text-primary"></i>
+                                <span class="text-gray-700" th:text="#{header.apartments}">Apartments</span>
+                            </a>
+                            <a th:href="@{'/'(category='house', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-home ml-3 text-green-500"></i>
+                                <span class="text-gray-700" th:text="#{header.houses}">Houses</span>
+                            </a>
+                            <a th:href="@{'/'(category='condo', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-city ml-3 text-blue-400"></i>
+                                <span class="text-gray-700" th:text="#{header.condos}">Condos</span>
+                            </a>
+                            <a th:href="@{'/'(category='townhouse', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-house-user ml-3 text-yellow-500"></i>
+                                <span class="text-gray-700" th:text="#{header.townhouses}">Townhouses</span>
+                            </a>
+                            <a th:href="@{'/'(category='villa', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-crown ml-3 text-red-500"></i>
+                                <span class="text-gray-700" th:text="#{header.villas}">Villas</span>
+                            </a>
+                            <hr class="my-2">
+                            <p class="text-xs font-semibold text-gray-400 uppercase mb-3" th:text="#{header.commercial}">Commercial</p>
+                            <a th:href="@{'/'(category='office', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-briefcase ml-3 text-gray-600"></i>
+                                <span class="text-gray-700" th:text="#{header.office.spaces}">Office Spaces</span>
+                            </a>
+                            <a th:href="@{'/'(category='retail', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-store ml-3 text-gray-800"></i>
+                                <span class="text-gray-700" th:text="#{header.retail.spaces}">Retail Spaces</span>
+                            </a>
+                            <a th:href="@{'/'(category='land', listingType=${selectedListingType}, city=${selectedCity}, q=${q})}" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-mountain ml-3 text-green-600"></i>
+                                <span class="text-gray-700" th:text="#{header.land.plots}">Land & Plots</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- Show Profile for authenticated users -->
-                    <li class="nav-item dropdown" th:if="${isAuthenticated}">
-                        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-1"></i>
-                            <span th:if="${currentUser != null}" th:text="${currentUser.name}">User</span>
-                            <span th:unless="${currentUser != null}" th:text="#{header.profile}">Profile</span>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-                            <li><a class="dropdown-item" th:href="@{/profile}" th:text="#{header.my.profile}">My Profile</a></li>
-                            <li><a class="dropdown-item" th:href="@{/profile/saved}" th:text="#{header.saved.properties}">Saved Properties</a></li>
-                            <li><a class="dropdown-item" th:href="@{/profile/settings}" th:text="#{header.settings}">Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" th:href="@{/logout}" th:text="#{header.sign.out}">Sign Out</a></li>
-                        </ul>
-                    </li>
+                <!-- Cities Dropdown -->
+                <div th:if="${cities != null and !cities.isEmpty()}" class="relative group">
+                    <button class="nav-link text-gray-600 hover:text-primary flex items-center">
+                        <i class="fas fa-map-marker-alt ml-1"></i>
+                        <span th:text="#{header.cities}">Cities</span>
+                        <i class="fas fa-chevron-down mr-1 text-xs"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                        <div class="p-2">
+                            <a th:href="@{'/'(listingType=${selectedListingType}, q=${q})}" class="block px-4 py-2 rounded-lg hover:bg-gray-50" th:text="#{header.all.cities}">All Cities</a>
+                            <hr class="my-1">
+                            <a th:each="c : ${cities}" th:href="@{'/'(city=${c}, listingType=${selectedListingType}, q=${q})}" class="block px-4 py-2 rounded-lg hover:bg-gray-50" th:text="${c}">City</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
 
-                    <!-- Show Login/Register for guests -->
-                    <li class="nav-item" th:unless="${isAuthenticated}">
-                        <a class="nav-link" th:href="@{/login}" th:text="#{header.login}">Login</a>
-                    </li>
-                    <li class="nav-item" th:unless="${isAuthenticated}">
-                        <a class="nav-link" th:href="@{/register}" th:text="#{header.register}">Register</a>
-                    </li>
-                </ul>
-
-                <form class="d-flex" th:action="@{/search}" method="get">
-                    <input class="form-control me-2" type="search" th:placeholder="#{header.search.placeholder}" aria-label="Search" name="q" th:value="${q}" required>
-                    <button class="btn btn-outline-success" type="submit" th:text="#{header.search}">Search</button>
+            <!-- Right Side - Search & Auth -->
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <!-- Search Form -->
+                <form th:action="@{/search}" method="get" class="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2">
+                    <input type="text" name="q" th:value="${q}" class="bg-transparent outline-none text-sm w-48" th:placeholder="#{header.search.placeholder}">
+                    <button type="submit" class="text-gray-400 hover:text-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </form>
+
+                <!-- Add Property (Authenticated) -->
+                <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors">
+                    <i class="fas fa-plus-circle ml-2"></i>
+                    <span th:text="#{header.add.property}">Add Property</span>
+                </a>
+
+                <!-- Profile Dropdown (Authenticated) -->
+                <div th:if="${isAuthenticated}" class="relative group">
+                    <button class="flex items-center space-x-2 space-x-reverse bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-user-circle text-xl text-primary"></i>
+                        <span th:if="${currentUser != null}" th:text="${currentUser.name}" class="text-sm font-medium">User</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                    </button>
+                    <div class="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                        <div class="p-2">
+                            <a th:href="@{/profile}" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-user ml-3 text-gray-400"></i>
+                                <span class="text-gray-700" th:text="#{header.my.profile}">My Profile</span>
+                            </a>
+                            <a th:href="@{/profile/saved}" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-heart ml-3 text-red-400"></i>
+                                <span class="text-gray-700" th:text="#{header.saved.properties}">Saved Properties</span>
+                            </a>
+                            <a th:href="@{/profile/settings}" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-cog ml-3 text-gray-400"></i>
+                                <span class="text-gray-700" th:text="#{header.settings}">Settings</span>
+                            </a>
+                            <!-- Admin Links -->
+                            <div th:if="${currentUser != null and currentUser.role == 'admin'}">
+                                <a th:href="@{/admin}" class="flex items-center px-4 py-3 rounded-lg hover:bg-purple-50 transition-colors">
+                                    <i class="fas fa-tachometer-alt ml-3 text-purple-500"></i>
+                                    <span class="text-purple-700 font-medium">لوحة الإدارة</span>
+                                </a>
+                                <a th:href="@{/admin/properties}" class="flex items-center px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors">
+                                    <i class="fas fa-home ml-3 text-blue-500"></i>
+                                    <span class="text-gray-700">الموافقة على العقارات</span>
+                                </a>
+                                <a th:href="@{/states/list}" class="flex items-center px-4 py-3 rounded-lg hover:bg-teal-50 transition-colors">
+                                    <i class="fas fa-map-marked-alt ml-3 text-teal-500"></i>
+                                    <span class="text-gray-700">المناطق</span>
+                                </a>
+                                <a th:href="@{/cities/list}" class="flex items-center px-4 py-3 rounded-lg hover:bg-indigo-50 transition-colors">
+                                    <i class="fas fa-city ml-3 text-indigo-500"></i>
+                                    <span class="text-gray-700">المدن</span>
+                                </a>
+                                <a th:href="@{/neighborhoods/list}" class="flex items-center px-4 py-3 rounded-lg hover:bg-green-50 transition-colors">
+                                    <i class="fas fa-road ml-3 text-green-500"></i>
+                                    <span class="text-gray-700">الأحياء</span>
+                                </a>
+                            </div>
+                            <hr class="my-1">
+                            <a th:href="@{/logout}" class="flex items-center px-4 py-3 rounded-lg hover:bg-red-50 transition-colors">
+                                <i class="fas fa-sign-out-alt ml-3 text-red-500"></i>
+                                <span class="text-red-500" th:text="#{header.sign.out}">Sign Out</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Login/Register (Guest) -->
+                <div th:unless="${isAuthenticated}" class="flex items-center space-x-3 space-x-reverse">
+                    <a th:href="@{/login}" class="text-gray-600 hover:text-primary font-medium" th:text="#{header.login}">Login</a>
+                    <a th:href="@{/register}" class="bg-primary text-white px-5 py-2 rounded-full hover:bg-primary-dark transition-colors" th:text="#{header.register}">Register</a>
+                </div>
+
+                <a th:href="${languageSwitchUrl}"
+                   class="text-sm font-semibold text-gray-600 hover:text-primary"
+                   th:text="${currentLanguage == 'ar' ? 'English' : 'العربية'}"
+                   th:attr="aria-label=${currentLanguage == 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}">English</a>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-gray-600">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
             </div>
         </div>
-    </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden pb-4">
+            <form th:action="@{/search}" method="get" class="flex items-center bg-gray-100 rounded-lg px-4 py-2 mb-4">
+                <input type="text" name="q" th:value="${q}" class="bg-transparent outline-none flex-1 text-sm" th:placeholder="#{header.search.placeholder}">
+                <button type="submit" class="text-gray-400"><i class="fas fa-search"></i></button>
+            </form>
+            <nav class="space-y-2">
+                <a th:href="@{/}" class="block py-2 text-gray-600" th:text="#{header.all}">All</a>
+                <th:block th:if="${listingTypes != null}" th:each="ltype : ${listingTypes}">
+                    <a th:href="@{'/'(listingType=${ltype})}" class="block py-2 text-gray-600" th:text="${ltype}">Type</a>
+                </th:block>
+                <a th:if="${isAuthenticated && currentUser != null && currentUser.role == 'admin'}" th:href="@{/admin/properties}" class="block py-2 text-purple-700 font-medium">
+                    <i class="fas fa-shield-alt ml-2"></i>
+                    <span th:text="#{header.admin}">Admin</span>
+                </a>
+            </nav>
+        </div>
+    </div>
 </div>
+
+<style>
+    .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.95rem;
+        transition: color 0.2s;
+    }
+</style>
 </body>
 </html>

@@ -23,15 +23,14 @@ public class PriceHistoryController {
     public Page<PriceHistoryDto> list(Pageable pageable) { return service.list(pageable); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PriceHistoryDto> get(@PathVariable Long id) { return service.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build()); }
+    public ResponseEntity<PriceHistoryDto> get(@PathVariable("id") Long id) { return service.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build()); }
 
     @PostMapping
     public ResponseEntity<PriceHistoryDto> create(@RequestBody PriceHistoryDto dto) { PriceHistoryDto created = service.create(dto); return ResponseEntity.created(URI.create("/api/price-history/" + created.getId())).body(created); }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PriceHistoryDto> update(@PathVariable Long id, @RequestBody PriceHistoryDto dto) { return service.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build()); }
+    public ResponseEntity<PriceHistoryDto> update(@PathVariable("id") Long id, @RequestBody PriceHistoryDto dto) { return service.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build()); }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) { boolean removed = service.delete(id); return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build(); }
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) { boolean removed = service.delete(id); return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build(); }
 }
-

@@ -1,6 +1,7 @@
 package com.amin.aggar.domain.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +12,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, length = 200)
     private String name;
@@ -31,7 +32,8 @@ public class User {
     @Column(length = 50)
     private String role;
 
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "owner")
@@ -43,7 +45,7 @@ public class User {
     public User() {
     }
 
-    public User(Integer id, String name, String email, String phone, String role, LocalDateTime createdAt, List<Property> ownedProperties, List<Property> agentProperties) {
+    public User(Long id, String name, String email, String phone, String role, LocalDateTime createdAt, List<Property> ownedProperties, List<Property> agentProperties) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -54,11 +56,11 @@ public class User {
         this.agentProperties = agentProperties;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

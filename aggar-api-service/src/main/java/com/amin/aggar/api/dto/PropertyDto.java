@@ -8,10 +8,13 @@ import java.util.Set;
 public class PropertyDto {
     private Long id;
     private String title;
+    private String slug;
     private String description;
     private BigDecimal price;
+    private Long viewCount;
     private String currency;
     private String listingType;
+    private String category;
     private String pricePeriod;
     private Integer bedrooms;
     private Integer bathrooms;
@@ -19,8 +22,8 @@ public class PropertyDto {
     private Integer stateId;
     private Integer cityId;
     private Integer neighborhoodId;
-    private Integer ownerId;
-    private Integer agentId;
+    private Long ownerId;
+    private Long agentId;
     private String status;
     private Double locationLat;
     private Double locationLng;
@@ -32,20 +35,32 @@ public class PropertyDto {
     private Set<AmenityDto> amenities;
     private List<PriceHistoryDto> priceHistory;
 
+    // Contact info for owner/agent
+    private String ownerName;
+    private String ownerPhone;
+    private String agentName;
+    private String agentPhone;
+
     public PropertyDto() {}
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+    public String getSlug() { return slug; }
+    public void setSlug(String slug) { this.slug = slug; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
+    public Long getViewCount() { return viewCount; }
+    public void setViewCount(Long viewCount) { this.viewCount = viewCount; }
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
     public String getListingType() { return listingType; }
     public void setListingType(String listingType) { this.listingType = listingType; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
     public String getPricePeriod() { return pricePeriod; }
     public void setPricePeriod(String pricePeriod) { this.pricePeriod = pricePeriod; }
     public Integer getBedrooms() { return bedrooms; }
@@ -60,10 +75,10 @@ public class PropertyDto {
     public void setCityId(Integer cityId) { this.cityId = cityId; }
     public Integer getNeighborhoodId() { return neighborhoodId; }
     public void setNeighborhoodId(Integer neighborhoodId) { this.neighborhoodId = neighborhoodId; }
-    public Integer getOwnerId() { return ownerId; }
-    public void setOwnerId(Integer ownerId) { this.ownerId = ownerId; }
-    public Integer getAgentId() { return agentId; }
-    public void setAgentId(Integer agentId) { this.agentId = agentId; }
+    public Long getOwnerId() { return ownerId; }
+    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
+    public Long getAgentId() { return agentId; }
+    public void setAgentId(Long agentId) { this.agentId = agentId; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public Double getLocationLat() { return locationLat; }
@@ -84,4 +99,13 @@ public class PropertyDto {
     public void setAmenities(Set<AmenityDto> amenities) { this.amenities = amenities; }
     public List<PriceHistoryDto> getPriceHistory() { return priceHistory; }
     public void setPriceHistory(List<PriceHistoryDto> priceHistory) { this.priceHistory = priceHistory; }
+
+    public String getOwnerName() { return ownerName; }
+    public void setOwnerName(String ownerName) { this.ownerName = ownerName; }
+    public String getOwnerPhone() { return ownerPhone; }
+    public void setOwnerPhone(String ownerPhone) { this.ownerPhone = ownerPhone; }
+    public String getAgentName() { return agentName; }
+    public void setAgentName(String agentName) { this.agentName = agentName; }
+    public String getAgentPhone() { return agentPhone; }
+    public void setAgentPhone(String agentPhone) { this.agentPhone = agentPhone; }
 }

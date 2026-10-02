@@ -1,293 +1,802 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
 <head>
     <meta charset="UTF-8" />
-    <title>Terms of Service - Aggar Real Estate</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="#{footer.terms.of.service}">شروط الاستخدام - Aggar</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'sans-serif'],
+                        'english': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#1E40AF',
+                        'primary-light': '#3B82F6',
+                        'primary-dark': '#1E3A8A',
+                        'secondary': '#0D9488',
+                        'accent': '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        .terms-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
+        body { font-family: 'Cairo', sans-serif; }
+
+        html { scroll-behavior: smooth; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .terms-header {
-            text-align: center;
-            margin-bottom: 40px;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
-        .terms-header h1 {
-            color: #333;
+
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+
+        .animation-delay-100 { animation-delay: 0.1s; opacity: 0; }
+        .animation-delay-200 { animation-delay: 0.2s; opacity: 0; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6, #0D9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* TOC Sidebar */
+        .toc-sidebar {
+            position: sticky;
+            top: 6rem;
+            max-height: calc(100vh - 8rem);
+            overflow-y: auto;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            color: #6B7280;
+            transition: all 0.2s ease;
+            border-right: 3px solid transparent;
+        }
+
+        .toc-link:hover {
+            color: #3B82F6;
+            background: rgba(59, 130, 246, 0.05);
+            border-right-color: #3B82F6;
+        }
+
+        .toc-link.active {
+            color: #1E40AF;
+            background: rgba(59, 130, 246, 0.08);
+            border-right-color: #1E40AF;
             font-weight: 600;
-            margin-bottom: 10px;
         }
-        .terms-header p {
-            color: #666;
-            font-size: 16px;
+
+        /* Section styling */
+        .terms-section {
+            scroll-margin-top: 8rem;
         }
-        .section-title {
-            color: #333;
-            font-weight: 600;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 5px;
+
+        .section-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            flex-shrink: 0;
         }
-        .subsection-title {
-            color: #555;
-            font-weight: 600;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        .terms-content {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-        .contact-info {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 30px;
-        }
-        .last-updated {
-            font-style: italic;
-            color: #888;
-            text-align: center;
-            margin-top: 30px;
-        }
-        ul, ol {
-            padding-left: 20px;
-        }
-        li {
-            margin-bottom: 8px;
-        }
+
+        /* Warning box */
         .warning-box {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 20px 0;
+            border-right: 4px solid #F59E0B;
+            background: #FFFBEB;
+            border-radius: 0.75rem;
         }
-        .warning-box h5 {
-            color: #856404;
-            margin-bottom: 10px;
+
+        /* Info box */
+        .info-box {
+            border-right: 4px solid #3B82F6;
+            background: #EFF6FF;
+            border-radius: 0.75rem;
         }
-        .warning-box p {
-            color: #856404;
-            margin-bottom: 0;
+
+        /* Custom list */
+        .custom-list li {
+            position: relative;
+            padding-right: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #4B5563;
+            line-height: 1.7;
+        }
+
+        .custom-list li::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0.6rem;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3B82F6;
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Floating shapes */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Print styles */
+        @media print {
+            nav, footer, .floating-shape { display: none !important; }
+            .toc-sidebar { display: none; }
+            .terms-section { page-break-inside: avoid; }
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 font-arabic antialiased">
 
-<!-- Include header fragment -->
-<div th:replace="~{fragments/header :: header}"></div>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-primary text-white p-2.5 rounded-xl">
+                        <i class="fas fa-building text-2xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800" th:text="#{header.brand}">Aggar</span>
+                </a>
 
-<div class="container">
-    <div class="terms-container">
-        <div class="terms-header">
-            <h1>Terms of Service</h1>
-            <p>These terms govern your use of Aggar Real Estate's services and platform.</p>
-        </div>
+                <div class="hidden lg:flex items-center space-x-1 space-x-reverse">
+                    <a th:href="@{/}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-home ml-1"></i>
+                        <span th:text="#{header.all}">All</span>
+                    </a>
+                    <th:block th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
+                        <a th:href="@{'/' (listingType=${ltype})}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                            <span th:text="${ltype}">Sale/Rent</span>
+                        </a>
+                    </th:block>
+                    <a th:href="@{/about}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-info-circle ml-1"></i>
+                        <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                </div>
 
-        <div class="terms-content">
-            <strong>Effective Date:</strong> January 1, 2025
-        </div>
-
-        <div class="warning-box">
-            <h5>Important Notice</h5>
-            <p>Please read these terms carefully before using our services. By accessing or using Aggar Real Estate, you agree to be bound by these terms.</p>
-        </div>
-
-        <h2 class="section-title">1. Acceptance of Terms</h2>
-        <div class="terms-content">
-            By accessing and using Aggar Real Estate's website and services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
-        </div>
-
-        <h2 class="section-title">2. Description of Service</h2>
-        <div class="terms-content">
-            Aggar Real Estate provides an online platform connecting property buyers, sellers, renters, and real estate professionals. Our services include:
-        </div>
-        <ul>
-            <li>Property listing and search functionality</li>
-            <li>Property details and multimedia content</li>
-            <li>Connection with real estate agents and property owners</li>
-            <li>Property valuation tools and market insights</li>
-            <li>Real estate news and educational content</li>
-            <li>Mobile applications and related services</li>
-        </ul>
-
-        <h2 class="section-title">3. User Accounts</h2>
-        
-        <h3 class="subsection-title">Account Registration</h3>
-        <div class="terms-content">
-            To access certain features, you must register for an account. You agree to:
-        </div>
-        <ul>
-            <li>Provide accurate, current, and complete information</li>
-            <li>Maintain and update your account information</li>
-            <li>Keep your password secure and confidential</li>
-            <li>Accept responsibility for all activities under your account</li>
-            <li>Notify us immediately of unauthorized use</li>
-        </ul>
-
-        <h3 class="subsection-title">Account Termination</h3>
-        <div class="terms-content">
-            We reserve the right to suspend or terminate your account for violations of these terms or for any other reason at our sole discretion.
-        </div>
-
-        <h2 class="section-title">4. Property Listings</h2>
-        
-        <h3 class="subsection-title">Listing Accuracy</h3>
-        <div class="terms-content">
-            Property owners and agents are responsible for the accuracy of their listings. While we strive to maintain accurate information, we cannot guarantee the completeness or accuracy of all listings.
-        </div>
-
-        <h3 class="subsection-title">Listing Content</h3>
-        <div class="terms-content">
-            Listings must not contain:
-        </div>
-        <ul>
-            <li>False or misleading information</li>
-            <li>Discriminatory language or practices</li>
-            <li>Illegal or prohibited content</li>
-            <li>Infringement of intellectual property rights</li>
-            <li>Malicious code or harmful content</li>
-        </ul>
-
-        <h2 class="section-title">5. User Conduct</h2>
-        <div class="terms-content">
-            You agree not to:
-        </div>
-        <ul>
-            <li>Use the service for illegal purposes</li>
-            <li>Harass, abuse, or harm other users</li>
-            <li>Post false or misleading information</li>
-            <li>Attempt to gain unauthorized access to our systems</li>
-            <li>Interfere with or disrupt the service</li>
-            <li>Use automated tools to access the service</li>
-            <li>Violate applicable laws or regulations</li>
-        </ul>
-
-        <h2 class="section-title">6. Intellectual Property</h2>
-        <div class="terms-content">
-            All content on Aggar Real Estate, including text, images, graphics, logos, and software, is owned by or licensed to us and is protected by copyright, trademark, and other intellectual property laws.
-        </div>
-        <div class="terms-content">
-            You may not:
-        </div>
-        <ul>
-            <li>Copy, modify, or distribute our content</li>
-            <li>Use our trademarks without permission</li>
-            <li>Scrape or extract data from our platform</li>
-            <li>Create derivative works based on our content</li>
-        </ul>
-
-        <h2 class="section-title">7. Fees and Payments</h2>
-        
-        <h3 class="subsection-title">Service Fees</h3>
-        <div class="terms-content">
-            Basic use of our platform is free. We may charge fees for premium features, listing services, or other value-added services. All fees will be clearly disclosed before you incur any charges.
-        </div>
-
-        <h3 class="subsection-title">Payment Terms</h3>
-        <div class="terms-content">
-            All payments must be made through our approved payment methods. Fees are non-refundable unless otherwise specified. We reserve the right to change our fee structure with prior notice.
-        </div>
-
-        <h2 class="section-title">8. Disclaimers and Limitations</h2>
-        
-        <h3 class="subsection-title">Service Availability</h3>
-        <div class="terms-content">
-            We do not guarantee uninterrupted or error-free service. We may modify, suspend, or discontinue the service at any time without liability.
-        </div>
-
-        <h3 class="subsection-title">No Warranties</h3>
-        <div class="terms-content">
-            Our service is provided "as is" without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.
-        </div>
-
-        <h2 class="section-title">9. Limitation of Liability</h2>
-        <div class="terms-content">
-            To the maximum extent permitted by law, Aggar Real Estate shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our service.
-        </div>
-        <div class="terms-content">
-            Our total liability for any claims arising from or relating to these terms or our service shall not exceed the amount you paid to us in the twelve months preceding the claim.
-        </div>
-
-        <h2 class="section-title">10. Indemnification</h2>
-        <div class="terms-content">
-            You agree to indemnify and hold harmless Aggar Real Estate, its officers, directors, employees, and agents from any claims, damages, or expenses arising from your use of our service or violation of these terms.
-        </div>
-
-        <h2 class="section-title">11. Privacy</h2>
-        <div class="terms-content">
-            Your privacy is important to us. Please review our Privacy Policy, which also governs your use of our service, to understand our practices.
-        </div>
-
-        <h2 class="section-title">12. Dispute Resolution</h2>
-        
-        <h3 class="subsection-title">Governing Law</h3>
-        <div class="terms-content">
-            These terms shall be governed by and construed in accordance with the laws of the State of New York, without regard to its conflict of law principles.
-        </div>
-
-        <h3 class="subsection-title">Arbitration</h3>
-        <div class="terms-content">
-            Any dispute arising from these terms or our service shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.
-        </div>
-
-        <h2 class="section-title">13. Changes to Terms</h2>
-        <div class="terms-content">
-            We reserve the right to modify these terms at any time. We will notify users of material changes by posting the updated terms on our website and sending email notifications to registered users.
-        </div>
-        <div class="terms-content">
-            Your continued use of our service after such changes constitutes acceptance of the modified terms.
-        </div>
-
-        <h2 class="section-title">14. Termination</h2>
-        <div class="terms-content">
-            We may terminate or suspend your account and bar access to the service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever, including without limitation if you breach the terms.
-        </div>
-
-        <h2 class="section-title">15. General Provisions</h2>
-        
-        <h3 class="subsection-title">Entire Agreement</h3>
-        <div class="terms-content">
-            These terms constitute the entire agreement between you and Aggar Real Estate regarding the use of our service.
-        </div>
-
-        <h3 class="subsection-title">Severability</h3>
-        <div class="terms-content">
-            If any provision of these terms is found to be unenforceable, the remaining provisions will remain in full force and effect.
-        </div>
-
-        <h3 class="subsection-title">No Waiver</h3>
-        <div class="terms-content">
-            Our failure to enforce any provision of these terms shall not constitute a waiver of such provision.
-        </div>
-
-        <div class="contact-info">
-            <h3 class="subsection-title">Contact Us</h3>
-            <div class="terms-content">
-                If you have questions about these Terms of Service, please contact us:
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-lg">
+                        <i class="fas fa-plus-circle ml-1"></i>
+                        <span th:text="#{header.add.property}">Add Property</span>
+                    </a>
+                    <div th:if="${isAuthenticated}" class="hidden md:flex items-center space-x-2 space-x-reverse bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-user-circle text-xl text-primary"></i>
+                        <span th:if="${currentUser != null}" th:text="${currentUser.name}" class="text-sm font-medium text-gray-700">User</span>
+                    </div>
+                    <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-600 text-2xl focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
             </div>
-            <ul>
-                <li><strong>Email:</strong> legal@aggar.com</li>
-                <li><strong>Phone:</strong> +1 (555) 123-4567</li>
-                <li><strong>Address:</strong> 123 Business Ave, Suite 100, New York, NY 10001</li>
-                <li><strong>Website:</strong> www.aggar.com</li>
-            </ul>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="lg:hidden hidden pb-6">
+                <div class="bg-gray-50 rounded-2xl p-4 space-y-2 mt-2">
+                    <a th:href="@{/}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-home ml-2"></i> <span th:text="#{header.all}">All</span>
+                    </a>
+                    <a th:href="@{/about}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-info-circle ml-2"></i> <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                    <hr class="border-gray-200 my-2">
+                    <a th:href="@{/profile}" th:if="${isAuthenticated}" class="block px-4 py-3 text-gray-700 hover:bg-white rounded-lg">
+                        <i class="fas fa-user ml-2"></i> <span th:text="#{header.my.profile}">My Profile</span>
+                    </a>
+                    <a th:href="@{/logout}" th:if="${isAuthenticated}" class="block px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+                        <i class="fas fa-sign-out-alt ml-2"></i> <span th:text="#{header.sign.out}">Sign Out</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section class="pt-32 pb-16 bg-gradient-to-br from-indigo-600 via-primary to-primary-dark text-white relative overflow-hidden">
+        <!-- Floating shapes -->
+        <div class="floating-shape w-56 h-56 bg-white" style="top: 15%; left: 8%; animation-delay: 0s;"></div>
+        <div class="floating-shape w-32 h-32 bg-accent" style="bottom: 25%; right: 12%; animation-delay: 2s;"></div>
+        <div class="floating-shape w-20 h-20 bg-secondary" style="top: 40%; left: 40%; animation-delay: 4s;"></div>
+
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center animate-fade-in-up">
+                <div class="inline-flex items-center bg-white/10 glass rounded-full px-6 py-2.5 mb-6">
+                    <i class="fas fa-file-contract text-accent ml-2"></i>
+                    <span class="text-white/90 text-sm font-medium">الوثائق القانونية</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+                    شروط <span class="text-accent">الاستخدام</span>
+                </h1>
+                <p class="text-xl text-white/80 leading-relaxed max-w-2xl mx-auto">
+                    يرجى قراءة هذه الشروط بعناية قبل استخدام منصة أغار العقارية. باستخدامك لخدماتنا، فإنك توافق على الالتزام بهذه الشروط.
+                </p>
+                <div class="mt-8 flex items-center justify-center space-x-4 space-x-reverse text-white/60 text-sm">
+                    <span><i class="fas fa-calendar-alt ml-1"></i> تاريخ السريان: 1 يناير 2025</span>
+                    <span class="w-1 h-1 bg-white/30 rounded-full"></span>
+                    <span><i class="fas fa-sync-alt ml-1"></i> آخر تحديث: 1 يناير 2025</span>
+                </div>
+            </div>
         </div>
 
-        <div class="last-updated">
-            <p>Last updated: January 1, 2025</p>
+        <!-- Wave divider -->
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 80L1440 80L1440 0C1200 40 960 60 720 60C480 60 240 40 0 0L0 80Z" fill="#F9FAFB"/>
+            </svg>
         </div>
-    </div>
-</div>
+    </section>
 
-<!-- Include footer fragment -->
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <!-- ========== MAIN CONTENT ========== -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-8">
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                <!-- Table of Contents Sidebar -->
+                <div class="lg:w-1/4 animate-slide-in-right">
+                    <div class="bg-white rounded-3xl shadow-lg p-6 toc-sidebar reveal">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-list text-primary ml-2"></i>
+                            محتويات الصفحة
+                        </h3>
+                        <nav class="space-y-1">
+                            <a href="#section-1" class="toc-link" onclick="updateToc('section-1')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">1</span>
+                                قبول الشروط
+                            </a>
+                            <a href="#section-2" class="toc-link" onclick="updateToc('section-2')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">2</span>
+                                وصف الخدمة
+                            </a>
+                            <a href="#section-3" class="toc-link" onclick="updateToc('section-3')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">3</span>
+                                حسابات المستخدمين
+                            </a>
+                            <a href="#section-4" class="toc-link" onclick="updateToc('section-4')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">4</span>
+                                قوائم العقارات
+                            </a>
+                            <a href="#section-5" class="toc-link" onclick="updateToc('section-5')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">5</span>
+                                سلوك المستخدم
+                            </a>
+                            <a href="#section-6" class="toc-link" onclick="updateToc('section-6')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">6</span>
+                                الملكية الفكرية
+                            </a>
+                            <a href="#section-7" class="toc-link" onclick="updateToc('section-7')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">7</span>
+                                الرسوم والمدفوعات
+                            </a>
+                            <a href="#section-8" class="toc-link" onclick="updateToc('section-8')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">8</span>
+                                إخلاء المسؤولية
+                            </a>
+                            <a href="#section-9" class="toc-link" onclick="updateToc('section-9')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">9</span>
+                                تحديد المسؤولية
+                            </a>
+                            <a href="#section-10" class="toc-link" onclick="updateToc('section-10')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">10</span>
+                                التعويض
+                            </a>
+                            <a href="#section-11" class="toc-link" onclick="updateToc('section-11')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">11</span>
+                                الخصوصية
+                            </a>
+                            <a href="#section-12" class="toc-link" onclick="updateToc('section-12')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">12</span>
+                                حل النزاعات
+                            </a>
+                            <a href="#section-13" class="toc-link" onclick="updateToc('section-13')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">13</span>
+                                تعديل الشروط
+                            </a>
+                            <a href="#section-14" class="toc-link" onclick="updateToc('section-14')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">14</span>
+                                إنهاء الخدمة
+                            </a>
+                            <a href="#section-15" class="toc-link" onclick="updateToc('section-15')">
+                                <span class="section-number bg-blue-50 text-primary ml-2">15</span>
+                                أحكام عامة
+                            </a>
+                            <a href="#contact" class="toc-link" onclick="updateToc('contact')">
+                                <span class="section-number bg-amber-50 text-amber-600 ml-2"><i class="fas fa-envelope"></i></span>
+                                تواصل معنا
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Terms Content -->
+                <div class="lg:w-3/4">
+                    <div class="bg-white rounded-3xl shadow-lg p-8 md:p-12 reveal">
+
+                        <!-- Important Notice -->
+                        <div class="warning-box p-6 mb-12 reveal">
+                            <div class="flex items-start space-x-3 space-x-reverse">
+                                <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-amber-900 mb-2">إشعار هام</h4>
+                                    <p class="text-sm text-amber-800 leading-relaxed">
+                                        يرجى قراءة هذه الشروط بعناية قبل استخدام خدماتنا. من خلال الوصول إلى منصة أغار أو استخدامها، فإنك توافق على الالتزام بهذه الشروط والبنود. إذا كنت لا توافق على هذه الشروط، يرجى عدم استخدام الخدمة.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 1 -->
+                        <div id="section-1" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">1</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">قبول الشروط</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed mb-4">
+                                    من خلال الوصول إلى منصة أغار العقارية واستخدامها، فإنك تقبل وتوافق على الالتزام بالشروط والأحكام الواردة في هذا الاتفاق. إذا كنت لا توافق على الالتزام بما ورد أعلاه، يرجى عدم استخدام هذه الخدمة.
+                                </p>
+                                <p class="text-gray-600 leading-relaxed">
+                                    يحق لنا تعديل هذه الشروط في أي وقت. سنقوم بإخطار المستخدمين بالتغييرات الجوهرية من خلال نشر الشروط المحدثة على موقعنا وإرسال إشعارات عبر البريد الإلكتروني للمستخدمين المسجلين.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section 2 -->
+                        <div id="section-2" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">2</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">وصف الخدمة</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed mb-6">
+                                    توفر أغار منصة إلكترونية تربط بين مشتري العقارات، والبائعين، والمستأجرين، ومحترفي العقارات. تشمل خدماتنا:
+                                </p>
+                                <ul class="custom-list pr-6">
+                                    <li>وظائف البحث وإدراج العقارات</li>
+                                    <li>تفاصيل العقارات والمحتوى المتعدد الوسائط</li>
+                                    <li>الربط مع وكلاء العقارات ومالكي العقارات</li>
+                                    <li>أدوات تقييم العقارات ورؤى السوق</li>
+                                    <li>أخبار العقارات والمحتوى التعليمي</li>
+                                    <li>التطبيقات المحمولة والخدمات ذات الصلة</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Section 3 -->
+                        <div id="section-3" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">3</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">حسابات المستخدمين</h2>
+                            </div>
+                            <div class="mr-12">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">تسجيل الحساب</h3>
+                                <p class="text-gray-600 leading-relaxed mb-4">
+                                    للوصول إلى ميزات معينة، يجب عليك التسجيل للحصول على حساب. أنت توافق على:
+                                </p>
+                                <ul class="custom-list pr-6 mb-8">
+                                    <li>تقديم معلومات دقيقة وحديثة وكاملة</li>
+                                    <li>الحفاظ على معلومات حسابك وتحديثها</li>
+                                    <li>إبقاء كلمة المرور الخاصة بك آمنة وسرية</li>
+                                    <li>قبول المسؤولية عن جميع الأنشطة تحت حسابك</li>
+                                    <li>إخطارنا فوراً بأي استخدام غير مصرح به</li>
+                                </ul>
+
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">إنهاء الحساب</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    نحتفظ بالحق في تعليق حسابك أو إنهائه في حالة انتهاك هذه الشروط أو لأي سبب آخر حسب تقديرنا المطلق.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section 4 -->
+                        <div id="section-4" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">4</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">قوائم العقارات</h2>
+                            </div>
+                            <div class="mr-12">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">دقة القائمة</h3>
+                                <p class="text-gray-600 leading-relaxed mb-6">
+                                    أصحاب العقارات والوكلاء مسؤولون عن دقة قوائمهم. بينما نسعى للحفاظ على معلومات دقيقة، لا يمكننا ضمان اكتمال أو دقة جميع القوائم.
+                                </p>
+
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">محتوى القائمة</h3>
+                                <p class="text-gray-600 leading-relaxed mb-4">يجب ألا تتضمن القوائم:</p>
+                                <ul class="custom-list pr-6">
+                                    <li>معلومات خاطئة أو مضللة</li>
+                                    <li>لغة أو ممارسات تمييزية</li>
+                                    <li>محتوى غير قانوني أو محظور</li>
+                                    <li>انتهاك لحقوق الملكية الفكرية</li>
+                                    <li>رموز خبيثة أو محتوى ضار</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Section 5 -->
+                        <div id="section-5" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">5</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">سلوك المستخدم</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed mb-4">أنت توافق على عدم القيام بما يلي:</p>
+                                <ul class="custom-list pr-6">
+                                    <li>استخدام الخدمة لأغراض غير قانونية</li>
+                                    <li>مضايقة أو إساءة أو إلحاق الضرر بالمستخدمين الآخرين</li>
+                                    <li>نشر معلومات خاطئة أو مضللة</li>
+                                    <li>محاولة الوصول غير المصرح به إلى أنظمتنا</li>
+                                    <li>التشويش على الخدمة أو تعطيلها</li>
+                                    <li>استخدام أدوات آلية للوصول إلى الخدمة</li>
+                                    <li>انتهاك القوانين أو اللوائح المعمول بها</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Section 6 -->
+                        <div id="section-6" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">6</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">الملكية الفكرية</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed mb-4">
+                                    جميع المحتويات على منصة أغار، بما في ذلك النصوص والصور والرسومات والشعارات والبرمجيات، مملوكة لنا أو مرخصة لنا، ومحمية بقوانين حقوق النشر والعلامات التجارية وغيرها من قوانين الملكية الفكرية.
+                                </p>
+                                <p class="text-gray-600 leading-relaxed mb-4">لا يجوز لك:</p>
+                                <ul class="custom-list pr-6">
+                                    <li>نسخ أو تعديل أو توزيع محتوانا</li>
+                                    <li>استخدام علاماتنا التجارية دون إذن</li>
+                                    <li>جمع البيانات أو استخراجها من منصتنا</li>
+                                    <li>إنشاء أعمال مشتقة بناءً على محتوانا</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Section 7 -->
+                        <div id="section-7" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">7</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">الرسوم والمدفوعات</h2>
+                            </div>
+                            <div class="mr-12">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">رسوم الخدمة</h3>
+                                <p class="text-gray-600 leading-relaxed mb-6">
+                                    الاستخدام الأساسي لمنصتنا مجاني. قد نتقاضى رسومًا مقابل الميزات المميزة، أو خدمات الإدراج، أو خدمات القيمة المضافة الأخرى. ستكون جميع الرسوم مفصحة بوضوح قبل تكبد أي رسوم.
+                                </p>
+
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">شروط الدفع</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    يجب إجراء جميع المدفوعات من خلال طرق الدفع المعتمدة لدينا. الرسوم غير قابلة للاسترداد ما لم ينص على خلاف ذلك. نحتفظ بالحق في تغيير هيكل الرسوم الخاص بنا مع إشعار مسبق.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section 8 -->
+                        <div id="section-8" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">8</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">إخلاء المسؤولية</h2>
+                            </div>
+                            <div class="mr-12">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">توفر الخدمة</h3>
+                                <p class="text-gray-600 leading-relaxed mb-6">
+                                    لا نضمن خدمة خالية من الانقطاع أو الخطأ. يجوز لنا تعديل الخدمة أو تعليقها أو إيقافها في أي وقت دون مسؤولية.
+                                </p>
+
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">لا توجد ضمانات</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    تقدم خدمتنا "كما هي" دون أي ضمانات من أي نوع، سواء كانت صريحة أو ضمنية، بما في ذلك على سبيل المثال لا الحصر، ضمانات القابلية للتجارة، والملاءمة لغرض معين، أو عدم الانتهاك.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section 9 -->
+                        <div id="section-9" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">9</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">تحديد المسؤولية</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed">
+                                    إلى أقصى حد يسمح به القانون، لا تتحمل أغار العقارية أي مسؤولية عن أي أضرار غير مباشرة أو عارضة أو خاصة أو تبعية ناشئة عن استخدامك لخدمتنا.
+                                </p>
+                                <p class="text-gray-600 leading-relaxed mt-4">
+                                    تقتصر مسؤوليتنا الإجمالية عن أي مطالبات ناشئة عن أو تتعلق بهذه الشروط أو خدمتنا على المبلغ الذي دفعته لنا في الإثني عشر شهراً السابقة للمطالبة.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section 10-15 in compact form -->
+                        <div id="section-10" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">10</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">التعويض</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed">
+                                    أنت توافق على تعويض أغار العقارية والمديرين والمسؤولين والموظفين والوكلاء لديها وحمايتهم من أي مطالبات أو أضرار أو مصاريف ناشئة عن استخدامك لخدمتنا أو انتهاكك لهذه الشروط.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="section-11" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">11</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">الخصوصية</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed">
+                                    خصوصيتك مهمة بالنسبة لنا. يرجى مراجعة سياسة الخصوصية الخاصة بنا، التي تحكم أيضاً استخدامك لخدمتنا، لفهم ممارساتنا.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="section-12" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">12</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">حل النزاعات</h2>
+                            </div>
+                            <div class="mr-12">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">القانون الحاكم</h3>
+                                <p class="text-gray-600 leading-relaxed mb-6">
+                                    تخضع هذه الشروط وتفسر وفقاً لقوانين دولة الإمارات العربية المتحدة، دون اعتبار لنظريات تعارض القوانين.
+                                </p>
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">التحكيم</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    أي نزاع ناشئ عن هذه الشروط أو خدمتنا سيتم حله من خلال التحكيم الملزم وفقاً لقواعد جمعية التحكيم الأمريكية.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="section-13" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">13</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">تعديل الشروط</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed">
+                                    نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سنقوم بإخطار المستخدمين بالتغييرات الجوهرية من خلال نشر الشروط المحدثة على موقعنا وإرسال إشعارات عبر البريد الإلكتروني. استمرارك في استخدام خدمتنا بعد هذه التغييرات يشكل قبولاً للشروط المعدلة.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="section-14" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">14</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">إنهاء الخدمة</h2>
+                            </div>
+                            <div class="mr-12">
+                                <p class="text-gray-600 leading-relaxed">
+                                    يجوز لنا إنهاء حسابك أو تعليقه ومنع الوصول إلى الخدمة فوراً، دون إشعار مسبق أو مسؤولية، حسب تقديرنا المطلق، لأي سبب كان، بما في ذلك على سبيل المثال لا الحصر إذا قمت بانتهاك الشروط.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="section-15" class="terms-section mb-12 reveal">
+                            <div class="flex items-center mb-6">
+                                <div class="section-number bg-blue-50 text-primary">15</div>
+                                <h2 class="text-2xl font-bold text-gray-900 mr-3">أحكام عامة</h2>
+                            </div>
+                            <div class="mr-12">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">الاتفاق الكامل</h3>
+                                <p class="text-gray-600 leading-relaxed mb-6">
+                                    تشكل هذه الشروط الاتفاق الكامل بينك وبين أغار العقارية فيما يتعلق باستخدام خدمتنا.
+                                </p>
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">القابلية للتجزئة</h3>
+                                <p class="text-gray-600 leading-relaxed mb-6">
+                                    إذا تبين أن أي حكم من هذه الشروط غير قابل للتنفيذ، فإن الأحكام المتبقية ستبقى سارية وقائمة بكامل قوتها.
+                                </p>
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">عدم التنازل</h3>
+                                <p class="text-gray-600 leading-relaxed">
+                                    فشلنا في إنفاذ أي حكم من هذه الشروط لا يشكل تنازلاً عن مثل هذا الحكم.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Contact Section -->
+                        <div id="contact" class="terms-section reveal">
+                            <div class="info-box p-8">
+                                <h3 class="text-xl font-bold text-blue-900 mb-6 flex items-center">
+                                    <i class="fas fa-envelope text-primary ml-2"></i>
+                                    تواصل معنا
+                                </h3>
+                                <p class="text-blue-800 mb-6">إذا كان لديك أي أسئلة حول شروط الاستخدام هذه، يرجى التواصل معنا:</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="flex items-center bg-white/60 rounded-xl p-4">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center ml-3 flex-shrink-0">
+                                            <i class="fas fa-envelope text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-blue-600">البريد الإلكتروني</div>
+                                            <div class="font-semibold text-blue-900">legal@aggar.com</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center bg-white/60 rounded-xl p-4">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center ml-3 flex-shrink-0">
+                                            <i class="fas fa-phone text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-blue-600">الهاتف</div>
+                                            <div class="font-semibold text-blue-900">+1 (555) 123-4567</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center bg-white/60 rounded-xl p-4">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center ml-3 flex-shrink-0">
+                                            <i class="fas fa-map-marker-alt text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-blue-600">العنوان</div>
+                                            <div class="font-semibold text-blue-900">123 Business Ave, Suite 100, New York, NY 10001</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center bg-white/60 rounded-xl p-4">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center ml-3 flex-shrink-0">
+                                            <i class="fas fa-globe text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-blue-600">الموقع الإلكتروني</div>
+                                            <div class="font-semibold text-blue-900">www.aggar.com</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Last Updated -->
+                        <div class="text-center mt-12 pt-8 border-t border-gray-100 reveal">
+                            <p class="text-gray-400 text-sm italic">
+                                <i class="fas fa-clock ml-1"></i>
+                                آخر تحديث: 1 يناير 2025
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Print Button -->
+                    <div class="text-center mt-8 reveal">
+                        <button onclick="window.print()" class="inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-600 rounded-full hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 font-medium">
+                            <i class="fas fa-print ml-2"></i>
+                            طباعة الشروط
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // TOC click handling
+        function updateToc(sectionId) {
+            document.querySelectorAll('.toc-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            const activeLink = document.querySelector(`.toc-link[href="#${sectionId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Scroll spy for TOC
+        const sections = document.querySelectorAll('.terms-section');
+        const tocLinks = document.querySelectorAll('.toc-link');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '-20% 0px -80% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    tocLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${id}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => observer.observe(section));
+
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-2xl');
+            } else {
+                navbar.classList.remove('shadow-2xl');
+            }
+        });
+
+        // Smooth scroll for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

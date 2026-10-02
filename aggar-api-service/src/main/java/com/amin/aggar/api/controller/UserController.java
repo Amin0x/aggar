@@ -1,7 +1,10 @@
 package com.amin.aggar.api.controller;
 
 import com.amin.aggar.api.dto.UserDto;
+import com.amin.aggar.api.dto.AuthenticationRequest;
+import com.amin.aggar.api.dto.AuthenticatedUserDto;
 import com.amin.aggar.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +26,15 @@ public class UserController {
         return userService.listAll();
     }
 
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticatedUserDto> authenticate(@RequestBody AuthenticationRequest request) {
+        return userService.authenticate(request.identifier(), request.password())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> get(@PathVariable Integer id) {
+    public ResponseEntity<UserDto> get(@PathVariable("id") Long id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -37,14 +47,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> update(@PathVariable Integer id, @RequestBody UserDto dto) {
+    public ResponseEntity<UserDto> update(@PathVariable("id") Long id, @RequestBody UserDto dto) {
         return userService.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         boolean removed = userService.delete(id);
         return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
-

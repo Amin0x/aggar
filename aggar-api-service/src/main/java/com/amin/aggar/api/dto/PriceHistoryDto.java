@@ -8,7 +8,7 @@ public class PriceHistoryDto {
     private Long propertyId;
     private BigDecimal oldPrice;
     private BigDecimal newPrice;
-    private Integer changedById;
+    private Long changedById;
     private LocalDateTime changedAt;
 
     public PriceHistoryDto() {}
@@ -21,8 +21,8 @@ public class PriceHistoryDto {
     public void setOldPrice(BigDecimal oldPrice) { this.oldPrice = oldPrice; }
     public BigDecimal getNewPrice() { return newPrice; }
     public void setNewPrice(BigDecimal newPrice) { this.newPrice = newPrice; }
-    public Integer getChangedById() { return changedById; }
-    public void setChangedById(Integer changedById) { this.changedById = changedById; }
+    public Long getChangedById() { return changedById; }
+    public void setChangedById(Long changedById) { this.changedById = changedById; }
     public LocalDateTime getChangedAt() { return changedAt; }
     public void setChangedAt(LocalDateTime changedAt) { this.changedAt = changedAt; }
 }

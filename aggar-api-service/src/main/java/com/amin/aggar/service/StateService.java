@@ -26,6 +26,7 @@ public class StateService {
         StateDto d = new StateDto();
         d.setId(s.getId());
         d.setName(s.getName());
+        d.setNameAr(s.getNameAr());
         d.setCode(s.getCode());
         return d;
     }
@@ -35,6 +36,7 @@ public class StateService {
         State s = new State();
         s.setId(d.getId());
         s.setName(d.getName());
+        s.setNameAr(d.getNameAr());
         s.setCode(d.getCode());
         return s;
     }
@@ -59,6 +61,9 @@ public class StateService {
     public Optional<StateDto> update(Integer id, StateDto dto) {
         return stateRepository.findById(id).map(existing -> {
             existing.setName(dto.getName());
+            if (dto.getNameAr() != null) {
+                existing.setNameAr(dto.getNameAr());
+            }
             existing.setCode(dto.getCode());
             return toDto(stateRepository.save(existing));
         });
@@ -72,4 +77,3 @@ public class StateService {
         }).orElse(false);
     }
 }
-

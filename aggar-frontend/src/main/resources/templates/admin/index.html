@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="#{header.brand} + ' - لوحة الإدارة'">Admin Dashboard - Aggar</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { 'arabic': ['Cairo', 'sans-serif'] }, colors: { 'primary': '#1E40AF', 'accent': '#F59E0B' } }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-gray-50 font-arabic antialiased">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <section class="pt-32 pb-16 bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 text-white relative overflow-hidden">
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="inline-flex items-center bg-white/10 glass rounded-full px-6 py-2.5 mb-6">
+                    <i class="fas fa-shield-alt text-accent ml-2"></i>
+                    <span class="text-white/90 text-sm font-medium">لوحة الإدارة</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black mb-6">لوحة <span class="text-accent">الإدارة</span></h1>
+                <p class="text-xl text-white/80">إدارة المحتوى والمناطق والمدن والأحياء في النظام</p>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 80L1440 80L1440 0C1200 40 960 60 720 60C480 60 240 40 0 0L0 80Z" fill="#F9FAFB"/>
+            </svg>
+        </div>
+    </section>
+
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+
+                <!-- Flash Messages -->
+                <div th:if="${param.success}" class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center reveal">
+                    <i class="fas fa-check-circle text-2xl ml-4"></i>
+                    <span th:text="${param.success}">Success</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 reveal">
+
+                    <!-- Properties Card -->
+                    <a th:href="@{/admin/properties}" class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-home text-2xl text-blue-600"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">الموافقة على العقارات</h3>
+                        <p class="text-sm text-gray-500">مراجعة والموافقة على العقارات المعلقة</p>
+                    </a>
+
+                    <!-- States Card -->
+                    <a th:href="@{/states/list}" class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-map-marked-alt text-2xl text-teal-600"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">المناطق</h3>
+                        <p class="text-sm text-gray-500">إضافة وتعديل وحذف المناطق الإدارية</p>
+                    </a>
+
+                    <!-- Cities Card -->
+                    <a th:href="@{/cities/list}" class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-city text-2xl text-indigo-600"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">المدن</h3>
+                        <p class="text-sm text-gray-500">إضافة وتعديل وحذف المدن</p>
+                    </a>
+
+                    <!-- Neighborhoods Card -->
+                    <a th:href="@{/neighborhoods/list}" class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-road text-2xl text-green-600"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">الأحياء</h3>
+                        <p class="text-sm text-gray-500">إضافة وتعديل وحذف الأحياء</p>
+                    </a>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 reveal">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">إجراءات سريعة</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <a th:href="@{/admin/properties}" class="flex flex-col items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+                            <i class="fas fa-check-circle text-2xl text-blue-600 mb-2"></i>
+                            <span class="text-sm font-medium text-blue-900">الموافقة على العقارات</span>
+                        </a>
+                        <a th:href="@{/states/add}" class="flex flex-col items-center p-4 bg-teal-50 rounded-xl hover:bg-teal-100 transition-colors">
+                            <i class="fas fa-plus-circle text-2xl text-teal-600 mb-2"></i>
+                            <span class="text-sm font-medium text-teal-900">إضافة منطقة</span>
+                        </a>
+                        <a th:href="@{/cities/add}" class="flex flex-col items-center p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">
+                            <i class="fas fa-plus-circle text-2xl text-indigo-600 mb-2"></i>
+                            <span class="text-sm font-medium text-indigo-900">إضافة مدينة</span>
+                        </a>
+                        <a th:href="@{/neighborhoods/add}" class="flex flex-col items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
+                            <i class="fas fa-plus-circle text-2xl text-green-600 mb-2"></i>
+                            <span class="text-sm font-medium text-green-900">إضافة حي</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
+</body>
+</html>

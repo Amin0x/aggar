@@ -1,101 +1,1090 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
 <head>
     <meta charset="UTF-8" />
-    <title th:text="#{header.brand} + ' - Settings'">Aggar - Settings</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="#{header.brand} + ' - إعدادات الموقع'">Aggar - إعدادات الموقع</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'sans-serif'],
+                        'english': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#1E40AF',
+                        'primary-light': '#3B82F6',
+                        'primary-dark': '#1E3A8A',
+                        'secondary': '#0D9488',
+                        'accent': '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         body { font-family: 'Cairo', sans-serif; }
+
+        html { scroll-behavior: smooth; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+
+        .animation-delay-100 { animation-delay: 0.1s; opacity: 0; }
+        .animation-delay-200 { animation-delay: 0.2s; opacity: 0; }
+        .animation-delay-300 { animation-delay: 0.3s; opacity: 0; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6, #0D9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Form styling */
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #EF4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        .input-group { position: relative; }
+
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-input:focus ~ .input-icon { color: #3B82F6; }
+        .form-input.error ~ .input-icon { color: #EF4444; }
+
+        .form-select {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") right 1rem center / 1.5em no-repeat;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Settings card */
+        .settings-card {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .settings-card:hover {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Color preview */
+        .color-preview {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            border: 2px solid #E5E7EB;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .color-preview:hover {
+            transform: scale(1.1);
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 3.5rem;
+            height: 2rem;
+            background: #D1D5DB;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #3B82F6;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toggle-switch.active::after {
+            right: calc(100% - 1.75rem);
+        }
+
+        /* Alert */
+        .alert-message {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .alert-success {
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            color: #065F46;
+        }
+
+        .alert-error {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #991B1B;
+        }
+
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Settings nav */
+        .settings-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6B7280;
+        }
+
+        .settings-nav-item:hover {
+            background: #F3F4F6;
+            color: #3B82F6;
+        }
+
+        .settings-nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1E40AF;
+            font-weight: 700;
+        }
+
+        .settings-nav-item i {
+            width: 1.5rem;
+            text-align: center;
+            margin-left: 0.75rem;
+        }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-gray-50 font-arabic antialiased">
 
-<div th:replace="~{fragments/header :: header}"></div>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-primary text-white p-2.5 rounded-xl">
+                        <i class="fas fa-building text-2xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800" th:text="#{header.brand}">Aggar</span>
+                </a>
 
-<div class="container mt-4">
-    <h1>Account Settings</h1>
-
-    <div class="row">
-        <div class="col-md-8">
-            <!-- Profile Information -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Profile Information</h5>
+                <div class="hidden lg:flex items-center space-x-1 space-x-reverse">
+                    <a th:href="@{/}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-home ml-1"></i>
+                        <span th:text="#{header.all}">All</span>
+                    </a>
+                    <th:block th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
+                        <a th:href="@{'/' (listingType=${ltype})}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                            <span th:text="${ltype}">Sale/Rent</span>
+                        </a>
+                    </th:block>
+                    <a th:href="@{/about}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-info-circle ml-1"></i>
+                        <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                    <a th:href="@{/settings}" class="px-4 py-2 bg-blue-50 text-primary rounded-lg font-semibold text-sm">
+                        <i class="fas fa-cog ml-1"></i>
+                        الإعدادات
+                    </a>
                 </div>
-                <div class="card-body">
-                    <form th:action="@{/profile/update}" method="post">
-                        <div class="mb-3">
-                            <label for="firstName" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="firstName" name="firstName"
-                                   th:value="${user != null ? user.firstName : ''}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="lastName" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="lastName" name="lastName"
-                                   th:value="${user != null ? user.lastName : ''}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email"
-                                   th:value="${user != null ? user.email : ''}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Phone</label>
-                            <input type="tel" class="form-control" id="phone" name="phone"
-                                   th:value="${user != null ? user.phone : ''}">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </form>
-                </div>
-            </div>
 
-            <!-- Change Password -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Change Password</h5>
-                </div>
-                <div class="card-body">
-                    <form th:action="@{/profile/change-password}" method="post">
-                        <div class="mb-3">
-                            <label for="currentPassword" class="form-label">Current Password</label>
-                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="newPassword" class="form-label">New Password</label>
-                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Change Password</button>
-                    </form>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-lg">
+                        <i class="fas fa-plus-circle ml-1"></i>
+                        <span th:text="#{header.add.property}">Add Property</span>
+                    </a>
+                    <div th:if="${isAuthenticated}" class="hidden md:flex items-center space-x-2 space-x-reverse bg-gray-100 px-4 py-2 rounded-full">
+                        <i class="fas fa-user-circle text-xl text-primary"></i>
+                        <span th:if="${currentUser != null}" th:text="${currentUser.name}" class="text-sm font-medium text-gray-700">User</span>
+                    </div>
+                    <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-600 text-2xl focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <!-- Account Summary -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Account Summary</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Username:</strong> <span th:text="${user != null ? user.username : ''}">username</span></p>
-                    <p><strong>Member Since:</strong> <span th:text="${user != null ? user.memberSince : ''}">date</span></p>
-                    <hr>
-                    <a th:href="@{/profile/saved}" class="btn btn-outline-primary btn-sm w-100 mb-2">Saved Properties</a>
-                    <a th:href="@{/properties/add}" class="btn btn-outline-success btn-sm w-100">Add New Property</a>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="lg:hidden hidden pb-6">
+                <div class="bg-gray-50 rounded-2xl p-4 space-y-2 mt-2">
+                    <a th:href="@{/}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-home ml-2"></i> <span th:text="#{header.all}">All</span>
+                    </a>
+                    <a th:href="@{/about}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-info-circle ml-2"></i> <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                    <a th:href="@{/settings}" class="block px-4 py-3 bg-blue-50 text-primary font-semibold rounded-lg">
+                        <i class="fas fa-cog ml-2"></i> الإعدادات
+                    </a>
+                    <hr class="border-gray-200 my-2">
+                    <a th:href="@{/profile}" th:if="${isAuthenticated}" class="block px-4 py-3 text-gray-700 hover:bg-white rounded-lg">
+                        <i class="fas fa-user ml-2"></i> <span th:text="#{header.my.profile}">My Profile</span>
+                    </a>
+                    <a th:href="@{/logout}" th:if="${isAuthenticated}" class="block px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+                        <i class="fas fa-sign-out-alt ml-2"></i> <span th:text="#{header.sign.out}">Sign Out</span>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </nav>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <!-- ========== HERO SECTION ========== -->
+    <section class="pt-32 pb-16 bg-gradient-to-br from-purple-600 via-indigo-700 to-gray-900 text-white relative overflow-hidden">
+        <!-- Floating shapes -->
+        <div class="floating-shape w-64 h-64 bg-white" style="top: 10%; right: 5%; animation-delay: 0s;"></div>
+        <div class="floating-shape w-40 h-40 bg-accent" style="bottom: 20%; left: 10%; animation-delay: 2s;"></div>
+        <div class="floating-shape w-24 h-24 bg-secondary" style="top: 40%; left: 40%; animation-delay: 4s;"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center animate-fade-in-up">
+                <div class="inline-flex items-center bg-white/10 glass rounded-full px-6 py-2.5 mb-6">
+                    <i class="fas fa-cogs text-accent ml-2"></i>
+                    <span class="text-white/90 text-sm font-medium">لوحة تحكم المدراء</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+                    إعدادات <span class="text-accent">الموقع</span>
+                </h1>
+                <p class="text-xl text-white/80 leading-relaxed max-w-2xl mx-auto">
+                    أدر إعدادات الموقع العامة، معلومات الاتصال، حسابات التواصل الاجتماعي، وإعدادات السيو والظهور
+                </p>
+            </div>
+        </div>
+
+        <!-- Wave divider -->
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 80L1440 80L1440 0C1200 40 960 60 720 60C480 60 240 40 0 0L0 80Z" fill="#F9FAFB"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-8">
+
+                <!-- Settings Sidebar -->
+                <div class="lg:w-1/4">
+                    <div class="bg-white rounded-3xl shadow-lg p-6 sticky top-24 reveal">
+                        <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                            <i class="fas fa-sliders-h text-primary ml-2"></i>
+                            قائمة الإعدادات
+                        </h3>
+                        <nav class="space-y-1">
+                            <div class="settings-nav-item active" onclick="switchSettingsTab('general')">
+                                <i class="fas fa-globe"></i>
+                                الإعدادات العامة
+                            </div>
+                            <div class="settings-nav-item" onclick="switchSettingsTab('contact')">
+                                <i class="fas fa-address-card"></i>
+                                معلومات الاتصال
+                            </div>
+                            <div class="settings-nav-item" onclick="switchSettingsTab('social')">
+                                <i class="fas fa-share-alt"></i>
+                                التواصل الاجتماعي
+                            </div>
+                            <div class="settings-nav-item" onclick="switchSettingsTab('seo')">
+                                <i class="fas fa-search"></i>
+                                إعدادات السيو
+                            </div>
+                            <div class="settings-nav-item" onclick="switchSettingsTab('email')">
+                                <i class="fas fa-envelope"></i>
+                                إعدادات البريد
+                            </div>
+                            <div class="settings-nav-item" onclick="switchSettingsTab('appearance')">
+                                <i class="fas fa-palette"></i>
+                                المظهر والألوان
+                            </div>
+                            <div class="settings-nav-item" onclick="switchSettingsTab('security')">
+                                <i class="fas fa-shield-alt"></i>
+                                الأمان والخصوصية
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Settings Content -->
+                <div class="lg:w-3/4">
+                    <!-- Success Message -->
+                    <div th:if="${successMessage}" class="alert-message alert-success mb-8 reveal">
+                        <i class="fas fa-check-circle text-2xl ml-4"></i>
+                        <span th:text="${successMessage}">Settings saved successfully!</span>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div th:if="${errorMessage}" class="alert-message alert-error mb-8 reveal">
+                        <i class="fas fa-exclamation-circle text-2xl ml-4"></i>
+                        <span th:text="${errorMessage}">An error occurred</span>
+                    </div>
+
+                    <!-- General Settings Tab -->
+                    <div id="tab-general" class="settings-tab-content">
+                        <div class="settings-card reveal">
+                            <div class="bg-gradient-to-r from-purple-500 to-indigo-600 p-8 text-white relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                                <div class="relative z-10">
+                                    <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-globe text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-2">الإعدادات العامة</h2>
+                                    <p class="text-purple-100">إدارة المعلومات الأساسية للموقع</p>
+                                </div>
+                            </div>
+                            <div class="p-8 md:p-12">
+                                <form th:action="@{/settings/general}" method="post">
+                                    <div class="mb-6">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-building ml-1 text-primary"></i>
+                                            اسم الموقع *
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-input" name="siteName"
+                                                   th:value="${settings != null and settings.siteName != null} ? ${settings.siteName} : 'Aggar Real Estate'"
+                                                   required>
+                                            <i class="fas fa-tag input-icon"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-quote-right ml-1 text-primary"></i>
+                                            الشعار (Tagline)
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-input" name="tagline"
+                                                   th:value="${settings != null and settings.tagline != null} ? ${settings.tagline} : 'شريكك الموثوق في العقارات'">
+                                            <i class="fas fa-pen input-icon"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-align-left ml-1 text-primary"></i>
+                                            وصف الموقع
+                                        </label>
+                                        <div>
+                                            <textarea class="form-textarea" name="description"
+                                                      placeholder="وصف مختصر للموقع يظهر في نتائج البحث..." th:text="${settings != null} ? ${settings.description} : 'منصة عقارية رائدة تساعدك في العثور على عقارك المثالي'"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-language ml-1 text-primary"></i>
+                                                اللغة الافتراضية
+                                            </label>
+                                            <select class="form-select" name="defaultLanguage">
+                                                <option value="ar" th:selected="${settings != null and settings.defaultLanguage == 'ar'}">العربية</option>
+                                                <option value="en" th:selected="${settings != null and settings.defaultLanguage == 'en'}">English</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-dollar-sign ml-1 text-primary"></i>
+                                                العملة الافتراضية
+                                            </label>
+                                            <select class="form-select" name="defaultCurrency">
+                                                <option value="USD" th:selected="${settings != null and settings.defaultCurrency == 'USD'}">USD - دولار أمريكي</option>
+                                                <option value="EUR" th:selected="${settings != null and settings.defaultCurrency == 'EUR'}">EUR - يورو</option>
+                                                <option value="SAR" th:selected="${settings != null and settings.defaultCurrency == 'SAR'}">SAR - ريال سعودي</option>
+                                                <option value="AED" th:selected="${settings != null and settings.defaultCurrency == 'AED'}">AED - درهم إماراتي</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                        <a th:href="@{/}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                                            <i class="fas fa-times ml-1"></i>
+                                            إلغاء
+                                        </a>
+                                        <button type="submit" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-10 py-3 rounded-xl font-bold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
+                                            <i class="fas fa-save ml-2"></i>
+                                            حفظ الإعدادات
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Tab -->
+                    <div id="tab-contact" class="settings-tab-content hidden">
+                        <div class="settings-card reveal">
+                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-8 text-white relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                                <div class="relative z-10">
+                                    <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-address-card text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-2">معلومات الاتصال</h2>
+                                    <p class="text-blue-100">إدارة بيانات الاتصال وسائل التواصل</p>
+                                </div>
+                            </div>
+                            <div class="p-8 md:p-12">
+                                <form th:action="@{/settings/contact}" method="post">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-envelope ml-1 text-primary"></i>
+                                                البريد الإلكتروني *
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="email" class="form-input" name="contactEmail"
+                                                       th:value="${settings != null and settings.contactEmail != null} ? ${settings.contactEmail} : 'info@aggar.com'"
+                                                       required>
+                                                <i class="fas fa-at input-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-phone ml-1 text-primary"></i>
+                                                رقم الهاتف *
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="tel" class="form-input" name="contactPhone"
+                                                       th:value="${settings != null and settings.contactPhone != null} ? ${settings.contactPhone} : '+1 (555) 123-4567'"
+                                                       required>
+                                                <i class="fas fa-phone input-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-map-marker-alt ml-1 text-primary"></i>
+                                            العنوان *
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-input" name="contactAddress"
+                                                   th:value="${settings != null and settings.contactAddress != null} ? ${settings.contactAddress} : '123 Business Ave, Suite 100, New York, NY 10001'"
+                                                   required>
+                                            <i class="fas fa-map-pin input-icon"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-clock ml-1 text-primary"></i>
+                                                ساعات العمل
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-input" name="workingHours"
+                                                       th:value="${settings != null and settings.workingHours != null} ? ${settings.workingHours} : 'السبت - الخميس: 9:00 ص - 6:00 م'">
+                                                    <i class="fas fa-clock input-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-fax ml-1 text-primary"></i>
+                                                رقم الفاكس
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="tel" class="form-input" name="faxNumber"
+                                                       th:value="${settings != null} ? ${settings.faxNumber} : ''">
+                                                <i class="fas fa-print input-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                        <a th:href="@{/}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                                            <i class="fas fa-times ml-1"></i>
+                                            إلغاء
+                                        </a>
+                                        <button type="submit" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-10 py-3 rounded-xl font-bold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
+                                            <i class="fas fa-save ml-2"></i>
+                                            حفظ معلومات الاتصال
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Media Tab -->
+                    <div id="tab-social" class="settings-tab-content hidden">
+                        <div class="settings-card reveal">
+                            <div class="bg-gradient-to-r from-pink-500 to-rose-600 p-8 text-white relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                                <div class="relative z-10">
+                                    <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-share-alt text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-2">التواصل الاجتماعي</h2>
+                                    <p class="text-pink-100">روابط حسابات التواصل الاجتماعي للموقع</p>
+                                </div>
+                            </div>
+                            <div class="p-8 md:p-12">
+                                <form th:action="@{/settings/social}" method="post">
+                                    <div class="space-y-6 mb-8">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fab fa-facebook text-blue-600 ml-1"></i>
+                                                Facebook
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="url" class="form-input" name="facebookUrl"
+                                                       th:value="${settings != null} ? ${settings.facebookUrl} : ''"
+                                                       placeholder="https://facebook.com/aggar">
+                                                <i class="fab fa-facebook input-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fab fa-twitter text-blue-400 ml-1"></i>
+                                                Twitter / X
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="url" class="form-input" name="twitterUrl"
+                                                       th:value="${settings != null} ? ${settings.twitterUrl} : ''"
+                                                       placeholder="https://twitter.com/aggar">
+                                                <i class="fab fa-twitter input-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fab fa-instagram text-pink-600 ml-1"></i>
+                                                Instagram
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="url" class="form-input" name="instagramUrl"
+                                                       th:value="${settings != null} ? ${settings.instagramUrl} : ''"
+                                                       placeholder="https://instagram.com/aggar">
+                                                <i class="fab fa-instagram input-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fab fa-linkedin text-blue-700 ml-1"></i>
+                                                LinkedIn
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="url" class="form-input" name="linkedinUrl"
+                                                       th:value="${settings != null} ? ${settings.linkedinUrl} : ''"
+                                                       placeholder="https://linkedin.com/company/aggar">
+                                                <i class="fab fa-linkedin input-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fab fa-youtube text-red-600 ml-1"></i>
+                                                YouTube
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="url" class="form-input" name="youtubeUrl"
+                                                       th:value="${settings != null} ? ${settings.youtubeUrl} : ''"
+                                                       placeholder="https://youtube.com/@aggar">
+                                                <i class="fab fa-youtube input-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                        <a th:href="@{/}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                                            <i class="fas fa-times ml-1"></i>
+                                            إلغاء
+                                        </a>
+                                        <button type="submit" class="bg-gradient-to-r from-pink-500 to-rose-600 text-white px-10 py-3 rounded-xl font-bold hover:from-pink-600 hover:to-rose-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
+                                            <i class="fas fa-save ml-2"></i>
+                                            حفظ حسابات التواصل
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Settings Tab -->
+                    <div id="tab-seo" class="settings-tab-content hidden">
+                        <div class="settings-card reveal">
+                            <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-8 text-white relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                                <div class="relative z-10">
+                                    <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-search text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-2">إعدادات السيو</h2>
+                                    <p class="text-green-100">تحسين ظهور الموقع في محركات البحث</p>
+                                </div>
+                            </div>
+                            <div class="p-8 md:p-12">
+                                <form th:action="@{/settings/seo}" method="post">
+                                    <div class="mb-6">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-heading ml-1 text-primary"></i>
+                                            عنوان الميتا (Meta Title)
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-input" name="metaTitle"
+                                                   th:value="${settings != null} ? ${settings.metaTitle} : ''"
+                                                   placeholder="Aggar - منصة العقارات الرائدة">
+                                            <i class="fas fa-heading input-icon"></i>
+                                        </div>
+                                        <p class="text-xs text-gray-400 mt-1">الحد الأقصى: 60 حرفًا</p>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-align-left ml-1 text-primary"></i>
+                                            وصف الميتا (Meta Description)
+                                        </label>
+                                        <textarea class="form-textarea" name="metaDescription" rows="3"
+                                                  placeholder="منصة عقارية متكاملة تساعدك في العثور على عقارك المثالي..."
+                                                  th:text="${settings != null} ? ${settings.metaDescription} : ''"></textarea>
+                                        <p class="text-xs text-gray-400 mt-1">الحد الأقصى: 160 حرفًا</p>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-tags ml-1 text-primary"></i>
+                                            الكلمات المفتاحية (Keywords)
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-input" name="metaKeywords"
+                                                   th:value="${settings != null} ? ${settings.metaKeywords} : ''"
+                                                   placeholder="عقارات، بيع، إيجار، شقق، فيلات">
+                                            <i class="fas fa-tags input-icon"></i>
+                                        </div>
+                                        <p class="text-xs text-gray-400 mt-1">افصل بين الكلمات بفواصل</p>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                        <a th:href="@{/}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                                            <i class="fas fa-times ml-1"></i>
+                                            إلغاء
+                                        </a>
+                                        <button type="submit" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-3 rounded-xl font-bold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
+                                            <i class="fas fa-save ml-2"></i>
+                                            حفظ إعدادات السيو
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Settings Tab -->
+                    <div id="tab-email" class="settings-tab-content hidden">
+                        <div class="settings-card reveal">
+                            <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-8 text-white relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                                <div class="relative z-10">
+                                    <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-envelope text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-2">إعدادات البريد</h2>
+                                    <p class="text-amber-100">تكوين خادم البريد الإلكتروني (SMTP)</p>
+                                </div>
+                            </div>
+                            <div class="p-8 md:p-12">
+                                <form th:action="@{/settings/email}" method="post">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-server ml-1 text-primary"></i>
+                                                خادم SMTP
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-input" name="smtpHost"
+                                                       th:value="${settings != null} ? ${settings.smtpHost} : ''"
+                                                       placeholder="smtp.gmail.com">
+                                                <i class="fas fa-server input-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-plug ml-1 text-primary"></i>
+                                                المنفذ (Port)
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-input" name="smtpPort"
+                                                       th:value="${settings != null} ? ${settings.smtpPort} : '587'">
+                                                <i class="fas fa-ethernet input-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-user ml-1 text-primary"></i>
+                                                اسم مستخدم SMTP
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-input" name="smtpUsername"
+                                                       th:value="${settings != null} ? ${settings.smtpUsername} : ''">
+                                                <i class="fas fa-user input-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-key ml-1 text-primary"></i>
+                                                كلمة مرور SMTP
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-input" name="smtpPassword"
+                                                       placeholder="اتركه فارغاً للإبقاء على الحالي">
+                                                <i class="fas fa-lock input-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                        <a th:href="@{/}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                                            <i class="fas fa-times ml-1"></i>
+                                            إلغاء
+                                        </a>
+                                        <button type="submit" class="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-10 py-3 rounded-xl font-bold hover:from-amber-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
+                                            <i class="fas fa-save ml-2"></i>
+                                            حفظ إعدادات البريد
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appearance Tab -->
+                    <div id="tab-appearance" class="settings-tab-content hidden">
+                        <div class="settings-card reveal">
+                            <div class="bg-gradient-to-r from-teal-500 to-cyan-600 p-8 text-white relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                                <div class="relative z-10">
+                                    <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-palette text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-2">المظهر والألوان</h2>
+                                    <p class="text-teal-100">تخصيص ألوان الموقع والمظهر العام</p>
+                                </div>
+                            </div>
+                            <div class="p-8 md:p-12">
+                                <form th:action="@{/settings/appearance}" method="post">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                                <i class="fas fa-paint-brush ml-1 text-primary"></i>
+                                                اللون الرئيسي
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="color" name="primaryColor" id="primaryColor"
+                                                       class="form-input h-14 cursor-pointer"
+                                                       th:value="${settings != null and settings.primaryColor != null} ? ${settings.primaryColor} : '#1E40AF'">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                                <i class="fas fa-paint-brush ml-1 text-secondary"></i>
+                                                اللون الثانوي
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="color" name="secondaryColor" id="secondaryColor"
+                                                       class="form-input h-14 cursor-pointer"
+                                                       th:value="${settings != null and settings.secondaryColor != null} ? ${settings.secondaryColor} : '#0D9488'">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                                <i class="fas fa-sun ml-1 text-accent"></i>
+                                                لون التمييز
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="color" name="accentColor" id="accentColor"
+                                                       class="form-input h-14 cursor-pointer"
+                                                       th:value="${settings != null and settings.accentColor != null} ? ${settings.accentColor} : '#F59E0B'">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-8">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                            <i class="fas fa-font ml-1 text-primary"></i>
+                                            الخط الرئيسي
+                                        </label>
+                                        <select class="form-select" name="primaryFont">
+                                            <option value="Cairo" th:selected="${settings != null and settings.primaryFont == 'Cairo'}">Cairo (العربية)</option>
+                                            <option value="Inter" th:selected="${settings != null and settings.primaryFont == 'Inter'}">Inter (الإنجليزية)</option>
+                                            <option value="Tajawal" th:selected="${settings != null and settings.primaryFont == 'Tajawal'}">Tajawal</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                        <a th:href="@{/}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                                            <i class="fas fa-times ml-1"></i>
+                                            إلغاء
+                                        </a>
+                                        <button type="submit" class="bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-10 py-3 rounded-xl font-bold hover:from-teal-600 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
+                                            <i class="fas fa-save ml-2"></i>
+                                            حفظ المظهر
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Tab -->
+                    <div id="tab-security" class="settings-tab-content hidden">
+                        <div class="settings-card reveal">
+                            <div class="bg-gradient-to-r from-red-500 to-rose-600 p-8 text-white relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                                <div class="relative z-10">
+                                    <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-shield-alt text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-2">الأمان والخصوصية</h2>
+                                    <p class="text-red-100">إدارة إعدادات الأمان والخصوصية</p>
+                                </div>
+                            </div>
+                            <div class="p-8 md:p-12">
+                                <form th:action="@{/settings/security}" method="post">
+                                    <div class="space-y-6 mb-8">
+                                        <div class="flex items-center justify-between bg-gray-50 p-4 rounded-xl">
+                                            <div class="flex items-center space-x-3 space-x-reverse">
+                                                <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                                                    <i class="fas fa-user-shield text-blue-600"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-semibold text-gray-900">المصادقة الثنائية</div>
+                                                    <div class="text-sm text-gray-500">تفعيل التحقق بخطوتين لتعزيز الأمان</div>
+                                                </div>
+                                            </div>
+                                            <div class="toggle-switch" onclick="toggleSwitch(this)" th:data-active="${settings != null and settings.twoFactorAuth == true} ? 'true' : 'false'">
+                                            </div>
+                                            <input type="hidden" name="twoFactorAuth" value="false">
+                                        </div>
+
+                                        <div class="flex items-center justify-between bg-gray-50 p-4 rounded-xl">
+                                            <div class="flex items-center space-x-3 space-x-reverse">
+                                                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                                                    <i class="fas fa-cookie-bite text-green-600"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-semibold text-gray-900">سياسة الكوكيز</div>
+                                                    <div class="text-sm text-gray-500">إظهار شريط قبول الكوكيز للزوار</div>
+                                                </div>
+                                            </div>
+                                            <div class="toggle-switch" onclick="toggleSwitch(this)" th:data-active="${settings != null and settings.cookieConsent == true} ? 'true' : 'false'">
+                                            </div>
+                                            <input type="hidden" name="cookieConsent" value="false">
+                                        </div>
+
+                                        <div class="flex items-center justify-between bg-gray-50 p-4 rounded-xl">
+                                            <div class="flex items-center space-x-3 space-x-reverse">
+                                                <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                                                    <i class="fas fa-chart-line text-purple-600"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-semibold text-gray-900">إحصائيات الموقع</div>
+                                                    <div class="text-sm text-gray-500">تفعيل تتبع إحصائيات الزوار والمبيعات</div>
+                                                </div>
+                                            </div>
+                                            <div class="toggle-switch" onclick="toggleSwitch(this)" th:data-active="${settings != null and settings.enableAnalytics == true} ? 'true' : 'false'">
+                                            </div>
+                                            <input type="hidden" name="enableAnalytics" value="false">
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                        <a th:href="@{/}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                                            <i class="fas fa-times ml-1"></i>
+                                            إلغاء
+                                        </a>
+                                        <button type="submit" class="bg-gradient-to-r from-red-500 to-rose-600 text-white px-10 py-3 rounded-xl font-bold hover:from-red-600 hover:to-rose-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
+                                            <i class="fas fa-save ml-2"></i>
+                                            حفظ إعدادات الأمان
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Settings tab switching
+        function switchSettingsTab(tabName) {
+            // Update sidebar nav
+            document.querySelectorAll('.settings-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.settings-nav-item').classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.settings-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+        }
+
+        // Toggle switch
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            const hiddenInput = element.nextElementSibling;
+            hiddenInput.value = isActive ? 'true' : 'false';
+        }
+
+        // Initialize toggle switches based on th:data-active
+        document.querySelectorAll('.toggle-switch').forEach(sw => {
+            const isActive = sw.getAttribute('data-active') === 'true';
+            if (isActive) {
+                sw.classList.add('active');
+                const hiddenInput = sw.nextElementSibling;
+                hiddenInput.value = 'true';
+            }
+        });
+
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
 </body>
 </html>

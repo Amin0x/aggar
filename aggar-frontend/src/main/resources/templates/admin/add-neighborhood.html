@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="#{header.brand} + ' - إضافة حي'">Add Neighborhood - Aggar</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { 'arabic': ['Cairo', 'sans-serif'] }, colors: { 'primary': '#1E40AF', 'accent': '#F59E0B' } }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .form-select { width: 100%; padding: 1rem 3rem 1rem 1rem; border: 2px solid #E5E7EB; border-radius: 0.75rem; font-size: 1rem; background: white; appearance: none; }
+        .form-select:focus { outline: none; border-color: #3B82F6; }
+        .form-input { width: 100%; padding: 1rem 3rem 1rem 1rem; border: 2px solid #E5E7EB; border-radius: 0.75rem; font-size: 1rem; background: white; }
+        .form-input:focus { outline: none; border-color: #3B82F6; }
+        .input-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
+        .input-group { position: relative; }
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-gray-50 font-arabic antialiased">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <section class="pt-32 pb-16 bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 text-white relative overflow-hidden">
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="inline-flex items-center bg-white/10 glass rounded-full px-6 py-2.5 mb-6">
+                    <i class="fas fa-road text-accent ml-2"></i>
+                    <span class="text-white/90 text-sm font-medium">إدارة الأحياء</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black mb-6">إضافة <span class="text-accent">حي</span> جديد</h1>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 80L1440 80L1440 0C1200 40 960 60 720 60C480 60 240 40 0 0L0 80Z" fill="#F9FAFB"/>
+            </svg>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-2xl mx-auto">
+                <div th:if="${error}" class="mb-8 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center reveal">
+                    <i class="fas fa-exclamation-circle text-2xl ml-4"></i>
+                    <span th:text="${error}">Error</span>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden reveal">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-8 text-white">
+                        <div class="w-16 h-16 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-road text-3xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-2">إضافة حي جديد</h2>
+                    </div>
+
+                    <div class="p-8 md:p-12">
+                        <form th:action="@{/neighborhoods/add}" method="post">
+                            <div class="mb-8">
+                                <label for="cityId" class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-city ml-1 text-green-600"></i> المدينة *
+                                </label>
+                                <div class="input-group">
+                                    <select class="form-select" id="cityId" name="cityId" required>
+                                        <option value="">اختر المدينة</option>
+                                        <option th:each="city : ${cities}" th:value="${city.id}" th:text="${city.name}"></option>
+                                    </select>
+                                    <i class="fas fa-map-marked-alt input-icon"></i>
+                                </div>
+                            </div>
+
+                            <div class="mb-10">
+                                <label for="name" class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-road ml-1 text-green-600"></i> اسم الحي *
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-input" id="name" name="name" th:value="${neighborhood.name}" placeholder="اسم الحي" required>
+                                    <i class="fas fa-road input-icon"></i>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                <a th:href="@{/neighborhoods/list}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 transition-colors">
+                                    <i class="fas fa-times ml-1"></i> إلغاء
+                                </a>
+                                <button type="submit" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-xl font-bold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg flex items-center">
+                                    <i class="fas fa-plus-circle ml-2"></i> إضافة الحي
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
+</body>
+</html>

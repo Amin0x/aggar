@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,14 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 public class PropertyService {
+
+    private static final Pattern SLUG_PATTERN = Pattern.compile("[^a-zA-Z0-9]+");
 
     private final PropertyRepository propertyRepository;
     private final StateRepository stateRepository;
@@ -33,6 +38,45 @@ public class PropertyService {
     private final PropertyImageRepository propertyImageRepository;
     private final PriceHistoryRepository priceHistoryRepository;
     private final EntityManager entityManager;
+
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
+
+    private String generateSlug(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            return "property-" + System.currentTimeMillis();
+        }
+        String slug = SLUG_PATTERN.matcher(title.toLowerCase().trim()).replaceAll("-");
+        slug = slug.replaceAll("^-|-$", "");
+        return slug.isEmpty() ? "property-" + System.currentTimeMillis() : slug;
+    }
+
+    private String uniqueSlug(String slug, Long propertyId) {
+        String baseSlug = slug;
+        String candidate = baseSlug;
+        while (propertyRepository.findBySlug(candidate)
+                .filter(existing -> !existing.getId().equals(propertyId))
+                .isPresent()) {
+            String suffix = Integer.toString(ThreadLocalRandom.current().nextInt(100000, 1000000));
+            String shortenedBase = baseSlug.substring(0, Math.min(baseSlug.length(), 255 - suffix.length() - 1));
+            candidate = shortenedBase + "-" + suffix;
+        }
+        return candidate;
+    }
+
+    private String buildFullImageUrl(String url) {
+        if (url == null || url.isEmpty()) {
+            return url;
+        }
+        // If URL is already absolute (starts with http:// or https://), return as-is
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            return url;
+        }
+        // Otherwise, prepend the base URL
+        String base = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+        String imagePath = url.startsWith("/") ? url.substring(1) : url;
+        return base + imagePath;
+    }
 
     public PropertyService(PropertyRepository propertyRepository,
                            StateRepository stateRepository,
@@ -58,10 +102,13 @@ public class PropertyService {
         PropertyDto d = new PropertyDto();
         d.setId(p.getId());
         d.setTitle(p.getTitle());
+        d.setSlug(p.getSlug());
         d.setDescription(p.getDescription());
         d.setPrice(p.getPrice());
+        d.setViewCount(p.getViewCount());
         d.setCurrency(p.getCurrency());
         d.setListingType(p.getListingType() != null ? p.getListingType().getValue() : null);
+        d.setCategory(p.getCategory());
         d.setPricePeriod(p.getPricePeriod() != null ? p.getPricePeriod().getValue() : null);
         d.setBedrooms(p.getBedrooms());
         d.setBathrooms(p.getBathrooms());
@@ -71,6 +118,16 @@ public class PropertyService {
         d.setNeighborhoodId(p.getNeighborhood() != null ? p.getNeighborhood().getId() : null);
         d.setOwnerId(p.getOwner() != null ? p.getOwner().getId() : null);
         d.setAgentId(p.getAgent() != null ? p.getAgent().getId() : null);
+        // Set owner contact info
+        if (p.getOwner() != null) {
+            d.setOwnerName(p.getOwner().getName());
+            d.setOwnerPhone(p.getOwner().getPhone());
+        }
+        // Set agent contact info
+        if (p.getAgent() != null) {
+            d.setAgentName(p.getAgent().getName());
+            d.setAgentPhone(p.getAgent().getPhone());
+        }
         d.setStatus(p.getStatus());
         d.setLocationLat(p.getLocationLat());
         d.setLocationLng(p.getLocationLng());
@@ -84,7 +141,7 @@ public class PropertyService {
                 PropertyImageDto idto = new PropertyImageDto();
                 idto.setId(img.getId());
                 idto.setPropertyId(p.getId());
-                idto.setUrl(img.getUrl());
+                idto.setUrl(buildFullImageUrl(img.getUrl()));
                 idto.setIsPrimary(img.getIsPrimary());
                 idto.setSortOrder(img.getSortOrder());
                 return idto;
@@ -108,10 +165,12 @@ public class PropertyService {
         Property p = new Property();
         p.setId(d.getId());
         p.setTitle(d.getTitle());
+        p.setSlug(d.getSlug());
         p.setDescription(d.getDescription());
         p.setPrice(d.getPrice());
         p.setCurrency(d.getCurrency());
         if (d.getListingType() != null) p.setListingType(ListingType.fromValue(d.getListingType()));
+        p.setCategory(d.getCategory());
         // pricePeriod mapping omitted for brevity
         p.setBedrooms(d.getBedrooms());
         p.setBathrooms(d.getBathrooms());
@@ -198,7 +257,8 @@ public class PropertyService {
             String catLow = category.toLowerCase();
             predicate = cb.and(predicate, cb.or(
                     cb.like(cb.lower(root.get("title")), "%" + catLow + "%"),
-                    cb.like(cb.lower(root.get("description")), "%" + catLow + "%")
+                    cb.like(cb.lower(root.get("description")), "%" + catLow + "%"),
+                    cb.like(cb.lower(root.get("category")), "%" + catLow + "%")
             ));
         }
 
@@ -218,6 +278,19 @@ public class PropertyService {
                 cb.equal(root.get("isDeleted"), false)
         ));
 
+        // Exclude pending and rejected properties from public search
+        jakarta.persistence.criteria.Expression<String> statusExpr = root.get("status");
+        predicate = cb.and(predicate,
+                cb.or(
+                        cb.not(cb.equal(statusExpr, "pending")),
+                        cb.isNull(statusExpr)
+                ),
+                cb.or(
+                        cb.not(cb.equal(statusExpr, "rejected")),
+                        cb.isNull(statusExpr)
+                )
+        );
+
         return predicate;
     }
 
@@ -225,10 +298,34 @@ public class PropertyService {
         return propertyRepository.findById(id).map(this::toDto);
     }
 
+    public Optional<PropertyDto> findBySlug(String slug) {
+        return propertyRepository.findBySlug(slug).map(this::toDto);
+    }
+
+    @Transactional
+    public Optional<PropertyDto> recordViewById(Long id) {
+        if (propertyRepository.incrementViewCountById(id) == 0) {
+            return Optional.empty();
+        }
+        return propertyRepository.findById(id).map(this::toDto);
+    }
+
+    @Transactional
+    public Optional<PropertyDto> recordViewBySlug(String slug) {
+        if (propertyRepository.incrementViewCountBySlug(slug) == 0) {
+            return Optional.empty();
+        }
+        return propertyRepository.findBySlug(slug).map(this::toDto);
+    }
+
     @Transactional
     public PropertyDto create(PropertyDto dto) {
         Property p = fromDto(dto);
         p.setId(null);
+        if (p.getSlug() == null || p.getSlug().trim().isEmpty()) {
+            p.setSlug(generateSlug(p.getTitle()));
+        }
+        p.setSlug(uniqueSlug(p.getSlug(), null));
         Property saved = propertyRepository.save(p);
         return toDto(saved);
     }
@@ -241,6 +338,7 @@ public class PropertyService {
             existing.setPrice(dto.getPrice());
             existing.setCurrency(dto.getCurrency());
             if (dto.getListingType() != null) existing.setListingType(ListingType.fromValue(dto.getListingType()));
+            existing.setCategory(dto.getCategory());
             existing.setBedrooms(dto.getBedrooms());
             existing.setBathrooms(dto.getBathrooms());
             existing.setArea(dto.getArea());
@@ -253,6 +351,9 @@ public class PropertyService {
             existing.setStatus(dto.getStatus());
             existing.setLocationLat(dto.getLocationLat());
             existing.setLocationLng(dto.getLocationLng());
+            if (dto.getSlug() != null && !dto.getSlug().trim().isEmpty()) {
+                existing.setSlug(uniqueSlug(dto.getSlug(), existing.getId()));
+            }
             Property saved = propertyRepository.save(existing);
             return toDto(saved);
         });
@@ -264,5 +365,29 @@ public class PropertyService {
             propertyRepository.delete(p);
             return true;
         }).orElse(false);
+    }
+
+    public Page<PropertyDto> findByStatus(String status, Pageable pageable) {
+        Page<Property> page = propertyRepository.findByStatus(status, pageable);
+        return page.map(this::toDto);
+    }
+
+    @Transactional
+    public Optional<PropertyDto> approve(Long id) {
+        return propertyRepository.findById(id).map(p -> {
+            p.setStatus("available");
+            p.setPublishedAt(java.time.LocalDateTime.now());
+            Property saved = propertyRepository.save(p);
+            return toDto(saved);
+        });
+    }
+
+    @Transactional
+    public Optional<PropertyDto> reject(Long id) {
+        return propertyRepository.findById(id).map(p -> {
+            p.setStatus("rejected");
+            Property saved = propertyRepository.save(p);
+            return toDto(saved);
+        });
     }
 }

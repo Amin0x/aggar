@@ -1,10 +1,13 @@
 package com.amin.aggar.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public class UserDto {
-    private Integer id;
+    private Long id;
     private String username;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String name;
     private String email;
@@ -15,11 +18,11 @@ public class UserDto {
     public UserDto() {
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -79,4 +82,3 @@ public class UserDto {
         this.createdAt = createdAt;
     }
 }
-

@@ -25,7 +25,7 @@ public class NeighborhoodController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<NeighborhoodDto> get(@PathVariable Integer id) {
+    public ResponseEntity<NeighborhoodDto> get(@PathVariable("id") Integer id) {
         return neighborhoodService.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -36,14 +36,13 @@ public class NeighborhoodController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<NeighborhoodDto> update(@PathVariable Integer id, @RequestBody NeighborhoodDto dto) {
+    public ResponseEntity<NeighborhoodDto> update(@PathVariable("id") Integer id, @RequestBody NeighborhoodDto dto) {
         return neighborhoodService.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
         boolean removed = neighborhoodService.delete(id);
         return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
-

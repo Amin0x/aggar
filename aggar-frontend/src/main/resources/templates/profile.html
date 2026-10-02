@@ -1,353 +1,809 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
 <head>
     <meta charset="UTF-8" />
-    <title>My Profile - Aggar</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${user.firstName} + ' ' + ${user.lastName} + ' - Aggar'">My Profile - Aggar</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'sans-serif'],
+                        'english': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#1E40AF',
+                        'primary-light': '#3B82F6',
+                        'primary-dark': '#1E3A8A',
+                        'secondary': '#0D9488',
+                        'accent': '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        .profile-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
+        body { font-family: 'Cairo', sans-serif; }
+
+        html { scroll-behavior: smooth; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .profile-header {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            padding: 40px;
-            border-radius: 10px;
-            margin-bottom: 30px;
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-fade-in-scale { animation: fadeInScale 0.5s ease-out forwards; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+
+        .animation-delay-100 { animation-delay: 0.1s; opacity: 0; }
+        .animation-delay-200 { animation-delay: 0.2s; opacity: 0; }
+        .animation-delay-300 { animation-delay: 0.3s; opacity: 0; }
+        .animation-delay-400 { animation-delay: 0.4s; opacity: 0; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6, #0D9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Form styling */
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
             background: white;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #EF4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        .input-group { position: relative; }
+
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-input:focus ~ .input-icon { color: #3B82F6; }
+        .form-input.error ~ .input-icon { color: #EF4444; }
+
+        /* Tabs */
+        .tab-button {
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 3px solid transparent;
+            color: #6B7280;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            color: #3B82F6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .tab-button.active {
+            color: #3B82F6;
+            border-bottom-color: #3B82F6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeInUp 0.5s ease-out; }
+
+        /* Hover card */
+        .hover-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Avatar */
+        .avatar-xl {
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
-            color: #007bff;
-            margin-bottom: 20px;
-        }
-        .profile-info h2 {
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .profile-info p {
-            margin-bottom: 5px;
-            opacity: 0.9;
-        }
-        .profile-tabs {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .nav-tabs .nav-link {
-            border: none;
-            color: #666;
-            font-weight: 500;
-            padding: 15px 25px;
-        }
-        .nav-tabs .nav-link.active {
-            background: #007bff;
+            font-size: 3rem;
+            font-weight: 800;
             color: white;
+            background: linear-gradient(135deg, #3B82F6, #0D9488);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
         }
-        .tab-content {
-            padding: 30px;
-        }
-        .form-control {
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            padding: 12px;
-        }
-        .form-label {
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 8px;
-        }
-        .btn-update {
-            background: #007bff;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            font-weight: 500;
-        }
-        .btn-update:hover {
-            background: #0056b3;
-            color: white;
-        }
+
+        /* Property card */
         .property-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 1.5rem;
             overflow: hidden;
-            transition: transform 0.2s;
-            height: 100%;
-        }
-        .property-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .property-image {
-            height: 200px;
-            object-fit: cover;
-            width: 100%;
-        }
-        .property-info {
-            padding: 15px;
-        }
-        .property-title {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-        .property-price {
-            color: #007bff;
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        .property-address {
-            color: #666;
-            font-size: 14px;
-        }
-        .search-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            border-left: 4px solid #007bff;
-        }
-        .stats-card {
             background: white;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .stats-number {
-            font-size: 32px;
-            font-weight: 700;
-            color: #007bff;
-            margin-bottom: 5px;
+
+        .property-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
-        .stats-label {
-            color: #666;
-            font-size: 14px;
+
+        /* Settings list */
+        .settings-item {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
         }
+
+        .settings-item:hover {
+            background: #F9FAFB;
+            border-color: #E5E7EB;
+        }
+
+        /* Alert */
+        .alert-message {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
         .alert-success {
-            border-radius: 5px;
-            margin-bottom: 20px;
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            color: #065F46;
+        }
+
+        /* Stats counter */
+        .stat-number {
+            font-variant-numeric: tabular-nums;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 font-arabic antialiased">
 
-<!-- Include header fragment -->
-<div th:replace="~{fragments/header :: header}"></div>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500" id="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-primary text-white p-2.5 rounded-xl">
+                        <i class="fas fa-building text-2xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800" th:text="#{header.brand}">Aggar</span>
+                </a>
 
-<div class="profile-container">
-    <!-- Profile Header -->
-    <div class="profile-header">
-        <div class="row align-items-center">
-            <div class="col-md-2 text-center">
-                <div class="profile-avatar">
-                    <i class="fas fa-user"></i>
+                <div class="hidden lg:flex items-center space-x-1 space-x-reverse">
+                    <a th:href="@{/}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-home ml-1"></i>
+                        <span th:text="#{header.all}">All</span>
+                    </a>
+                    <th:block th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
+                        <a th:href="@{'/'(listingType=${ltype})}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                            <span th:text="${ltype}">Sale/Rent</span>
+                        </a>
+                    </th:block>
+                    <a th:href="@{/about}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-info-circle ml-1"></i>
+                        <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <a th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-lg">
+                        <i class="fas fa-plus-circle ml-1"></i>
+                        <span th:text="#{header.add.property}">Add Property</span>
+                    </a>
+                    <div class="hidden md:flex items-center space-x-2 space-x-reverse bg-gray-100 px-4 py-2 rounded-full">
+                        <i class="fas fa-user-circle text-xl text-primary"></i>
+                        <span th:text="${user.firstName}" class="text-sm font-medium text-gray-700">User</span>
+                    </div>
+                    <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-600 text-2xl focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
                 </div>
             </div>
-            <div class="col-md-10">
-                <div class="profile-info">
-                    <h2 th:text="${user.firstName + ' ' + user.lastName}">John Doe</h2>
-                    <p><i class="fas fa-envelope me-2"></i> <span th:text="${user.email}">john.doe@example.com</span></p>
-                    <p><i class="fas fa-phone me-2"></i> <span th:text="${user.phone}">+1 (555) 123-4567</span></p>
-                    <p><i class="fas fa-calendar me-2"></i> Member since <span th:text="${user.memberSince}">January 15, 2024</span></p>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="lg:hidden hidden pb-6">
+                <div class="bg-gray-50 rounded-2xl p-4 space-y-2 mt-2">
+                    <a th:href="@{/}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-home ml-2"></i> <span th:text="#{header.all}">All</span>
+                    </a>
+                    <a th:href="@{/about}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-info-circle ml-2"></i> <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                    <hr class="border-gray-200 my-2">
+                    <a th:href="@{/profile}" class="block px-4 py-3 text-primary font-semibold bg-blue-50 rounded-lg">
+                        <i class="fas fa-user ml-2"></i> الملف الشخصي
+                    </a>
+                    <a th:href="@{/profile/saved}" class="block px-4 py-3 text-gray-700 hover:bg-white rounded-lg">
+                        <i class="fas fa-heart ml-2"></i> العقارات المحفوظة
+                    </a>
+                    <a th:href="@{/logout}" class="block px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+                        <i class="fas fa-sign-out-alt ml-2"></i> <span th:text="#{header.sign.out}">Sign Out</span>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
+    </nav>
 
-    <!-- Success Message -->
-    <div th:if="${successMessage}" class="alert alert-success" role="alert">
-        <span th:text="${successMessage}">Success message</span>
-    </div>
+    <!-- ========== HERO / PROFILE HEADER ========== -->
+    <section class="pt-32 pb-16 bg-gradient-to-br from-primary via-primary-dark to-gray-900 text-white relative overflow-hidden">
+        <!-- Floating shapes -->
+        <div class="absolute top-20 right-10 w-64 h-64 bg-white/5 rounded-full"></div>
+        <div class="absolute bottom-10 left-20 w-40 h-40 bg-accent/10 rounded-full animate-float"></div>
 
-    <!-- Profile Tabs -->
-    <div class="profile-tabs">
-        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">
-                    <i class="fas fa-user me-2"></i>Personal Information
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="saved-tab" data-bs-toggle="tab" data-bs-target="#saved" type="button" role="tab">
-                    <i class="fas fa-heart me-2"></i>Saved Properties
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="searches-tab" data-bs-toggle="tab" data-bs-target="#searches" type="button" role="tab">
-                    <i class="fas fa-search me-2"></i>Recent Searches
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab">
-                    <i class="fas fa-cog me-2"></i>Account Settings
-                </button>
-            </li>
-        </ul>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row items-center md:items-end space-y-6 md:space-y-0 md:space-x-8 md:space-x-reverse animate-fade-in-up">
+                <!-- Avatar -->
+                <div class="avatar-xl flex-shrink-0 border-4 border-white/30 animate-float">
+                    <span th:text="${#strings.substring(user.firstName,0,1).toUpperCase()} + ${#strings.substring(user.lastName,0,1).toUpperCase()}">JD</span>
+                </div>
 
-        <div class="tab-content" id="profileTabContent">
-            <!-- Personal Information Tab -->
-            <div class="tab-pane fade show active" id="personal" role="tabpanel">
-                <h4 class="mb-4">Personal Information</h4>
-                <form th:action="@{/profile/update}" method="post">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="firstName" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="firstName" name="firstName" 
-                                   th:value="${user.firstName}" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="lastName" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="lastName" name="lastName" 
-                                   th:value="${user.lastName}" required>
-                        </div>
+                <!-- User Info -->
+                <div class="text-center md:text-right flex-1">
+                    <div class="inline-flex items-center bg-white/10 glass rounded-full px-4 py-1.5 mb-3">
+                        <i class="fas fa-check-circle text-green-400 ml-2"></i>
+                        <span class="text-white/90 text-sm font-medium">حساب موثق</span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" 
-                                   th:value="${user.email}" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" 
-                                   th:value="${user.phone}" required>
-                        </div>
+                    <h1 class="text-3xl md:text-5xl font-black mb-2" th:text="${user.firstName} + ' ' + ${user.lastName}">John Doe</h1>
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-white/80">
+                        <span><i class="fas fa-envelope ml-1"></i> <span th:text="${user.email}">email@example.com</span></span>
+                        <span th:if="${user.phone}"><i class="fas fa-phone ml-1"></i> <span th:text="${user.phone}">+1 (555) 123-4567</span></span>
+                        <span><i class="fas fa-calendar ml-1"></i> عضو منذ <span th:text="${user.memberSince}">January 2024</span></span>
                     </div>
-                    <button type="submit" class="btn btn-update">
-                        <i class="fas fa-save me-2"></i>Update Profile
+                </div>
+
+                <!-- Edit Button -->
+                <div class="flex-shrink-0">
+                    <button onclick="switchTab('personal')" class="glass text-white px-6 py-3 rounded-full hover:bg-white/20 transition-all duration-300 font-semibold">
+                        <i class="fas fa-edit ml-1"></i> تعديل الملف
                     </button>
-                </form>
+                </div>
             </div>
+        </div>
 
-            <!-- Saved Properties Tab -->
-            <div class="tab-pane fade" id="saved" role="tabpanel">
-                <h4 class="mb-4">Saved Properties</h4>
-                <div class="row" th:if="${savedProperties != null and !#lists.isEmpty(savedProperties)}">
-                    <div class="col-md-6 col-lg-4 mb-4" th:each="property : ${savedProperties}">
-                        <div class="property-card">
-                            <img th:src="${property.image}" class="property-image" alt="Property image">
-                            <div class="property-info">
-                                <div class="property-title" th:text="${property.title}">Property Title</div>
-                                <div class="property-price" th:text="${property.price}">$450,000</div>
-                                <div class="property-address" th:text="${property.address}">Address</div>
-                                <div class="mt-3">
-                                    <a th:href="@{'/properties/' + ${property.id}}" class="btn btn-primary btn-sm">View Details</a>
-                                    <button class="btn btn-outline-danger btn-sm">
-                                        <i class="fas fa-heart"></i> Remove
+        <!-- Wave divider -->
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 80L1440 80L1440 0C1200 40 960 60 720 60C480 60 240 40 0 0L0 80Z" fill="#F9FAFB"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ========== STATS SECTION ========== -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 -mt-20 relative z-10">
+                <div class="bg-white rounded-2xl p-6 shadow-2xl text-center reveal hover-card">
+                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-home text-2xl text-primary"></i>
+                    </div>
+                    <div class="text-3xl md:text-4xl font-black text-gray-900 mb-1 stat-number" data-target="12">0</div>
+                    <div class="text-gray-500 font-medium text-sm">عقار مضاف</div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-2xl text-center reveal animation-delay-100 hover-card">
+                    <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-heart text-2xl text-red-500"></i>
+                    </div>
+                    <div class="text-3xl md:text-4xl font-black text-gray-900 mb-1 stat-number" th:data-target="${savedProperties != null ? savedProperties.size() : 0}" id="savedCount">0</div>
+                    <div class="text-gray-500 font-medium text-sm">عقار محفوظ</div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-2xl text-center reveal animation-delay-200 hover-card">
+                    <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-search text-2xl text-green-600"></i>
+                    </div>
+                    <div class="text-3xl md:text-4xl font-black text-gray-900 mb-1 stat-number" th:data-target="${recentSearches != null ? recentSearches.size() : 0}" id="searchCount">0</div>
+                    <div class="text-gray-500 font-medium text-sm">عملية بحث</div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-2xl text-center reveal animation-delay-300 hover-card">
+                    <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-eye text-2xl text-accent"></i>
+                    </div>
+                    <div class="text-3xl md:text-4xl font-black text-gray-900 mb-1 stat-number" data-target="48">0</div>
+                    <div class="text-gray-500 font-medium text-sm">مشاهدة للملف</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== MAIN CONTENT WITH TABS ========== -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+
+                <!-- Success Message -->
+                <div th:if="${successMessage}" class="alert-message alert-success mb-8 reveal">
+                    <i class="fas fa-check-circle text-2xl ml-4"></i>
+                    <span th:text="${successMessage}">Profile updated successfully!</span>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="bg-white rounded-2xl shadow-lg mb-8 reveal">
+                    <div class="flex overflow-x-auto" id="tabNav">
+                        <button class="tab-button active" data-tab="personal" onclick="switchTab('personal')">
+                            <i class="fas fa-user ml-2"></i> المعلومات الشخصية
+                        </button>
+                        <button class="tab-button" data-tab="saved" onclick="switchTab('saved')">
+                            <i class="fas fa-heart ml-2"></i> العقارات المحفوظة
+                            <span th:if="${savedProperties != null}" class="mr-2 bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full" th:text="${savedProperties.size()}">0</span>
+                        </button>
+                        <button class="tab-button" data-tab="searches" onclick="switchTab('searches')">
+                            <i class="fas fa-search ml-2"></i> عمليات البحث
+                        </button>
+                        <button class="tab-button" data-tab="settings" onclick="switchTab('settings')">
+                            <i class="fas fa-cog ml-2"></i> إعدادات الحساب
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Contents -->
+
+                <!-- Personal Information Tab -->
+                <div class="tab-content active" id="tab-personal">
+                    <div class="bg-white rounded-3xl shadow-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-primary to-primary-light p-8 text-white relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                            <div class="relative z-10">
+                                <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                    <i class="fas fa-user-edit text-2xl"></i>
+                                </div>
+                                <h2 class="text-2xl md:text-3xl font-bold mb-2">المعلومات الشخصية</h2>
+                                <p class="text-blue-100">قم بتحديث بياناتك الشخصية</p>
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-12">
+                            <form th:action="@{/profile/update}" method="post" id="profileForm">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <div>
+                                        <label for="firstName" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-user ml-1 text-primary"></i> الاسم الأول *
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-input" id="firstName" name="firstName"
+                                                   th:value="${user.firstName}" required
+                                                   onfocus="this.classList.remove('error')">
+                                            <i class="fas fa-user input-icon"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="lastName" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-user ml-1 text-primary"></i> اسم العائلة *
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-input" id="lastName" name="lastName"
+                                                   th:value="${user.lastName}" required
+                                                   onfocus="this.classList.remove('error')">
+                                            <i class="fas fa-user-tag input-icon"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-envelope ml-1 text-primary"></i> البريد الإلكتروني *
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="email" class="form-input" id="email" name="email"
+                                                   th:value="${user.email}" required
+                                                   onfocus="this.classList.remove('error')">
+                                            <i class="fas fa-at input-icon"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-phone ml-1 text-primary"></i> رقم الهاتف *
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="tel" class="form-input" id="phone" name="phone"
+                                                   th:value="${user.phone}" required
+                                                   onfocus="this.classList.remove('error')">
+                                            <i class="fas fa-phone-volume input-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                    <a th:href="@{/}" class="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                                        <i class="fas fa-times ml-1"></i> إلغاء
+                                    </a>
+                                    <button type="submit" class="bg-gradient-to-r from-primary to-primary-light text-white px-10 py-3 rounded-xl font-bold hover:from-primary-dark hover:to-primary transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
+                                        <i class="fas fa-save ml-2"></i> حفظ التغييرات
                                     </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Properties Tab -->
+                <div class="tab-content" id="tab-saved">
+                    <div class="bg-white rounded-3xl shadow-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-red-500 to-pink-600 p-8 text-white relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                            <div class="relative z-10">
+                                <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                    <i class="fas fa-heart text-2xl"></i>
+                                </div>
+                                <h2 class="text-2xl md:text-3xl font-bold mb-2">العقارات المحفوظة</h2>
+                                <p class="text-red-100">العقارات التي قمت بحفظها للمقارنة أو الشراء لاحقاً</p>
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-12">
+                            <!-- Saved Properties Grid -->
+                            <div th:if="${savedProperties != null and !#lists.isEmpty(savedProperties)}"
+                                 class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div th:each="property : ${savedProperties}" class="property-card">
+                                    <div class="relative overflow-hidden">
+                                        <img th:src="${property.image}" class="w-full h-48 object-cover"
+                                             th:alt="${property.title}" alt="Property">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                        <button class="absolute top-3 left-3 w-10 h-10 bg-white/20 glass rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors">
+                                            <i class="fas fa-heart text-red-500"></i>
+                                        </button>
+                                    </div>
+                                    <div class="p-5">
+                                        <h3 class="font-bold text-gray-900 mb-2 text-lg" th:text="${property.title}">Property Title</h3>
+                                        <div class="text-xl font-black text-primary mb-2" th:text="${property.price} + ' ' + ${property.currency}">$450,000</div>
+                                        <div class="flex items-center text-gray-500 text-sm mb-4">
+                                            <i class="fas fa-map-marker-alt ml-1"></i>
+                                            <span th:text="${property.address}">Address</span>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <a th:href="@{'/properties/' + ${property.slug != null ? property.slug : property.id}}" class="flex-1 bg-primary text-white text-center py-2.5 rounded-xl hover:bg-primary-dark transition-colors font-medium text-sm">
+                                                <i class="fas fa-eye ml-1"></i> عرض التفاصيل
+                                            </a>
+                                            <button class="px-4 py-2.5 border-2 border-red-200 text-red-500 rounded-xl hover:bg-red-50 transition-colors">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div th:if="${savedProperties == null or #lists.isEmpty(savedProperties)}" class="text-center py-16">
+                                <div class="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i class="fas fa-heart text-4xl text-red-300"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">لا توجد عقارات محفوظة</h3>
+                                <p class="text-gray-500 mb-8 max-w-md mx-auto">لم تقم بحفظ أي عقار بعد. ابدأ بتصفح العقارات المتاحة واضغط على أيقونة القلب لحفظها!</p>
+                                <a th:href="@{/search}" class="inline-flex items-center bg-primary text-white px-8 py-3 rounded-full font-semibold hover:bg-primary-dark transition-all duration-300 shadow-lg">
+                                    <i class="fas fa-search ml-2"></i> تصفح العقارات
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Searches Tab -->
+                <div class="tab-content" id="tab-searches">
+                    <div class="bg-white rounded-3xl shadow-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-green-500 to-teal-600 p-8 text-white relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                            <div class="relative z-10">
+                                <div class="w-14 h-14 bg-white/20 glass rounded-2xl flex items-center justify-center mb-4">
+                                    <i class="fas fa-search text-2xl"></i>
+                                </div>
+                                <h2 class="text-2xl md:text-3xl font-bold mb-2">عمليات البحث الأخيرة</h2>
+                                <p class="text-green-100">سجل لعمليات البحث التي قمت بها</p>
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-12">
+                            <div th:if="${recentSearches != null and !#lists.isEmpty(recentSearches)}">
+                                <div class="space-y-3">
+                                    <div th:each="search : ${recentSearches}" class="flex items-center justify-between bg-gray-50 rounded-xl p-4 hover:bg-blue-50 transition-colors group">
+                                        <div class="flex items-center space-x-3 space-x-reverse">
+                                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                                                <i class="fas fa-search text-primary"></i>
+                                            </div>
+                                            <span class="font-medium text-gray-800" th:text="${search}">Search query</span>
+                                        </div>
+                                        <button class="opacity-0 group-hover:opacity-100 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-300 text-sm font-medium">
+                                            <i class="fas fa-redo ml-1"></i> بحث مجدد
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div th:if="${recentSearches == null or #lists.isEmpty(recentSearches)}" class="text-center py-16">
+                                <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i class="fas fa-search text-4xl text-green-300"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">لا توجد عمليات بحث</h3>
+                                <p class="text-gray-500 mb-8 max-w-md mx-auto">لم تقم بأي عملية بحث بعد. ابدأ بالبحث عن عقارك المثالي!</p>
+                                <a th:href="@{/search}" class="inline-flex items-center bg-green-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-700 transition-all duration-300 shadow-lg">
+                                    <i class="fas fa-search ml-2"></i> ابدأ البحث
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Settings Tab -->
+                <div class="tab-content" id="tab-settings">
+                    <div class="bg-white rounded-3xl shadow-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-gray-700 to-gray-900 p-8 text-white relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-32 h-32 bg-white/5 rounded-full transform -translate-x-10 -translate-y-10"></div>
+                            <div class="relative z-10">
+                                <div class="w-14 h-14 bg-white/10 glass rounded-2xl flex items-center justify-center mb-4">
+                                    <i class="fas fa-cog text-2xl"></i>
+                                </div>
+                                <h2 class="text-2xl md:text-3xl font-bold mb-2">إعدادات الحساب</h2>
+                                <p class="text-gray-300">إدارة أمان الحساب والخصوصية</p>
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-12">
+                            <!-- Security Settings -->
+                            <div class="mb-10">
+                                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <i class="fas fa-shield-alt text-primary ml-2"></i> إعدادات الأمان
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="settings-item">
+                                        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center ml-4 flex-shrink-0">
+                                            <i class="fas fa-key text-blue-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-gray-900">تغيير كلمة المرور</div>
+                                            <div class="text-sm text-gray-500">تحديث كلمة المرور الخاصة بك بانتظام لضمان الأمان</div>
+                                        </div>
+                                        <i class="fas fa-chevron-left text-gray-400"></i>
+                                    </div>
+                                    <div class="settings-item">
+                                        <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center ml-4 flex-shrink-0">
+                                            <i class="fas fa-mobile-alt text-green-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-gray-900">التحقق بخطوتين</div>
+                                            <div class="text-sm text-gray-500">تفعيل طبقة حماية إضافية لحسابك</div>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <div class="w-12 h-6 bg-gray-200 rounded-full relative cursor-pointer">
+                                                <div class="w-5 h-5 bg-white rounded-full shadow absolute top-0.5 right-0.5 transition-all"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-item">
+                                        <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center ml-4 flex-shrink-0">
+                                            <i class="fas fa-bell text-amber-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-gray-900">تفضيلات الإشعارات</div>
+                                            <div class="text-sm text-gray-500">إدارة الإشعارات التي تتلقاها عبر البريد والرسائل</div>
+                                        </div>
+                                        <i class="fas fa-chevron-left text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Privacy Settings -->
+                            <div class="mb-10">
+                                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <i class="fas fa-user-secret text-secondary ml-2"></i> إعدادات الخصوصية
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="settings-item">
+                                        <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center ml-4 flex-shrink-0">
+                                            <i class="fas fa-eye text-purple-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-gray-900">ظهور الملف الشخصي</div>
+                                            <div class="text-sm text-gray-500">التحكم في من يمكنه رؤية ملفك الشخصي</div>
+                                        </div>
+                                        <i class="fas fa-chevron-left text-gray-400"></i>
+                                    </div>
+                                    <div class="settings-item">
+                                        <div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center ml-4 flex-shrink-0">
+                                            <i class="fas fa-download text-teal-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-gray-900">تحميل بياناتي</div>
+                                            <div class="text-sm text-gray-500">تحميل نسخة من جميع بياناتك المخزنة لدينا</div>
+                                        </div>
+                                        <i class="fas fa-chevron-left text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Danger Zone -->
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <i class="fas fa-exclamation-triangle text-red-500 ml-2"></i> منطقة الخطر
+                                </h3>
+                                <div class="bg-red-50 rounded-2xl p-6 border border-red-100">
+                                    <div class="flex flex-col md:flex-row items-center justify-between">
+                                        <div class="mb-4 md:mb-0 md:ml-6">
+                                            <div class="font-bold text-red-900 mb-1">تسجيل الخروج</div>
+                                            <div class="text-sm text-red-700">العودة إلى صفحة تسجيل الدخول</div>
+                                        </div>
+                                        <a th:href="@{/logout}" class="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-colors font-semibold flex items-center flex-shrink-0">
+                                            <i class="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div th:if="${savedProperties == null or #lists.isEmpty(savedProperties)}" class="text-center py-5">
-                    <i class="fas fa-heart fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No saved properties yet</h5>
-                    <p class="text-muted">Start browsing and save properties you're interested in!</p>
-                    <a th:href="@{/}" class="btn btn-primary">Browse Properties</a>
-                </div>
-            </div>
-
-            <!-- Recent Searches Tab -->
-            <div class="tab-pane fade" id="searches" role="tabpanel">
-                <h4 class="mb-4">Recent Searches</h4>
-                <div th:if="${recentSearches != null and !#lists.isEmpty(recentSearches)}">
-                    <div class="search-item" th:each="search : ${recentSearches}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-search me-2 text-muted"></i>
-                                <span th:text="${search}">Search query</span>
-                            </div>
-                            <button class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-redo"></i> Search Again
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div th:if="${recentSearches == null or #lists.isEmpty(recentSearches)}" class="text-center py-5">
-                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No recent searches</h5>
-                    <p class="text-muted">Your recent property searches will appear here</p>
-                    <a th:href="@{/}" class="btn btn-primary">Start Searching</a>
-                </div>
-            </div>
-
-            <!-- Account Settings Tab -->
-            <div class="tab-pane fade" id="settings" role="tabpanel">
-                <h4 class="mb-4">Account Settings</h4>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="stats-card">
-                            <div class="stats-number">12</div>
-                            <div class="stats-label">Properties Viewed</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stats-card">
-                            <div class="stats-number">3</div>
-                            <div class="stats-label">Saved Properties</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stats-card">
-                            <div class="stats-number">7</div>
-                            <div class="stats-label">Searches Made</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <h5>Security Settings</h5>
-                    <div class="list-group">
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="fas fa-key me-2"></i> Change Password
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="fas fa-shield-alt me-2"></i> Two-Factor Authentication
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="fas fa-bell me-2"></i> Notification Preferences
-                        </a>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <h5>Privacy Settings</h5>
-                    <div class="list-group">
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="fas fa-user-secret me-2"></i> Profile Visibility
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="fas fa-download me-2"></i> Download My Data
-                        </a>
-                        <a th:href="@{/logout}" class="list-group-item list-group-item-action text-danger">
-                            <i class="fas fa-sign-out-alt me-2"></i> Sign Out
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<!-- Include footer fragment -->
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ========== SCRIPTS ========== -->
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-tab') === tabName) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Scroll to tabs
+            document.getElementById('tabNav').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Stats counter animation
+        const statNumbers = document.querySelectorAll('.stat-number');
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target')) || 0;
+                    let current = 0;
+                    const increment = target / 60;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        el.textContent = Math.floor(current);
+                    }, 30);
+                    statsObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        statNumbers.forEach(el => statsObserver.observe(el));
+
+        // Form validation
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            const firstName = document.getElementById('firstName');
+            const lastName = document.getElementById('lastName');
+            const email = document.getElementById('email');
+            const phone = document.getElementById('phone');
+            let valid = true;
+
+            if (!firstName.value.trim()) {
+                firstName.classList.add('error');
+                valid = false;
+            }
+            if (!lastName.value.trim()) {
+                lastName.classList.add('error');
+                valid = false;
+            }
+            if (!email.value.trim() || !email.value.includes('@')) {
+                email.classList.add('error');
+                valid = false;
+            }
+            if (!phone.value.trim()) {
+                phone.classList.add('error');
+                valid = false;
+            }
+
+            if (!valid) {
+                e.preventDefault();
+                alert('يرجى ملء جميع الحقول المطلوبة بشكل صحيح');
+            }
+        });
+
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-2xl');
+            } else {
+                navbar.classList.remove('shadow-2xl');
+            }
+        });
+    </script>
 </body>
 </html>

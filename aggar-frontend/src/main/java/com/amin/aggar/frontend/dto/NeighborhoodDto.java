@@ -1,0 +1,17 @@
+package com.amin.aggar.frontend.dto;
+
+public class NeighborhoodDto {
+    private Integer id;
+    private Integer cityId;
+    private String name;
+    private String cityName;
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+    public Integer getCityId() { return cityId; }
+    public void setCityId(Integer cityId) { this.cityId = cityId; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getCityName() { return cityName; }
+    public void setCityName(String cityName) { this.cityName = cityName; }
+}

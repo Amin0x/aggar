@@ -1,266 +1,1242 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}" th:dir="${textDirection}">
 <head>
     <meta charset="UTF-8" />
-    <title>Add Property - Aggar</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="#{header.add.property}">Add Property - Aggar</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'sans-serif'],
+                        'english': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#1E40AF',
+                        'primary-light': '#3B82F6',
+                        'primary-dark': '#1E3A8A',
+                        'secondary': '#0D9488',
+                        'accent': '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+
+        html { scroll-behavior: smooth; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+
+        .animation-delay-100 { animation-delay: 0.1s; opacity: 0; }
+        .animation-delay-200 { animation-delay: 0.2s; opacity: 0; }
+        .animation-delay-300 { animation-delay: 0.3s; opacity: 0; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6, #0D9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Custom form styling */
+        .form-step { display: none; }
+        .form-step.active { display: block; animation: fadeInUp 0.5s ease-out; }
+
+        .input-group {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #EF4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-input.success {
+            border-color: #10B981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-input:focus + .input-icon { color: #3B82F6; }
+        .form-input.error + .input-icon { color: #EF4444; }
+
+        .form-select {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") right 1rem center / 1.5em no-repeat;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 1rem 1rem 1rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3B82F6, #0D9488);
+            border-radius: 2px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .step-indicator.active {
+            background: #3B82F6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .step-indicator.completed {
+            background: #0D9488;
+            color: white;
+        }
+
+        .step-indicator.pending {
+            background: #E5E7EB;
+            color: #9CA3AF;
+        }
+
+        /* Upload area */
+        .upload-area {
+            border: 2px dashed #D1D5DB;
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #3B82F6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .image-preview {
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Floating label effect */
+        .float-label {
+            position: relative;
+        }
+
+        /* Custom number input */
+        .form-input[type="number"] {
+            padding-left: 3rem;
+        }
+
+        .number-controls {
+            position: absolute;
+            left: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .number-btn {
+            width: 24px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F3F4F6;
+            border: none;
+            cursor: pointer;
+            font-size: 10px;
+            color: #6B7280;
+            transition: all 0.2s;
+        }
+
+        .number-btn:hover { background: #E5E7EB; color: #374151; }
+        .number-btn:first-child { border-radius: 4px 4px 0 0; }
+        .number-btn:last-child { border-radius: 0 0 4px 4px; }
+
+        /* Radio/Select cards */
+        .select-card {
+            border: 2px solid #E5E7EB;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .select-card:hover {
+            border-color: #3B82F6;
+            background: rgba(59, 130, 246, 0.02);
+        }
+
+        .select-card.selected {
+            border-color: #3B82F6;
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .select-card .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .select-card.selected .card-icon {
+            transform: scale(1.1);
+        }
+
+        /* Alert styling */
+        .alert-message {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .alert-error {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #991B1B;
+        }
+
+        .alert-success {
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            color: #065F46;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50 font-arabic antialiased">
 
-<!-- Include header fragment -->
-<div th:replace="~{fragments/header :: header}"></div>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500" id="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-primary text-white p-2.5 rounded-xl">
+                        <i class="fas fa-building text-2xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800" th:text="#{header.brand}">Aggar</span>
+                </a>
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Property</h4>
+                <div class="hidden lg:flex items-center space-x-1 space-x-reverse">
+                    <a th:href="@{/}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-home ml-1"></i>
+                        <span th:text="#{header.all}">All</span>
+                    </a>
+                    <th:block th:if="${listingTypes != null and !listingTypes.isEmpty()}" th:each="ltype : ${listingTypes}">
+                        <a th:href="@{'/'(listingType=${ltype})}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                            <span th:text="${ltype}">Sale/Rent</span>
+                        </a>
+                    </th:block>
+                    <a th:href="@{/about}" class="px-4 py-2 text-gray-600 hover:text-primary hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-info-circle ml-1"></i>
+                        <span th:text="#{footer.about.us}">About</span>
+                    </a>
                 </div>
-                <div class="card-body">
-                    <form th:action="@{/properties/add}" th:object="${property}" method="post" id="propertyForm">
-                        
-                        <!-- Basic Information -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <h5 class="text-secondary"><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
-                                <hr>
-                            </div>
-                        </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="listingType" class="form-label">Listing Type *</label>
-                                <select class="form-select" th:field="*{listingType}" id="listingType" required
-                                        th:classappend="${#fields.hasErrors('listingType')} ? 'is-invalid' : ''">
-                                    <option value="">Select Listing Type</option>
-                                    <option value="SALE">For Sale</option>
-                                    <option value="RENT">For Rent</option>
-                                </select>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('listingType')}" th:errors="*{listingType}"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="title" class="form-label">Property Title *</label>
-                                <input type="text" class="form-control" th:field="*{title}" id="title" required 
-                                       placeholder="e.g., Modern 3-Bedroom Apartment"
-                                       th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
-                            </div>
-                        </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <a th:href="@{/profile}" class="hidden md:flex items-center space-x-2 space-x-reverse bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-user-circle text-xl text-primary"></i>
+                        <span th:if="${currentUser != null}" th:text="${currentUser.name}" class="text-sm font-medium text-gray-700">User</span>
+                    </a>
+                    <a th:href="@{/properties/add}" class="bg-primary text-white px-5 py-2.5 rounded-full font-semibold hover:bg-primary-dark transition-all duration-300 text-sm shadow-lg">
+                        <i class="fas fa-plus-circle ml-1"></i>
+                        <span th:text="#{header.add.property}">Add Property</span>
+                    </a>
+                    <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-600 text-2xl focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
 
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" th:field="*{description}" id="description" rows="4" 
-                                          placeholder="Describe your property..."></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Pricing Information -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <h5 class="text-secondary"><i class="fas fa-dollar-sign me-2"></i>Pricing Information</h5>
-                                <hr>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="price" class="form-label">Price *</label>
-                                <input type="number" class="form-control" th:field="*{price}" id="price" required 
-                                       step="0.01" min="0" placeholder="0.00"
-                                       th:classappend="${#fields.hasErrors('price')} ? 'is-invalid' : ''">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="currency" class="form-label">Currency</label>
-                                <select class="form-select" th:field="*{currency}" id="currency">
-                                    <option value="USD">USD</option>
-                                    <option value="EUR">EUR</option>
-                                    <option value="GBP">GBP</option>
-                                    <option value="AED">AED</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="pricePeriod" class="form-label">Price Period</label>
-                                <select class="form-select" th:field="*{pricePeriod}" id="pricePeriod">
-                                    <option value="">One-time</option>
-                                    <option value="MONTHLY">Monthly</option>
-                                    <option value="YEARLY">Yearly</option>
-                                    <option value="WEEKLY">Weekly</option>
-                                    <option value="DAILY">Daily</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Property Details -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <h5 class="text-secondary"><i class="fas fa-home me-2"></i>Property Details</h5>
-                                <hr>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label for="bedrooms" class="form-label">Bedrooms</label>
-                                <input type="number" class="form-control" th:field="*{bedrooms}" id="bedrooms" 
-                                       min="0" placeholder="0">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="bathrooms" class="form-label">Bathrooms</label>
-                                <input type="number" class="form-control" th:field="*{bathrooms}" id="bathrooms" 
-                                       min="0" placeholder="0">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="rooms" class="form-label">Total Rooms</label>
-                                <input type="number" class="form-control" th:field="*{rooms}" id="rooms" 
-                                       min="0" placeholder="0">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="floors" class="form-label">Floors</label>
-                                <input type="number" class="form-control" th:field="*{floors}" id="floors" 
-                                       min="0" placeholder="0">
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="area" class="form-label">Area (sq ft / sq m)</label>
-                                <input type="number" class="form-control" th:field="*{area}" id="area" 
-                                       step="0.01" min="0" placeholder="0.00">
-                            </div>
-                        </div>
-
-                        <!-- Location Information -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <h5 class="text-secondary"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h5>
-                                <hr>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="state" class="form-label">State *</label>
-                                <input type="text" class="form-control" th:field="*{state}" id="state" required 
-                                       placeholder="e.g., California">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="city" class="form-label">City *</label>
-                                <input type="text" class="form-control" th:field="*{city}" id="city" required 
-                                       placeholder="e.g., Los Angeles"
-                                       th:classappend="${#fields.hasErrors('city')} ? 'is-invalid' : ''">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="neighborhood" class="form-label">Neighborhood</label>
-                                <input type="text" class="form-control" th:field="*{neighborhood}" id="neighborhood" 
-                                       placeholder="e.g., Beverly Hills">
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="locationLat" class="form-label">Latitude</label>
-                                <input type="number" class="form-control" th:field="*{locationLat}" id="locationLat" 
-                                       step="0.000001" placeholder="34.052235">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="locationLng" class="form-label">Longitude</label>
-                                <input type="number" class="form-control" th:field="*{locationLng}" id="locationLng" 
-                                       step="0.000001" placeholder="-118.243683">
-                            </div>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <h5 class="text-secondary"><i class="fas fa-toggle-on me-2"></i>Status</h5>
-                                <hr>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="status" class="form-label">Property Status</label>
-                                <select class="form-select" th:field="*{status}" id="status">
-                                    <option value="available">Available</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="sold">Sold</option>
-                                    <option value="rented">Rented</option>
-                                    <option value="off_market">Off Market</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Form Actions -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="d-flex justify-content-between">
-                                    <a href="/" class="btn btn-secondary">
-                                        <i class="fas fa-times me-2"></i>Cancel
-                                    </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i>Add Property
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Error Messages -->
-                        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger mt-3">
-                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</h6>
-                            <ul>
-                                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-                            </ul>
-                        </div>
-
-                        <!-- Flash Error Messages -->
-                        <div th:if="${error}" class="alert alert-danger mt-3">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            <span th:text="${error}">Error occurred</span>
-                        </div>
-
-                        <!-- Success Message -->
-                        <div th:if="${success}" class="alert alert-success mt-3">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <span th:text="${success}">Property added successfully!</span>
-                        </div>
-                    </form>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="lg:hidden hidden pb-6">
+                <div class="bg-gray-50 rounded-2xl p-4 space-y-2 mt-2">
+                    <a th:href="@{/}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-home ml-2"></i> <span th:text="#{header.all}">All</span>
+                    </a>
+                    <a th:href="@{/about}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-info-circle ml-2"></i> <span th:text="#{footer.about.us}">About</span>
+                    </a>
+                    <a th:href="@{/contact}" class="block px-4 py-3 text-gray-600 hover:bg-white hover:text-primary rounded-lg transition-colors">
+                        <i class="fas fa-envelope ml-2"></i> <span th:text="#{footer.contact}">Contact</span>
+                    </a>
+                    <hr class="border-gray-200 my-2">
+                    <a th:href="@{/profile}" class="block px-4 py-3 text-gray-700 hover:bg-white rounded-lg">
+                        <i class="fas fa-user ml-2"></i> <span th:text="#{header.my.profile}">My Profile</span>
+                    </a>
+                    <a th:href="@{/logout}" class="block px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+                        <i class="fas fa-sign-out-alt ml-2"></i> <span th:text="#{header.sign.out}">Sign Out</span>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </nav>
 
-<!-- Include footer fragment -->
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <!-- ========== HERO SECTION ========== -->
+    <section class="pt-32 pb-12 bg-gradient-to-br from-primary via-primary-dark to-gray-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;1&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+        </div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center animate-fade-in-up">
+                <div class="inline-flex items-center bg-white/10 glass rounded-full px-6 py-2.5 mb-6">
+                    <i class="fas fa-plus-circle text-accent ml-2"></i>
+                    <span class="text-white/90 text-sm font-medium">أضف عقارك في دقائق معدودة</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+                    أضف <span class="text-accent">عقارك</span> الآن
+                </h1>
+                <p class="text-xl text-white/80 leading-relaxed max-w-2xl mx-auto">
+                    املأ النموذج أدناه لإضافة عقارك إلى منصتنا. ستجتاز بضع خطوات بسيطة لنشر عقارك أمام آلاف المشترين المحتملين.
+                </p>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 120L1440 120L1440 0C1200 60 960 90 720 90C480 90 240 60 0 0L0 120Z" fill="#F9FAFB"/>
+            </svg>
+        </div>
+    </section>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// Optional: Add form validation enhancements
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('propertyForm');
-    const listingType = document.getElementById('listingType');
-    const pricePeriod = document.getElementById('pricePeriod');
-    
-    // Show/hide price period based on listing type
-    listingType.addEventListener('change', function() {
-        if (this.value === 'SALE') {
-            pricePeriod.value = '';
-            pricePeriod.disabled = true;
-        } else {
-            pricePeriod.disabled = false;
+    <!-- ========== FORM SECTION ========== -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+
+                <!-- Flash Messages -->
+                <div th:if="${error}" class="alert-message alert-error mb-8 reveal">
+                    <i class="fas fa-exclamation-circle text-2xl ml-4"></i>
+                    <div>
+                        <span th:text="${error}">Error occurred</span>
+                        <a th:if="${createdPropertyUrl}" th:href="${createdPropertyUrl}"
+                           class="block mt-2 underline" th:text="#{property.images.open.created}">Open the created property</a>
+                    </div>
+                </div>
+                <div th:if="${success}" class="alert-message alert-success mb-8 reveal">
+                    <i class="fas fa-check-circle text-2xl ml-4"></i>
+                    <span th:text="${success}">Property added successfully!</span>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 reveal">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-6 space-x-reverse">
+                            <div class="step-indicator active" data-step="1">1</div>
+                            <div class="step-indicator pending" data-step="2">2</div>
+                            <div class="step-indicator pending" data-step="3">3</div>
+                            <div class="step-indicator pending" data-step="4">4</div>
+                            <div class="step-indicator pending" data-step="5">5</div>
+                        </div>
+                        <div class="flex-1 mx-8">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500 font-medium">
+                            <span id="currentStep">1</span> / <span>5</span>
+                        </div>
+                    </div>
+                    <!-- Step labels -->
+                    <div class="flex items-center justify-between">
+                        <div class="text-center" style="width: 40px;">
+                            <span class="text-xs text-primary font-semibold">الأساسيات</span>
+                        </div>
+                        <div class="text-center" style="width: 40px;">
+                            <span class="text-xs text-gray-400">التفاصيل</span>
+                        </div>
+                        <div class="text-center" style="width: 40px;">
+                            <span class="text-xs text-gray-400">التسعير</span>
+                        </div>
+                        <div class="text-center" style="width: 40px;">
+                            <span class="text-xs text-gray-400">الموقع</span>
+                        </div>
+                        <div class="text-center" style="width: 40px;">
+                            <span class="text-xs text-gray-400">الحالة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form th:action="@{/properties/add}" th:object="${property}" method="post" enctype="multipart/form-data" id="propertyForm" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+
+                    <!-- Step 1: Basic Information -->
+                    <div class="form-step active" id="step-1">
+                        <div class="p-8 md:p-12">
+                            <div class="flex items-center mb-10">
+                                <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center ml-4">
+                                    <i class="fas fa-info-circle text-2xl text-primary"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">المعلومات الأساسية</h2>
+                                    <p class="text-gray-500 mt-1">أخبرنا عن نوع العقار وعنوانه الأساسي</p>
+                                </div>
+                            </div>
+
+                            <!-- Listing Type Selection -->
+                            <div class="mb-8">
+                                <label class="block text-sm font-semibold text-gray-700 mb-4">نوع العرض *</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="select-card" onclick="selectListingType('SALE', this)">
+                                        <div class="card-icon bg-green-50 text-green-600">
+                                            <i class="fas fa-tag"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-900 mb-1">للبيع</div>
+                                        <div class="text-sm text-gray-500">بيع العقار نهائياً</div>
+                                        <input type="radio" name="listingType" value="SALE" class="hidden" th:field="*{listingType}" required>
+                                    </div>
+                                    <div class="select-card" onclick="selectListingType('RENT', this)">
+                                        <div class="card-icon bg-blue-50 text-blue-600">
+                                            <i class="fas fa-key"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-900 mb-1">للإجار</div>
+                                        <div class="text-sm text-gray-500">تأجير العقار</div>
+                                        <input type="radio" name="listingType" value="RENT" class="hidden" th:field="*{listingType}" required>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback text-red-500 text-sm mt-2" th:if="${#fields.hasErrors('listingType')}" th:errors="*{listingType}"></div>
+                            </div>
+
+                            <!-- Title -->
+                            <div class="mb-6">
+                                <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">عنوان العقار *</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-input" th:field="*{title}" id="title" required
+                                           placeholder="مثال: شقة عصرية بـ 3 غرف نوم في موقع متميز"
+                                           th:classappend="${#fields.hasErrors('title')} ? 'error' : ''">
+                                    <i class="fas fa-heading input-icon"></i>
+                                </div>
+                                <div class="invalid-feedback text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-6">
+                                <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">وصف العقار</label>
+                                <textarea class="form-textarea" th:field="*{description}" id="description" rows="5"
+                                          placeholder="اكتب وصفاً جذاباً لعقارك يتضمن أبرز المميزات والمرافق المحيطة..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Property Details -->
+                    <div class="form-step" id="step-2">
+                        <div class="p-8 md:p-12">
+                            <div class="flex items-center mb-10">
+                                <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center ml-4">
+                                    <i class="fas fa-home text-2xl text-secondary"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">تفاصيل العقار</h2>
+                                    <p class="text-gray-500 mt-1">أدخل المواصفات والمساحة والأدوار</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                                <div>
+                                    <label for="bedrooms" class="block text-sm font-semibold text-gray-700 mb-2">غرف النوم</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-input" th:field="*{bedrooms}" id="bedrooms" min="0" placeholder="0">
+                                        <i class="fas fa-bed input-icon"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="bathrooms" class="block text-sm font-semibold text-gray-700 mb-2">غرف الحمام</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-input" th:field="*{bathrooms}" id="bathrooms" min="0" placeholder="0">
+                                        <i class="fas fa-bath input-icon"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="rooms" class="block text-sm font-semibold text-gray-700 mb-2">إجمالي الغرف</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-input" th:field="*{rooms}" id="rooms" min="0" placeholder="0">
+                                        <i class="fas fa-door-open input-icon"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="floors" class="block text-sm font-semibold text-gray-700 mb-2">عدد الأدوار</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-input" th:field="*{floors}" id="floors" min="0" placeholder="0">
+                                        <i class="fas fa-layer-group input-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label for="area" class="block text-sm font-semibold text-gray-700 mb-2">المساحة (قدم / متر مربع)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-input" th:field="*{area}" id="area"
+                                               step="0.01" min="0" placeholder="0.00">
+                                        <i class="fas fa-ruler-combined input-icon"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">نوع العقار (الفئة)</label>
+                                    <select class="form-select" th:field="*{category}" id="category">
+                                        <option value="">اختر نوع العقار</option>
+                                        <option value="apartment">شقة</option>
+                                        <option value="house">منزل</option>
+                                        <option value="villa">فيلا</option>
+                                        <option value="condo">كوندو</option>
+                                        <option value="townhouse">تاون هاوس</option>
+                                        <option value="office">مكتب</option>
+                                        <option value="retail">محل تجاري</option>
+                                        <option value="land">أرض</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <label for="propertyImages" class="block text-sm font-semibold text-gray-700 mb-2"
+                                       th:text="#{property.images.label}">Property images</label>
+                                <p class="text-sm text-gray-500 mb-4" th:text="#{property.images.help}">
+                                    Select up to 8 images. Images are optional.
+                                </p>
+                                <input id="propertyImages" name="images" type="file" accept="image/*" multiple
+                                       th:attr="data-count-template=#{property.images.count},
+                                                data-too-many-message=#{property.images.too.many},
+                                                data-too-large-message=#{property.images.too.large},
+                                                data-invalid-type-message=#{property.images.invalid.type},
+                                                data-remove-message=#{property.images.remove}"
+                                       class="block w-full text-sm text-gray-600 file:ml-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:font-semibold file:text-primary hover:file:bg-blue-100">
+                                <p id="imageSelectionError" class="hidden text-sm text-red-600 mt-2" role="alert"></p>
+                                <div id="imagePreviewList" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4"></div>
+                                <p id="imageSelectionCount" class="text-sm text-gray-500 mt-3" aria-live="polite"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Pricing -->
+                    <div class="form-step" id="step-3">
+                        <div class="p-8 md:p-12">
+                            <div class="flex items-center mb-10">
+                                <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center ml-4">
+                                    <i class="fas fa-dollar-sign text-2xl text-accent"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">التسعير</h2>
+                                    <p class="text-gray-500 mt-1">حدد السعر والعملة وفترة الدفع</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div>
+                                    <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">السعر *</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-input" th:field="*{price}" id="price" required
+                                               step="0.01" min="0" placeholder="0.00"
+                                               th:classappend="${#fields.hasErrors('price')} ? 'error' : ''">
+                                        <i class="fas fa-money-bill-wave input-icon"></i>
+                                    </div>
+                                    <div class="invalid-feedback text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+                                </div>
+                                <div>
+                                    <label for="currency" class="block text-sm font-semibold text-gray-700 mb-2">العملة</label>
+                                    <select class="form-select" th:field="*{currency}" id="currency">
+                                        <option value="USD">USD - دولار أمريكي</option>
+                                        <option value="EUR">EUR - يورو</option>
+                                        <option value="GBP">GBP - جنيه إسترليني</option>
+                                        <option value="AED">AED - درهم إماراتي</option>
+                                        <option value="SAR">SAR - ريال سعودي</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="pricePeriod" class="block text-sm font-semibold text-gray-700 mb-2">فترة السعر</label>
+                                    <select class="form-select" th:field="*{pricePeriod}" id="pricePeriod">
+                                        <option value="">لمرة واحدة</option>
+                                        <option value="MONTHLY">شهرياً</option>
+                                        <option value="YEARLY">سنوياً</option>
+                                        <option value="WEEKLY">أسبوعياً</option>
+                                        <option value="DAILY">يومياً</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Price Preview -->
+                            <div class="bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl p-6 border border-blue-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm text-gray-500 mb-1">السعر المعروض</div>
+                                        <div class="text-3xl font-black text-gray-900" id="pricePreview">0.00 USD</div>
+                                        <div class="text-sm text-gray-500 mt-1" id="pricePeriodPreview"></div>
+                                    </div>
+                                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow">
+                                        <i class="fas fa-receipt text-2xl text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Location -->
+                    <div class="form-step" id="step-4">
+                        <div class="p-8 md:p-12">
+                            <div class="flex items-center mb-10">
+                                <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center ml-4">
+                                    <i class="fas fa-map-marker-alt text-2xl text-red-500"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">الموقع</h2>
+                                    <p class="text-gray-500 mt-1">حدد الموقع الجغرافي للعقار بدقة</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div>
+                                    <label for="state" class="block text-sm font-semibold text-gray-700 mb-2">الولاية / المنطقة *</label>
+                                    <div class="input-group">
+                                        <select class="form-input" th:field="*{stateId}" id="state" required>
+                                            <option value="">اختر الولاية / المنطقة</option>
+                                            <option th:each="stateOption : ${states}" th:value="${stateOption.id}"
+                                                    th:text="${stateOption.name}"></option>
+                                        </select>
+                                        <i class="fas fa-map input-icon"></i>
+                                    </div>
+                                    <div class="invalid-feedback text-red-500 text-sm mt-1"
+                                         th:if="${#fields.hasErrors('stateId')}" th:errors="*{stateId}"></div>
+                                </div>
+                                <div>
+                                    <label for="city" class="block text-sm font-semibold text-gray-700 mb-2">المدينة *</label>
+                                    <div class="input-group">
+                                        <select class="form-input" th:field="*{cityId}" id="city" required
+                                                th:disabled="${#lists.isEmpty(cities)}"
+                                                th:classappend="${#fields.hasErrors('cityId')} ? 'error' : ''">
+                                            <option value="">اختر المدينة</option>
+                                            <option th:each="cityOption : ${cities}" th:value="${cityOption.id}"
+                                                    th:text="${cityOption.name}"></option>
+                                        </select>
+                                        <i class="fas fa-city input-icon"></i>
+                                    </div>
+                                    <div class="invalid-feedback text-red-500 text-sm mt-1"
+                                         th:if="${#fields.hasErrors('cityId')}" th:errors="*{cityId}"></div>
+                                </div>
+                                <div>
+                                    <label for="neighborhood" class="block text-sm font-semibold text-gray-700 mb-2">الحي</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-input" th:field="*{neighborhood}" id="neighborhood"
+                                               placeholder="مثال: حي النخيل">
+                                        <i class="fas fa-road input-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div>
+                                    <label for="locationLat" class="block text-sm font-semibold text-gray-700 mb-2">خط العرض (Latitude)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-input" th:field="*{locationLat}" id="locationLat"
+                                               step="0.000001" placeholder="24.7136">
+                                        <i class="fas fa-crosshairs input-icon"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="locationLng" class="block text-sm font-semibold text-gray-700 mb-2">خط الطول (Longitude)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-input" th:field="*{locationLng}" id="locationLng"
+                                               step="0.000001" placeholder="46.6753">
+                                        <i class="fas fa-crosshairs input-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Map placeholder -->
+                            <div class="bg-gray-100 rounded-2xl p-12 text-center border-2 border-dashed border-gray-300">
+                                <i class="fas fa-map-marked-alt text-5xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-400">سيتم إضافة خريطة تفاعلية هنا قريباً</p>
+                                <p class="text-sm text-gray-400 mt-1">أدخل إحداثيات الموقع أعلاه لتحديد موقع العقار بدقة</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Status & Review -->
+                    <div class="form-step" id="step-5">
+                        <div class="p-8 md:p-12">
+                            <div class="flex items-center mb-10">
+                                <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center ml-4">
+                                    <i class="fas fa-toggle-on text-2xl text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">الحالة والمراجعة</h2>
+                                    <p class="text-gray-500 mt-1">حدد حالة العقار وراجع المعلومات قبل النشر</p>
+                                </div>
+                            </div>
+
+                            <!-- Status Selection -->
+                            <div class="mb-10">
+                                <label class="block text-sm font-semibold text-gray-700 mb-4">حالة العقار</label>
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                    <div class="select-card !p-4" onclick="selectStatus('available', this)">
+                                        <div class="card-icon !w-10 !h-10 !text-lg bg-green-50 text-green-600">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-900 text-sm">متاح</div>
+                                        <input type="radio" name="status" value="available" class="hidden" th:field="*{status}">
+                                    </div>
+                                    <div class="select-card !p-4" onclick="selectStatus('pending', this)">
+                                        <div class="card-icon !w-10 !h-10 !text-lg bg-yellow-50 text-yellow-600">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-900 text-sm">قيد الانتظار</div>
+                                        <input type="radio" name="status" value="pending" class="hidden" th:field="*{status}">
+                                    </div>
+                                    <div class="select-card !p-4" onclick="selectStatus('sold', this)">
+                                        <div class="card-icon !w-10 !h-10 !text-lg bg-blue-50 text-blue-600">
+                                            <i class="fas fa-handshake"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-900 text-sm">مباع</div>
+                                        <input type="radio" name="status" value="sold" class="hidden" th:field="*{status}">
+                                    </div>
+                                    <div class="select-card !p-4" onclick="selectStatus('rented', this)">
+                                        <div class="card-icon !w-10 !h-10 !text-lg bg-purple-50 text-purple-600">
+                                            <i class="fas fa-key"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-900 text-sm">مؤجر</div>
+                                        <input type="radio" name="status" value="rented" class="hidden" th:field="*{status}">
+                                    </div>
+                                    <div class="select-card !p-4" onclick="selectStatus('off_market', this)">
+                                        <div class="card-icon !w-10 !h-10 !text-lg bg-gray-100 text-gray-600">
+                                            <i class="fas fa-ban"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-900 text-sm">خارج السوق</div>
+                                        <input type="radio" name="status" value="off_market" class="hidden" th:field="*{status}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Summary Card -->
+                            <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 border border-gray-200">
+                                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <i class="fas fa-clipboard-check text-primary ml-2"></i>
+                                    ملخص العقار
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="flex items-center space-x-3 space-x-reverse">
+                                        <i class="fas fa-tag text-primary"></i>
+                                        <div>
+                                            <div class="text-xs text-gray-500">نوع العرض</div>
+                                            <div class="font-semibold text-gray-900" id="summaryListingType">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 space-x-reverse">
+                                        <i class="fas fa-heading text-primary"></i>
+                                        <div>
+                                            <div class="text-xs text-gray-500">العنوان</div>
+                                            <div class="font-semibold text-gray-900" id="summaryTitle">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 space-x-reverse">
+                                        <i class="fas fa-home text-secondary"></i>
+                                        <div>
+                                            <div class="text-xs text-gray-500">الفئة</div>
+                                            <div class="font-semibold text-gray-900" id="summaryCategory">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 space-x-reverse">
+                                        <i class="fas fa-money-bill text-accent"></i>
+                                        <div>
+                                            <div class="text-xs text-gray-500">السعر</div>
+                                            <div class="font-semibold text-gray-900" id="summaryPrice">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 space-x-reverse">
+                                        <i class="fas fa-map-marker-alt text-red-500"></i>
+                                        <div>
+                                            <div class="text-xs text-gray-500">الموقع</div>
+                                            <div class="font-semibold text-gray-900" id="summaryLocation">-</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="px-8 md:px-12 py-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                        <button type="button" id="prevBtn" class="px-8 py-3 rounded-xl font-semibold text-gray-600 bg-white border-2 border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300 hidden" onclick="prevStep()">
+                            <i class="fas fa-arrow-right ml-2"></i>
+                            السابق
+                        </button>
+                        <div class="flex-1"></div>
+                        <button type="button" id="nextBtn" class="px-8 py-3 rounded-xl font-semibold text-white bg-primary hover:bg-primary-dark transition-all duration-300 shadow-lg hover:shadow-xl" onclick="nextStep()">
+                            التالي
+                            <i class="fas fa-arrow-left mr-2"></i>
+                        </button>
+                        <button type="submit" id="submitBtn" class="px-10 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl hidden">
+                            <i class="fas fa-check-circle ml-2"></i>
+                            نشر العقار
+                        </button>
+                        <a th:href="@{/}" class="px-8 py-3 rounded-xl font-semibold text-gray-600 hover:text-red-500 transition-colors mr-4">
+                            <i class="fas fa-times ml-1"></i>
+                            إلغاء
+                        </a>
+                    </div>
+
+                    <!-- Error Summary -->
+                    <div th:if="${#fields.hasErrors('*')}" class="mx-8 md:mx-12 mb-6 alert-message alert-error">
+                        <div>
+                            <i class="fas fa-exclamation-triangle text-2xl ml-4"></i>
+                            <div>
+                                <h6 class="font-bold">يرجى تصحيح الأخطاء التالية:</h6>
+                                <ul class="mt-2 list-disc list-inside">
+                                    <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+
+    <!-- ========== SCRIPTS ========== -->
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
         }
-    });
-    
-    // Initialize
-    if (listingType.value === 'SALE') {
-        pricePeriod.disabled = true;
-    }
-});
-</script>
+
+        // Multi-step form logic
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function initForm() {
+            showStep(1);
+            updateProgress();
+            updatePricePreview();
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+
+            document.getElementById('prevBtn').classList.toggle('hidden', step === 1);
+            document.getElementById('nextBtn').classList.toggle('hidden', step === totalSteps);
+            document.getElementById('submitBtn').classList.toggle('hidden', step !== totalSteps);
+
+            updateStepIndicators(step);
+            updateProgress();
+            currentStep = step;
+
+            document.getElementById('currentStep').textContent = step;
+        }
+
+        function nextStep() {
+            if (validateStep(currentStep)) {
+                if (currentStep < totalSteps) {
+                    showStep(currentStep + 1);
+                    if (currentStep === totalSteps) updateSummary();
+                    window.scrollTo({ top: document.querySelector('form').offsetTop - 120, behavior: 'smooth' });
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const listingType = document.querySelector('input[name="listingType"]:checked');
+                const title = document.getElementById('title').value.trim();
+                let valid = true;
+
+                if (!listingType) {
+                    showFieldError('listingType', 'يرجى اختيار نوع العرض');
+                    valid = false;
+                }
+                if (!title) {
+                    document.getElementById('title').classList.add('error');
+                    valid = false;
+                } else {
+                    document.getElementById('title').classList.remove('error');
+                }
+                return valid;
+            }
+            if (step === 3) {
+                const price = document.getElementById('price').value;
+                if (!price || parseFloat(price) <= 0) {
+                    document.getElementById('price').classList.add('error');
+                    return false;
+                }
+                document.getElementById('price').classList.remove('error');
+            }
+            if (step === 4) {
+                const city = document.getElementById('city').value;
+                const state = document.getElementById('state').value;
+                let valid = true;
+                if (!city) { document.getElementById('city').classList.add('error'); valid = false; }
+                if (!state) { document.getElementById('state').classList.add('error'); valid = false; }
+                return valid;
+            }
+            return true;
+        }
+
+        function showFieldError(field, message) {
+            // Simple visual feedback
+        }
+
+        function updateStepIndicators(step) {
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                const stepNum = index + 1;
+                indicator.classList.remove('active', 'completed', 'pending');
+                if (stepNum < step) {
+                    indicator.classList.add('completed');
+                    indicator.innerHTML = '<i class="fas fa-check text-xs"></i>';
+                } else if (stepNum === step) {
+                    indicator.classList.add('active');
+                    indicator.textContent = stepNum;
+                } else {
+                    indicator.classList.add('pending');
+                    indicator.textContent = stepNum;
+                }
+            });
+
+            // Update step labels
+            const labels = ['الأساسيات', 'التفاصيل', 'التسعير', 'الموقع', 'الحالة'];
+            document.querySelectorAll('.step-indicator + span, .flex.items-center.justify-between .text-center span').forEach((span, i) => {
+                if (i < labels.length) {
+                    span.className = i + 1 === step ? 'text-xs text-primary font-semibold' : 'text-xs text-gray-400';
+                    span.textContent = labels[i];
+                }
+            });
+        }
+
+        function updateProgress() {
+            const fill = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            document.getElementById('progressFill').style.width = fill + '%';
+        }
+
+        // Listing type selection
+        function selectListingType(value, element) {
+            document.querySelectorAll('.select-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            const radio = element.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            // Disable price period for sale
+            const pricePeriod = document.getElementById('pricePeriod');
+            if (value === 'SALE') {
+                pricePeriod.value = '';
+                pricePeriod.disabled = true;
+            } else {
+                pricePeriod.disabled = false;
+            }
+        }
+
+        // Status selection
+        function selectStatus(value, element) {
+            document.querySelectorAll('#step-5 .select-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            const radio = element.querySelector('input[type="radio"]');
+            radio.checked = true;
+        }
+
+        // Price preview
+        function updatePricePreview() {
+            const price = document.getElementById('price').value;
+            const currency = document.getElementById('currency').value;
+            const period = document.getElementById('pricePeriod').value;
+
+            const preview = document.getElementById('pricePreview');
+            const periodPreview = document.getElementById('pricePeriodPreview');
+
+            if (price && parseFloat(price) > 0) {
+                preview.textContent = parseFloat(price).toLocaleString() + ' ' + currency;
+            } else {
+                preview.textContent = '0.00 ' + currency;
+            }
+
+            const periodMap = {
+                '': '',
+                'MONTHLY': ' / شهرياً',
+                'YEARLY': ' / سنوياً',
+                'WEEKLY': ' / أسبوعياً',
+                'DAILY': ' / يومياً'
+            };
+            periodPreview.textContent = periodMap[period] || '';
+        }
+
+        // Category display mapping
+        const categoryMap = {
+            'apartment': 'شقة',
+            'house': 'منزل',
+            'villa': 'فيلا',
+            'condo': 'كوندو',
+            'townhouse': 'تاون هاوس',
+            'office': 'مكتب',
+            'retail': 'محل تجاري',
+            'land': 'أرض'
+        };
+
+        // Summary update
+        function updateSummary() {
+            const listingType = document.querySelector('input[name="listingType"]:checked');
+            const title = document.getElementById('title').value;
+            const price = document.getElementById('price').value;
+            const currency = document.getElementById('currency').value;
+            const citySelect = document.getElementById('city');
+            const stateSelect = document.getElementById('state');
+            const city = citySelect.options[citySelect.selectedIndex]?.text;
+            const state = stateSelect.options[stateSelect.selectedIndex]?.text;
+            const category = document.getElementById('category').value;
+
+            document.getElementById('summaryListingType').textContent = listingType ? (listingType.value === 'SALE' ? 'للبيع' : 'للإجار') : '-';
+            document.getElementById('summaryTitle').textContent = title || '-';
+            document.getElementById('summaryCategory').textContent = category ? (categoryMap[category] || category) : '-';
+            document.getElementById('summaryPrice').textContent = price ? parseFloat(price).toLocaleString() + ' ' + currency : '-';
+            document.getElementById('summaryLocation').textContent =
+                (citySelect.value && stateSelect.value) ? city + ', ' + state : '-';
+        }
+
+        // Event listeners
+        document.getElementById('price').addEventListener('input', updatePricePreview);
+        document.getElementById('currency').addEventListener('change', updatePricePreview);
+        document.getElementById('pricePeriod').addEventListener('change', updatePricePreview);
+        const propertyImagesInput = document.getElementById('propertyImages');
+        const imagePreviewList = document.getElementById('imagePreviewList');
+        const imageSelectionCount = document.getElementById('imageSelectionCount');
+        const imageSelectionError = document.getElementById('imageSelectionError');
+        const imageMessages = {
+            count: propertyImagesInput.dataset.countTemplate,
+            tooMany: propertyImagesInput.dataset.tooManyMessage,
+            tooLarge: propertyImagesInput.dataset.tooLargeMessage,
+            invalidType: propertyImagesInput.dataset.invalidTypeMessage,
+            remove: propertyImagesInput.dataset.removeMessage
+        };
+        const supportedImageTypes = new Set([
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp'
+        ]);
+        let imagePreviewUrls = [];
+
+        function renderImagePreviews() {
+            imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
+            imagePreviewUrls = [];
+            imagePreviewList.replaceChildren();
+
+            const files = Array.from(propertyImagesInput.files || []);
+            imageSelectionCount.textContent = imageMessages.count.replace('__COUNT__', files.length);
+
+            files.forEach((file, index) => {
+                const previewUrl = URL.createObjectURL(file);
+                imagePreviewUrls.push(previewUrl);
+
+                const card = document.createElement('div');
+                card.className = 'relative';
+                const image = document.createElement('img');
+                image.src = previewUrl;
+                image.alt = file.name;
+                image.className = 'image-preview w-full rounded-lg border border-gray-200';
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'absolute top-2 left-2 rounded-full bg-white px-2 py-1 text-sm text-red-600 shadow';
+                removeButton.textContent = imageMessages.remove;
+                removeButton.addEventListener('click', () => {
+                    const transfer = new DataTransfer();
+                    files.forEach((selectedFile, selectedIndex) => {
+                        if (selectedIndex !== index) transfer.items.add(selectedFile);
+                    });
+                    propertyImagesInput.files = transfer.files;
+                    renderImagePreviews();
+                });
+                card.append(image, removeButton);
+                imagePreviewList.append(card);
+            });
+        }
+
+        propertyImagesInput.addEventListener('change', () => {
+            const files = Array.from(propertyImagesInput.files || []);
+            const invalidType = files.some(file => !supportedImageTypes.has(file.type));
+            const tooLarge = files.some(file => file.size > 10 * 1024 * 1024);
+            if (files.length > 8 || tooLarge || invalidType) {
+                imageSelectionError.textContent = files.length > 8
+                    ? imageMessages.tooMany
+                    : tooLarge ? imageMessages.tooLarge : imageMessages.invalidType;
+                imageSelectionError.classList.remove('hidden');
+                propertyImagesInput.value = '';
+            } else {
+                imageSelectionError.textContent = '';
+                imageSelectionError.classList.add('hidden');
+            }
+            renderImagePreviews();
+        });
+        document.getElementById('state').addEventListener('change', async function() {
+            const citySelect = document.getElementById('city');
+            citySelect.replaceChildren(new Option('اختر المدينة', ''));
+            citySelect.disabled = true;
+            this.classList.remove('error');
+            citySelect.classList.remove('error');
+
+            if (!this.value) return;
+
+            citySelect.replaceChildren(new Option('جارٍ تحميل المدن...', ''));
+            try {
+                const response = await fetch('/ar/properties/cities?stateId=' + encodeURIComponent(this.value));
+                if (!response.ok) throw new Error('Failed to load cities for selected state');
+                const cities = await response.json();
+                citySelect.replaceChildren(new Option('اختر المدينة', ''));
+                cities.forEach(city => citySelect.add(new Option(city.name, city.id)));
+                citySelect.disabled = cities.length === 0;
+                if (cities.length === 0) {
+                    citySelect.replaceChildren(new Option('لا توجد مدن لهذه المنطقة', ''));
+                }
+            } catch (error) {
+                console.error(error);
+                citySelect.replaceChildren(new Option('تعذر تحميل المدن', ''));
+                citySelect.disabled = true;
+            }
+        });
+        document.getElementById('city').addEventListener('change', function() {
+            this.classList.remove('error');
+        });
+        document.getElementById('state').addEventListener('change', updateSummary);
+        document.getElementById('city').addEventListener('change', updateSummary);
+
+        // Clear error on input
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initForm);
+
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
 </body>
 </html>

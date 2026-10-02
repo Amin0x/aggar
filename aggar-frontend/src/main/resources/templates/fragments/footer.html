@@ -1,127 +1,204 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
 <body>
-<div th:fragment="footer">
-    <!-- Main Footer -->
-    <footer class="bg-dark text-white pt-5 pb-4">
-        <div class="container">
-            <div class="row">
-                <!-- Company Information -->
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h5 class="text-uppercase fw-bold mb-3" th:text="#{footer.company.name}">Aggar Real Estate</h5>
-                    <p class="text-muted" th:text="#{footer.company.description}">
-                        Your trusted partner in finding the perfect property. We specialize in residential and commercial real estate across major cities, helping you find your dream home or investment property.
-                    </p>
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-map-marker-alt me-2"></i>
-                        <span class="text-muted" th:text="#{footer.address}">123 Business Ave, Suite 100<br>New York, NY 10001</span>
+<div th:fragment="footer" class="bg-gray-900 text-white pt-16 pb-8">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <!-- Company Information -->
+            <div>
+                <div class="flex items-center space-x-2 space-x-reverse mb-6">
+                    <div class="bg-primary text-white p-2 rounded-lg">
+                        <i class="fas fa-building text-xl"></i>
                     </div>
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-phone me-2"></i>
-                        <span class="text-muted" th:text="#{footer.phone}">+1 (555) 123-4567</span>
+                    <h5 class="text-xl font-bold" th:text="#{footer.company.name}">Aggar Real Estate</h5>
+                </div>
+                <p class="text-gray-400 mb-6 leading-relaxed" th:text="#{footer.company.description}">
+                    Your trusted partner in finding the perfect property. We specialize in residential and commercial real estate across major cities.
+                </p>
+                <div class="space-y-3">
+                    <div class="flex items-center text-gray-400">
+                        <i class="fas fa-map-marker-alt ml-3 text-primary"></i>
+                        <span th:text="#{footer.address}">123 Business Ave, Suite 100, New York, NY 10001</span>
                     </div>
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-envelope me-2"></i>
-                        <span class="text-muted" th:text="#{footer.email}">info@aggar.com</span>
+                    <div class="flex items-center text-gray-400">
+                        <i class="fas fa-phone ml-3 text-primary"></i>
+                        <span th:text="#{footer.phone}">+1 (555) 123-4567</span>
+                    </div>
+                    <div class="flex items-center text-gray-400">
+                        <i class="fas fa-envelope ml-3 text-primary"></i>
+                        <span th:text="#{footer.email}">info@aggar.com</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Quick Links -->
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="text-uppercase fw-bold mb-3" th:text="#{footer.quick.links}">Quick Links</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a th:href="@{/}" class="text-muted text-decoration-none" th:text="#{footer.home}">Home</a></li>
-                        <li class="mb-2"><a th:href="@{/properties}" class="text-muted text-decoration-none" th:text="#{footer.all.properties}">All Properties</a></li>
-                        <li class="mb-2"><a th:href="@{/about}" class="text-muted text-decoration-none" th:text="#{footer.about.us}">About Us</a></li>
-                        <li class="mb-2"><a th:href="@{/contact}" class="text-muted text-decoration-none" th:text="#{footer.contact}">Contact</a></li>
-                        <li class="mb-2"><a th:href="@{/login}" class="text-muted text-decoration-none" th:text="#{footer.login}">Login</a></li>
-                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none" th:text="#{footer.blog}">Blog</a></li>
-                    </ul>
+            <!-- Quick Links -->
+            <div>
+                <h6 class="text-lg font-bold mb-6 text-white">
+                    <i class="fas fa-link ml-2 text-primary"></i>
+                    <span th:text="#{footer.quick.links}">Quick Links</span>
+                </h6>
+                <ul class="space-y-3">
+                    <li>
+                        <a th:href="@{/}" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.home}">Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/search}" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.all.properties}">All Properties</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/about}" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.about.us}">About Us</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/contact}" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.contact}">Contact</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/login}" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.login}">Login</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Services -->
+            <div>
+                <h6 class="text-lg font-bold mb-6 text-white">
+                    <i class="fas fa-tools ml-2 text-primary"></i>
+                    <span th:text="#{footer.services}">Services</span>
+                </h6>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.property.sales}">Property Sales</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.property.rentals}">Property Rentals</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.property.management}">Property Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.investment.advisory}">Investment Advisory</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center">
+                            <i class="fas fa-chevron-left ml-2 text-xs text-primary"></i>
+                            <span th:text="#{footer.property.valuation}">Property Valuation</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Newsletter & Social -->
+            <div>
+                <h6 class="text-lg font-bold mb-6 text-white">
+                    <i class="fas fa-paper-plane ml-2 text-primary"></i>
+                    <span th:text="#{footer.stay.connected}">Stay Connected</span>
+                </h6>
+                <p class="text-gray-400 mb-4" th:text="#{footer.newsletter.description}">Subscribe to our newsletter for the latest property updates and market insights.</p>
+
+                <!-- Newsletter Form -->
+                <form class="mb-6" onsubmit="event.preventDefault(); alert(this.dataset.thanksMessage);"
+                      th:attr="data-thanks-message=#{footer.newsletter.thanks}">
+                    <div class="flex bg-gray-800 rounded-lg overflow-hidden">
+                        <input type="email" class="flex-1 bg-transparent px-4 py-3 text-sm text-white outline-none"
+                               th:placeholder="#{footer.newsletter.email}" th:attr="aria-label=#{footer.newsletter.email}">
+                        <button type="submit" class="bg-primary px-4 py-3 hover:bg-primary-dark transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Social Media Links -->
+                <div class="flex space-x-3 space-x-reverse mb-6">
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:bg-blue-400 hover:text-white transition-all">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:bg-pink-600 hover:text-white transition-all">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:bg-blue-700 hover:text-white transition-all">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:bg-red-600 hover:text-white transition-all">
+                        <i class="fab fa-youtube"></i>
+                    </a>
                 </div>
 
-                <!-- Services -->
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="text-uppercase fw-bold mb-3" th:text="#{footer.services}">Services</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none" th:text="#{footer.property.sales}">Property Sales</a></li>
-                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none" th:text="#{footer.property.rentals}">Property Rentals</a></li>
-                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none" th:text="#{footer.property.management}">Property Management</a></li>
-                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none" th:text="#{footer.investment.advisory}">Investment Advisory</a></li>
-                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none" th:text="#{footer.property.valuation}">Property Valuation</a></li>
-                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none" th:text="#{footer.legal.assistance}">Legal Assistance</a></li>
-                    </ul>
-                </div>
-
-                <!-- Newsletter & Social -->
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h6 class="text-uppercase fw-bold mb-3">Stay Connected</h6>
-                    <p class="text-muted mb-3">Subscribe to our newsletter for the latest property updates and market insights.</p>
-                    
-                    <!-- Newsletter Form -->
-                    <form class="mb-4">
-                        <div class="input-group">
-                            <input type="email" class="form-control" placeholder="Your email address" aria-label="Email">
-                            <button class="btn btn-primary" type="button">Subscribe</button>
+                <!-- App Download Buttons -->
+                <div class="flex space-x-2 space-x-reverse">
+                    <a href="#" class="flex items-center bg-gray-800 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fab fa-apple text-xl ml-2"></i>
+                        <div class="text-xs">
+                            <div class="text-gray-400" th:text="#{footer.download.on}">Download on</div>
+                            <div class="font-semibold">App Store</div>
                         </div>
-                    </form>
-
-                    <!-- Social Media Links -->
-                    <div class="d-flex gap-3 mb-3">
-                        <a href="#" class="text-white fs-5"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-white fs-5"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white fs-5"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white fs-5"><i class="fab fa-linkedin"></i></a>
-                        <a href="#" class="text-white fs-5"><i class="fab fa-youtube"></i></a>
-                    </div>
-
-                    <!-- App Download Buttons -->
-                    <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-light btn-sm">
-                            <i class="fab fa-apple me-1"></i> App Store
-                        </a>
-                        <a href="#" class="btn btn-outline-light btn-sm">
-                            <i class="fab fa-google-play me-1"></i> Google Play
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Divider -->
-            <hr class="my-4 bg-secondary">
-
-            <!-- Bottom Footer -->
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="mb-0 text-muted">
-                        &copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span> Aggar Real Estate. All rights reserved.
-                    </p>
-                </div>
-                <div class="col-md-6">
-                    <div class="d-flex justify-content-md-end gap-3 flex-wrap">
-                        <a th:href="@{/privacy-policy}" class="text-muted text-decoration-none small">Privacy Policy</a>
-                        <a th:href="@{/terms-of-service}" class="text-muted text-decoration-none small">Terms of Service</a>
-                        <a th:href="@{/cookie-policy}" class="text-muted text-decoration-none small">Cookie Policy</a>
-                        <a href="#" class="text-muted text-decoration-none small">Sitemap</a>
-                        <a href="#" class="text-muted text-decoration-none small">Accessibility</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Trust Badges -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap">
-                        <span class="text-muted small">Trusted by:</span>
-                        <img src="https://via.placeholder.com/80x30/ffffff/000000?text=Bank1" alt="Bank Partner" class="img-fluid" style="max-height: 30px;">
-                        <img src="https://via.placeholder.com/80x30/ffffff/000000?text=Bank2" alt="Bank Partner" class="img-fluid" style="max-height: 30px;">
-                        <img src="https://via.placeholder.com/80x30/ffffff/000000?text=Bank3" alt="Bank Partner" class="img-fluid" style="max-height: 30px;">
-                        <img src="https://via.placeholder.com/80x30/ffffff/000000?text=Bank4" alt="Bank Partner" class="img-fluid" style="max-height: 30px;">
-                    </div>
+                    </a>
+                    <a href="#" class="flex items-center bg-gray-800 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fab fa-google-play text-xl ml-2"></i>
+                        <div class="text-xs">
+                            <div class="text-gray-400" th:text="#{footer.get.it.on}">Get it on</div>
+                            <div class="font-semibold">Google Play</div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
-    </footer>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-800 my-8"></div>
+
+        <!-- Bottom Footer -->
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div class="text-gray-400 text-sm">
+                &copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span>
+                <span th:text="#{footer.copyright}">Aggar Real Estate. All rights reserved.</span>
+            </div>
+            <div class="flex flex-wrap gap-4 text-sm">
+                <a th:href="@{/privacy-policy}" class="text-gray-400 hover:text-white transition-colors" th:text="#{footer.privacy.policy}">Privacy Policy</a>
+                <span class="text-gray-600">|</span>
+                <a th:href="@{/terms-of-service}" class="text-gray-400 hover:text-white transition-colors" th:text="#{footer.terms.of.service}">Terms of Service</a>
+                <span class="text-gray-600">|</span>
+                <a th:href="@{/cookie-policy}" class="text-gray-400 hover:text-white transition-colors" th:text="#{footer.cookie.policy}">Cookie Policy</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors" th:text="#{footer.sitemap}">Sitemap</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors" th:text="#{footer.accessibility}">Accessibility</a>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
-

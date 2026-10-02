@@ -24,7 +24,7 @@ public class StateController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StateDto> get(@PathVariable Integer id) {
+    public ResponseEntity<StateDto> get(@PathVariable("id") Integer id) {
         return stateService.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -35,14 +35,13 @@ public class StateController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StateDto> update(@PathVariable Integer id, @RequestBody StateDto dto) {
+    public ResponseEntity<StateDto> update(@PathVariable("id") Integer id, @RequestBody StateDto dto) {
         return stateService.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
         boolean removed = stateService.delete(id);
         return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
-

@@ -19,13 +19,13 @@ public class PropertyImageController {
     }
 
     @GetMapping
-    public List<String> getImages(@RequestParam Long propertyId) {
+    public List<String> getImages(@RequestParam("propertyId") Long propertyId) {
         return service.getImages(propertyId);
     }
 
     @PostMapping("/upload")
     public ResponseEntity<List<String>> uploadImages(
-            @RequestParam Long propertyId,
+            @RequestParam("propertyId") Long propertyId,
             @RequestParam("files") MultipartFile[] files) {
         List<String> urls = service.uploadImages(propertyId, files);
         return ResponseEntity.created(URI.create("/api/property-images?propertyId=" + propertyId)).body(urls);
@@ -33,8 +33,8 @@ public class PropertyImageController {
 
     @DeleteMapping
     public ResponseEntity<Void> deleteImage(
-            @RequestParam Long propertyId,
-            @RequestParam String imageUrl) {
+            @RequestParam("propertyId") Long propertyId,
+            @RequestParam("imageUrl") String imageUrl) {
         service.deleteImage(propertyId, imageUrl);
         return ResponseEntity.noContent().build();
     }
