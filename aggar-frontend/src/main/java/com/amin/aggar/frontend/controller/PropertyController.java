@@ -1,6 +1,7 @@
 package com.amin.aggar.frontend.controller;
 
 import com.amin.aggar.frontend.dto.CityDto;
+import com.amin.aggar.frontend.dto.PropertyCommentDto;
 import com.amin.aggar.frontend.dto.PropertyDto;
 import com.amin.aggar.frontend.dto.StateDto;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,11 +35,15 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -66,7 +71,8 @@ public class PropertyController {
     }
 
     @GetMapping("/properties/{identifier}")
-    public String details(@PathVariable("identifier") String identifier, Model model, HttpServletResponse response) {
+    public String details(@PathVariable("identifier") String identifier, Model model,
+                          HttpServletResponse response, Locale locale) {
         try {
             PropertyDto property = null;
 
@@ -123,6 +129,16 @@ public class PropertyController {
             }
 
             model.addAttribute("property", property);
+            try {
+                PropertyComments comments = fetchComments(property.getId());
+                model.addAttribute("comments", comments.content());
+                model.addAttribute("commentsTotal", comments.totalElements());
+            } catch (Exception ex) {
+                log.error("Failed to fetch comments for property {}", property.getId(), ex);
+                model.addAttribute("comments", Collections.emptyList());
+                model.addAttribute("commentLoadError", messageSource.getMessage(
+                        "property.comments.load.error", null, locale));
+            }
 
             // Add required attributes for header fragment
             model.addAttribute("listingTypes", Collections.emptyList());
@@ -137,6 +153,80 @@ public class PropertyController {
             return "error/500";
         }
     }
+
+    @PostMapping("/properties/{identifier}/comments")
+    public String addComment(@PathVariable("identifier") String identifier,
+                             @RequestParam("propertyId") Long propertyId,
+                             @RequestParam("content") String content,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes,
+                             Locale locale) {
+        String redirectPath = "/properties/" + identifier;
+        Object sessionUser = session.getAttribute(
+                com.amin.aggar.frontend.config.GlobalControllerAdvice.SESSION_USER_KEY);
+        Long authorId = sessionUser instanceof Map<?, ?> user && user.get("id") instanceof Number id
+                ? id.longValue()
+                : null;
+
+        if (authorId == null) {
+            String loginUrl = UriComponentsBuilder.fromPath("/login")
+                    .queryParam("redirect", redirectPath)
+                    .build()
+                    .encode()
+                    .toUriString();
+            return "redirect:" + loginUrl;
+        }
+
+        if (content == null || content.isBlank() || content.length() > 2000) {
+            redirectAttributes.addFlashAttribute("commentError",
+                    messageSource.getMessage("property.comments.validation.error", null, locale));
+            return "redirect:" + redirectPath;
+        }
+
+        try {
+            PropertyCommentDto comment = new PropertyCommentDto();
+            comment.setAuthorId(authorId);
+            comment.setContent(content.trim());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            restTemplate.exchange(
+                    propertiesApiUrl + "/" + propertyId + "/comments",
+                    HttpMethod.POST,
+                    new HttpEntity<>(comment, headers),
+                    PropertyCommentDto.class);
+            redirectAttributes.addFlashAttribute("commentSuccess",
+                    messageSource.getMessage("property.comments.success", null, locale));
+        } catch (Exception ex) {
+            log.error("Failed to add comment for property {}", propertyId, ex);
+            redirectAttributes.addFlashAttribute("commentError",
+                    messageSource.getMessage("property.comments.submit.error", null, locale));
+        }
+        return "redirect:" + redirectPath;
+    }
+
+    private PropertyComments fetchComments(Long propertyId) throws IOException {
+        URI uri = UriComponentsBuilder.fromUriString(propertiesApiUrl)
+                .pathSegment(propertyId.toString(), "comments")
+                .queryParam("size", 50)
+                .queryParam("sort", "createdAt,desc")
+                .build()
+                .toUri();
+        String response = restTemplate.getForObject(uri, String.class);
+        if (response == null) {
+            throw new IllegalStateException("Comments API returned an empty response");
+        }
+        JsonNode pageResponse = objectMapper.readTree(response);
+        JsonNode content = pageResponse.path("content");
+        JsonNode totalElements = pageResponse.path("totalElements");
+        if (!content.isArray() || !totalElements.isIntegralNumber()) {
+            throw new IllegalStateException("Comments API returned an invalid page response");
+        }
+        return new PropertyComments(
+                objectMapper.convertValue(content, new TypeReference<List<PropertyCommentDto>>() {}),
+                totalElements.longValue());
+    }
+
+    private record PropertyComments(List<PropertyCommentDto> content, long totalElements) {}
 
     @GetMapping("/properties")
     public String listProperties(

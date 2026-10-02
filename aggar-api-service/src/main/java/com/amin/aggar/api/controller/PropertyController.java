@@ -1,8 +1,10 @@
 package com.amin.aggar.api.controller;
 
 import com.amin.aggar.api.dto.MessageDto;
+import com.amin.aggar.api.dto.PropertyCommentDto;
 import com.amin.aggar.api.dto.PropertyDto;
 import com.amin.aggar.service.MessageService;
+import com.amin.aggar.service.PropertyCommentService;
 import com.amin.aggar.service.PropertyService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +19,13 @@ public class PropertyController {
 
     private final PropertyService service;
     private final MessageService messageService;
+    private final PropertyCommentService commentService;
 
-    public PropertyController(PropertyService service, MessageService messageService) {
+    public PropertyController(PropertyService service, MessageService messageService,
+                              PropertyCommentService commentService) {
         this.service = service;
         this.messageService = messageService;
+        this.commentService = commentService;
     }
 
     @GetMapping
@@ -90,5 +95,18 @@ public class PropertyController {
     @GetMapping("/{id}/messages")
     public Page<MessageDto> getMessages(@PathVariable("id") Long id, Pageable pageable) {
         return messageService.getMessagesByProperty(id, pageable);
+    }
+
+    @GetMapping("/{id}/comments")
+    public Page<PropertyCommentDto> getComments(@PathVariable("id") Long id, Pageable pageable) {
+        return commentService.findByProperty(id, pageable);
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<PropertyCommentDto> addComment(
+            @PathVariable("id") Long id,
+            @RequestBody PropertyCommentDto comment) {
+        PropertyCommentDto created = commentService.create(id, comment.getAuthorId(), comment.getContent());
+        return ResponseEntity.status(201).body(created);
     }
 }
