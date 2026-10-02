@@ -9,11 +9,10 @@ import com.amin.aggar.repository.PropertyRepository;
 import com.amin.aggar.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class MessageService {
@@ -31,21 +30,23 @@ public class MessageService {
     }
 
     @Transactional
-    public MessageDto sendMessage(Long propertyId, Long senderId, String subject, String content) {
+    public MessageDto sendMessage(Long propertyId, String senderUsername, String subject, String content) {
+        if (subject == null || subject.isBlank() || subject.length() > 255
+                || content == null || content.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A subject and message are required");
+        }
         Property property = propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new IllegalArgumentException("Property not found: " + propertyId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Property not found"));
 
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + senderId));
+        User sender = userRepository.findByUsername(senderUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user not found"));
 
         Message message = new Message();
         message.setProperty(property);
         message.setSender(sender);
-        message.setSubject(subject);
-        message.setContent(content);
+        message.setSubject(subject.trim());
+        message.setContent(content.trim());
         message.setIsRead(false);
-        message.setCreatedAt(LocalDateTime.now());
-
         Message saved = messageRepository.save(message);
 
         return toDto(saved);

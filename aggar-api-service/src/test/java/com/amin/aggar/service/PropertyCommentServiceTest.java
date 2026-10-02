@@ -33,14 +33,14 @@ class PropertyCommentServiceTest {
         user.setId(7L);
         user.setName("Jane");
         when(propertyRepository.findById(4L)).thenReturn(Optional.of(property));
-        when(userRepository.findById(7L)).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("jane")).thenReturn(Optional.of(user));
         when(commentRepository.save(any(PropertyComment.class))).thenAnswer(invocation -> {
             PropertyComment comment = invocation.getArgument(0);
             comment.setId(1L);
             return comment;
         });
 
-        var result = service.create(4L, 7L, "  Nice home  ");
+        var result = service.create(4L, "jane", "  Nice home  ");
 
         assertEquals("Nice home", result.getContent());
         assertEquals(4L, result.getPropertyId());
@@ -50,6 +50,6 @@ class PropertyCommentServiceTest {
 
     @Test
     void rejectsBlankComments() {
-        assertThrows(ResponseStatusException.class, () -> service.create(4L, 7L, "  "));
+        assertThrows(ResponseStatusException.class, () -> service.create(4L, "jane", "  "));
     }
 }

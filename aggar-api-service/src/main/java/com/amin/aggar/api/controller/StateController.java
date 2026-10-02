@@ -3,6 +3,7 @@ package com.amin.aggar.api.controller;
 import com.amin.aggar.api.dto.StateDto;
 import com.amin.aggar.service.StateService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -29,17 +30,20 @@ public class StateController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StateDto> create(@RequestBody StateDto dto) {
         StateDto created = stateService.create(dto);
         return ResponseEntity.created(URI.create("/api/states/" + created.getId())).body(created);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StateDto> update(@PathVariable("id") Integer id, @RequestBody StateDto dto) {
         return stateService.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
         boolean removed = stateService.delete(id);
         return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();

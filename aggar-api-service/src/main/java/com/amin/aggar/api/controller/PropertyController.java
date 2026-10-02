@@ -9,6 +9,8 @@ import com.amin.aggar.service.PropertyService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -53,31 +55,40 @@ public class PropertyController {
     }
 
     @PostMapping
-    public ResponseEntity<PropertyDto> create(@RequestBody PropertyDto dto) {
-        PropertyDto created = service.create(dto); return ResponseEntity.created(URI.create("/api/properties/" + created.getId())).body(created);
+    public ResponseEntity<PropertyDto> create(@RequestBody PropertyDto dto, Authentication authentication) {
+        boolean admin = isAdmin(authentication);
+        PropertyDto created = service.create(dto, authentication.getName(), admin);
+        return ResponseEntity.created(URI.create("/api/properties/" + created.getId())).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PropertyDto> update(@PathVariable("id") Long id, @RequestBody PropertyDto dto) {
-        return service.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    @PreAuthorize("hasRole('ADMIN') or @propertyAuthorization.canManage(#id, authentication.name)")
+    public ResponseEntity<PropertyDto> update(@PathVariable("id") Long id, @RequestBody PropertyDto dto,
+                                               Authentication authentication) {
+        return service.update(id, dto, isAdmin(authentication))
+                .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @propertyAuthorization.canManage(#id, authentication.name)")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         boolean removed = service.delete(id); return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/admin/pending")
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<PropertyDto> listPending(Pageable pageable) {
         return service.findByStatus("pending", pageable);
     }
 
     @PutMapping("/admin/{id}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PropertyDto> approve(@PathVariable("id") Long id) {
         return service.approve(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/admin/{id}/reject")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PropertyDto> reject(@PathVariable("id") Long id) {
         return service.reject(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
@@ -85,19 +96,21 @@ public class PropertyController {
     @PostMapping("/{id}/messages")
     public ResponseEntity<MessageDto> sendMessage(
             @PathVariable("id") Long id,
-            @RequestParam("senderId") Long senderId,
             @RequestParam("subject") String subject,
-            @RequestParam("content") String content) {
-        MessageDto message = messageService.sendMessage(id, senderId, subject, content);
+            @RequestParam("content") String content,
+            Authentication authentication) {
+        MessageDto message = messageService.sendMessage(id, authentication.getName(), subject, content);
         return ResponseEntity.ok(message);
     }
 
     @GetMapping("/{id}/messages")
+    @PreAuthorize("hasRole('ADMIN') or @propertyAuthorization.canManage(#id, authentication.name)")
     public Page<MessageDto> getMessages(@PathVariable("id") Long id, Pageable pageable) {
         return messageService.getMessagesByProperty(id, pageable);
     }
 
     @GetMapping("/{id}/comments")
+    @PreAuthorize("@propertyAuthorization.canView(#id, authentication)")
     public Page<PropertyCommentDto> getComments(@PathVariable("id") Long id, Pageable pageable) {
         return commentService.findByProperty(id, pageable);
     }
@@ -105,8 +118,14 @@ public class PropertyController {
     @PostMapping("/{id}/comments")
     public ResponseEntity<PropertyCommentDto> addComment(
             @PathVariable("id") Long id,
-            @RequestBody PropertyCommentDto comment) {
-        PropertyCommentDto created = commentService.create(id, comment.getAuthorId(), comment.getContent());
+            @RequestBody PropertyCommentDto comment,
+            Authentication authentication) {
+        PropertyCommentDto created = commentService.create(id, authentication.getName(), comment.getContent());
         return ResponseEntity.status(201).body(created);
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 }

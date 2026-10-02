@@ -3,6 +3,8 @@ package com.amin.aggar.frontend.controller;
 import com.amin.aggar.frontend.config.GlobalControllerAdvice;
 import com.amin.aggar.frontend.dto.PropertyDto;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,8 +48,15 @@ public class AuthController {
                            HttpSession session,
                            Locale locale) {
 
-        if (session.getAttribute(GlobalControllerAdvice.SESSION_USER_KEY) != null) {
+        Object sessionUser = session.getAttribute(GlobalControllerAdvice.SESSION_USER_KEY);
+        if (sessionUser instanceof Map<?, ?> user
+                && user.get("accessToken") instanceof String token
+                && !token.isBlank()
+                && user.get("expiresAt") instanceof String expiresAt
+                && Instant.parse(expiresAt).isAfter(Instant.now())) {
             return "redirect:/home";
+        } else if (sessionUser != null) {
+            session.removeAttribute(GlobalControllerAdvice.SESSION_USER_KEY);
         }
 
         if (error != null) {
@@ -74,6 +83,7 @@ public class AuthController {
                        @RequestParam("password") String password,
                        @RequestParam(value = "redirect", required = false) String redirect,
                        HttpSession session,
+                       HttpServletRequest request,
                        Model model) {
 
         try {
@@ -91,10 +101,13 @@ public class AuthController {
             );
 
             Map<String, Object> user = response.getBody();
-            if (user != null) {
+            if (user != null && user.get("accessToken") instanceof String token
+                    && !token.isBlank() && user.get("id") instanceof Number) {
+                request.changeSessionId();
                 session.setAttribute(GlobalControllerAdvice.SESSION_USER_KEY, user);
                 log.info("User {} logged in successfully", identifier);
-                if (redirect != null && !redirect.isEmpty()) {
+                if (redirect != null && redirect.startsWith("/") && !redirect.startsWith("//")
+                        && !redirect.contains("\r") && !redirect.contains("\n")) {
                     return "redirect:" + redirect;
                 }
                 return "redirect:/home";
@@ -191,7 +204,12 @@ public class AuthController {
     @GetMapping("/profile")
     public String profilePage(Model model, HttpSession session) {
         Object user = session.getAttribute(GlobalControllerAdvice.SESSION_USER_KEY);
-        if (user == null) {
+        if (!(user instanceof Map<?, ?> sessionUser)
+                || !(sessionUser.get("accessToken") instanceof String token)
+                || token.isBlank()
+                || !(sessionUser.get("expiresAt") instanceof String expiresAt)
+                || !Instant.parse(expiresAt).isAfter(Instant.now())) {
+            session.removeAttribute(GlobalControllerAdvice.SESSION_USER_KEY);
             return "redirect:/login";
         }
 

@@ -12,6 +12,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,6 +31,8 @@ class UserServiceTest {
 
         assertTrue(result.isPresent());
         assertEquals("jane", result.get().username());
+        assertTrue(user.getPassword().startsWith("$2"));
+        verify(userRepository).save(user);
         verify(userRepository).findByUsername("jane");
     }
 
@@ -62,6 +65,25 @@ class UserServiceTest {
         assertEquals(JsonProperty.Access.WRITE_ONLY, passwordAccess.access());
         assertFalse(java.util.Arrays.stream(AuthenticatedUserDto.class.getDeclaredFields())
                 .anyMatch(field -> field.getName().equals("password")));
+    }
+
+    @Test
+    void registrationHashesPasswordAndIgnoresRequestedRole() {
+        UserDto request = new UserDto();
+        request.setUsername("new-user");
+        request.setName("New User");
+        request.setEmail("new@example.com");
+        request.setPassword("secret123");
+        request.setRole("admin");
+        when(userRepository.findByUsername("new-user")).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase("new@example.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserDto created = userService.create(request);
+
+        assertEquals("owner", created.getRole());
+        assertFalse("secret123".equals(created.getPassword()));
+        assertTrue(created.getPassword().startsWith("$2"));
     }
 
     private User user(String username, String email, String password) {

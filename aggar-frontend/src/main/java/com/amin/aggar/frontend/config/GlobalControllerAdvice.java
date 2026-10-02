@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import java.util.Locale;
+import java.time.Instant;
+import java.util.Map;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -21,6 +23,12 @@ public class GlobalControllerAdvice {
     @ModelAttribute
     public void addGlobalAttributes(Model model, HttpSession session, HttpServletRequest request) {
         Object user = session.getAttribute(SESSION_USER_KEY);
+        if (!hasValidSessionToken(user)) {
+            if (user != null) {
+                session.removeAttribute(SESSION_USER_KEY);
+            }
+            user = null;
+        }
         Locale locale = RequestContextUtils.getLocale(request);
         model.addAttribute("isAuthenticated", user != null);
         model.addAttribute("currentUser", user);
@@ -45,5 +53,15 @@ public class GlobalControllerAdvice {
             languageSwitchUrl += "?" + request.getQueryString();
         }
         model.addAttribute("languageSwitchUrl", languageSwitchUrl);
+    }
+
+    private boolean hasValidSessionToken(Object user) {
+        if (!(user instanceof Map<?, ?> sessionUser)
+                || !(sessionUser.get("accessToken") instanceof String token)
+                || token.isBlank()
+                || !(sessionUser.get("expiresAt") instanceof String expiresAt)) {
+            return false;
+        }
+        return Instant.parse(expiresAt).isAfter(Instant.now());
     }
 }

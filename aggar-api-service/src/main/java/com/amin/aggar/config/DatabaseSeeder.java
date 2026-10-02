@@ -18,6 +18,7 @@ import com.amin.aggar.repository.UserRepository;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -36,6 +37,7 @@ public class DatabaseSeeder implements ApplicationRunner {
     private final UserRepository userRepository;
     private final AmenityRepository amenityRepository;
     private final PropertyRepository propertyRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DatabaseSeeder(
             StateRepository stateRepository,
@@ -43,13 +45,15 @@ public class DatabaseSeeder implements ApplicationRunner {
             NeighborhoodRepository neighborhoodRepository,
             UserRepository userRepository,
             AmenityRepository amenityRepository,
-            PropertyRepository propertyRepository) {
+            PropertyRepository propertyRepository,
+            PasswordEncoder passwordEncoder) {
         this.stateRepository = stateRepository;
         this.cityRepository = cityRepository;
         this.neighborhoodRepository = neighborhoodRepository;
         this.userRepository = userRepository;
         this.amenityRepository = amenityRepository;
         this.propertyRepository = propertyRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -163,7 +167,7 @@ public class DatabaseSeeder implements ApplicationRunner {
             Map<String, User> users, String username, String password, String name, String email, String phone, String role) {
         User user = new User();
         user.setUsername(username);
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         user.setName(name);
         user.setEmail(email);
         user.setPhone(phone);

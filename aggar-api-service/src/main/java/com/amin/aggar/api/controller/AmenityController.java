@@ -5,6 +5,7 @@ import com.amin.aggar.service.AmenityService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -30,17 +31,20 @@ public class AmenityController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AmenityDto> create(@RequestBody AmenityDto dto) {
         AmenityDto created = amenityService.create(dto);
         return ResponseEntity.created(URI.create("/api/amenities/" + created.getId())).body(created);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AmenityDto> update(@PathVariable("id") Integer id, @RequestBody AmenityDto dto) {
         return amenityService.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
         boolean removed = amenityService.delete(id);
         return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();

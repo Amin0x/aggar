@@ -13,8 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.transaction.Transactional;
 
@@ -319,9 +321,15 @@ public class PropertyService {
     }
 
     @Transactional
-    public PropertyDto create(PropertyDto dto) {
+    public PropertyDto create(PropertyDto dto, String username, boolean admin) {
         Property p = fromDto(dto);
         p.setId(null);
+        if (!admin) {
+            p.setOwner(userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user not found")));
+            p.setAgent(null);
+            p.setStatus("pending");
+        }
         if (p.getSlug() == null || p.getSlug().trim().isEmpty()) {
             p.setSlug(generateSlug(p.getTitle()));
         }
@@ -331,7 +339,7 @@ public class PropertyService {
     }
 
     @Transactional
-    public Optional<PropertyDto> update(Long id, PropertyDto dto) {
+    public Optional<PropertyDto> update(Long id, PropertyDto dto, boolean admin) {
         return propertyRepository.findById(id).map(existing -> {
             existing.setTitle(dto.getTitle());
             existing.setDescription(dto.getDescription());
@@ -346,9 +354,11 @@ public class PropertyService {
             if (dto.getCityId() != null) existing.setCity(cityRepository.findById(dto.getCityId()).orElse(null));
             if (dto.getNeighborhoodId() != null)
                 existing.setNeighborhood(neighborhoodRepository.findById(dto.getNeighborhoodId()).orElse(null));
-            if (dto.getOwnerId() != null) existing.setOwner(userRepository.findById(dto.getOwnerId()).orElse(null));
-            if (dto.getAgentId() != null) existing.setAgent(userRepository.findById(dto.getAgentId()).orElse(null));
-            existing.setStatus(dto.getStatus());
+            if (admin) {
+                existing.setOwner(dto.getOwnerId() == null ? null : userRepository.findById(dto.getOwnerId()).orElse(null));
+                existing.setAgent(dto.getAgentId() == null ? null : userRepository.findById(dto.getAgentId()).orElse(null));
+                existing.setStatus(dto.getStatus());
+            }
             existing.setLocationLat(dto.getLocationLat());
             existing.setLocationLng(dto.getLocationLng());
             if (dto.getSlug() != null && !dto.getSlug().trim().isEmpty()) {

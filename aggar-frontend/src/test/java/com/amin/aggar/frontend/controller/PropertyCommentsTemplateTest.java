@@ -10,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -74,7 +76,12 @@ class PropertyCommentsTemplateTest {
                 .thenReturn("{\"content\":[],\"totalElements\":0,\"last\":true}");
 
         mockMvc.perform(get("/en/properties/test-home")
-                        .sessionAttr("loggedInUser", Map.of("id", 7L, "name", "Jane", "role", "user")))
+                        .sessionAttr("loggedInUser", Map.of(
+                                "id", 7L,
+                                "name", "Jane",
+                                "role", "user",
+                                "accessToken", "test-token",
+                                "expiresAt", Instant.now().plusSeconds(600).toString())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("id=\"commentContent\"")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString(
@@ -121,9 +128,24 @@ class PropertyCommentsTemplateTest {
     void anonymousCommentSubmissionRedirectsToSignIn() throws Exception {
         mockMvc.perform(post("/en/properties/test-home/comments")
                         .param("propertyId", "12")
-                        .param("content", "A useful comment"))
+                        .param("content", "A useful comment")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location",
                         org.hamcrest.Matchers.containsString("/en/login?redirect=")));
+    }
+
+    @Test
+    void adminAreaRequiresAdminSessionRole() throws Exception {
+        mockMvc.perform(get("/en/admin"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location",
+                        org.hamcrest.Matchers.containsString("/en/login?redirect=")));
+
+        Map<String, Object> member = Map.of(
+                "id", 7L, "name", "Jane", "role", "owner", "accessToken", "test-token",
+                "expiresAt", Instant.now().plusSeconds(600).toString());
+        mockMvc.perform(get("/en/admin").sessionAttr("loggedInUser", member))
+                .andExpect(status().isForbidden());
     }
 }

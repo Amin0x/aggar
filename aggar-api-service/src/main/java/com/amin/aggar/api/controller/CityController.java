@@ -5,6 +5,7 @@ import com.amin.aggar.service.CityService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -36,17 +37,20 @@ public class CityController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CityDto> create(@RequestBody CityDto dto) {
         CityDto created = cityService.create(dto);
         return ResponseEntity.created(URI.create("/api/cities/" + created.getId())).body(created);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CityDto> update(@PathVariable("id") Integer id, @RequestBody CityDto dto) {
         return cityService.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
         boolean removed = cityService.delete(id);
         return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();

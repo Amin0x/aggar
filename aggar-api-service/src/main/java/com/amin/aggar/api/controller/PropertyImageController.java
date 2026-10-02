@@ -2,6 +2,7 @@ package com.amin.aggar.api.controller;
 
 import com.amin.aggar.service.PropertyImageService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,11 +20,13 @@ public class PropertyImageController {
     }
 
     @GetMapping
+    @PreAuthorize("@propertyAuthorization.canView(#propertyId, authentication)")
     public List<String> getImages(@RequestParam("propertyId") Long propertyId) {
         return service.getImages(propertyId);
     }
 
     @PostMapping("/upload")
+    @PreAuthorize("hasRole('ADMIN') or @propertyAuthorization.canManage(#propertyId, authentication.name)")
     public ResponseEntity<List<String>> uploadImages(
             @RequestParam("propertyId") Long propertyId,
             @RequestParam("files") MultipartFile[] files) {
@@ -32,6 +35,7 @@ public class PropertyImageController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasRole('ADMIN') or @propertyAuthorization.canManage(#propertyId, authentication.name)")
     public ResponseEntity<Void> deleteImage(
             @RequestParam("propertyId") Long propertyId,
             @RequestParam("imageUrl") String imageUrl) {

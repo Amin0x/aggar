@@ -171,11 +171,10 @@ public class PropertyController {
         String redirectPath = "/properties/" + identifier;
         Object sessionUser = session.getAttribute(
                 com.amin.aggar.frontend.config.GlobalControllerAdvice.SESSION_USER_KEY);
-        Long authorId = sessionUser instanceof Map<?, ?> user && user.get("id") instanceof Number id
-                ? id.longValue()
-                : null;
+        String accessToken = sessionUser instanceof Map<?, ?> user
+                && user.get("accessToken") instanceof String token ? token : null;
 
-        if (authorId == null) {
+        if (accessToken == null || accessToken.isBlank()) {
             String loginUrl = UriComponentsBuilder.fromPath("/login")
                     .queryParam("redirect", redirectPath)
                     .build()
@@ -192,7 +191,6 @@ public class PropertyController {
 
         try {
             PropertyCommentDto comment = new PropertyCommentDto();
-            comment.setAuthorId(authorId);
             comment.setContent(content.trim());
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -209,6 +207,50 @@ public class PropertyController {
                     messageSource.getMessage("property.comments.submit.error", null, locale));
         }
         return "redirect:" + redirectPath;
+    }
+
+    @PostMapping("/properties/{identifier}/messages")
+    public String sendPropertyMessage(@PathVariable("identifier") String identifier,
+                                      @RequestParam("propertyId") Long propertyId,
+                                      @RequestParam("subject") String subject,
+                                      @RequestParam("content") String content,
+                                      HttpSession session,
+                                      RedirectAttributes redirectAttributes,
+                                      Locale locale) {
+        if (!(session.getAttribute(
+                com.amin.aggar.frontend.config.GlobalControllerAdvice.SESSION_USER_KEY) instanceof Map<?, ?> user)
+                || !(user.get("accessToken") instanceof String token) || token.isBlank()) {
+            String loginUrl = UriComponentsBuilder.fromPath("/login")
+                    .queryParam("redirect", "/properties/" + identifier)
+                    .build()
+                    .encode()
+                    .toUriString();
+            return "redirect:" + loginUrl;
+        }
+        if (subject == null || subject.isBlank() || subject.length() > 255
+                || content == null || content.isBlank()) {
+            redirectAttributes.addFlashAttribute("commentError",
+                    messageSource.getMessage("property.message.validation.error", null, locale));
+            return "redirect:/properties/" + identifier;
+        }
+
+        try {
+            URI uri = UriComponentsBuilder.fromUriString(propertiesApiUrl)
+                    .pathSegment(propertyId.toString(), "messages")
+                    .queryParam("subject", subject.trim())
+                    .queryParam("content", content.trim())
+                    .build()
+                    .encode()
+                    .toUri();
+            restTemplate.exchange(uri, HttpMethod.POST, HttpEntity.EMPTY, String.class);
+            redirectAttributes.addFlashAttribute("commentSuccess",
+                    messageSource.getMessage("property.message.success", null, locale));
+        } catch (Exception ex) {
+            log.error("Failed to send message for property {}", propertyId, ex);
+            redirectAttributes.addFlashAttribute("commentError",
+                    messageSource.getMessage("property.message.submit.error", null, locale));
+        }
+        return "redirect:/properties/" + identifier;
     }
 
     private PropertyComments fetchComments(Long propertyId) throws IOException {

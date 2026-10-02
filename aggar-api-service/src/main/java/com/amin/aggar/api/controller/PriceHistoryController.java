@@ -5,6 +5,7 @@ import com.amin.aggar.service.PriceHistoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -20,17 +21,22 @@ public class PriceHistoryController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<PriceHistoryDto> list(Pageable pageable) { return service.list(pageable); }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PriceHistoryDto> get(@PathVariable("id") Long id) { return service.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build()); }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PriceHistoryDto> create(@RequestBody PriceHistoryDto dto) { PriceHistoryDto created = service.create(dto); return ResponseEntity.created(URI.create("/api/price-history/" + created.getId())).body(created); }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PriceHistoryDto> update(@PathVariable("id") Long id, @RequestBody PriceHistoryDto dto) { return service.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build()); }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) { boolean removed = service.delete(id); return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build(); }
 }

@@ -413,24 +413,24 @@
             </div>
 
             <!-- Message Form -->
-            <form id="sendMessageForm" onsubmit="submitMessage(event)">
+            <form id="sendMessageForm"
+                  th:action="@{'/properties/' + ${property.slug != null ? property.slug : property.id} + '/messages'}"
+                  method="post" onsubmit="submitMessage(event)">
                 <div class="mb-4">
                     <label for="messageSubject" class="block text-sm font-medium text-gray-700 mb-2">الموضوع</label>
-                    <input type="text" id="messageSubject" required
+                    <input type="text" id="messageSubject" name="subject" maxlength="255" required
                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                            placeholder="مثال: استفسار عن العقار">
                 </div>
 
                 <div class="mb-6">
                     <label for="messageContent" class="block text-sm font-medium text-gray-700 mb-2">الرسالة</label>
-                    <textarea id="messageContent" rows="4" required
+                    <textarea id="messageContent" name="content" rows="4" maxlength="2000" required
                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none"
                               placeholder="اكتب رسالتك هنا..."></textarea>
                 </div>
 
-                <input type="hidden" id="propertyId" th:value="${property.id}">
-                <input type="hidden" id="propertySlug" th:value="${property.slug}">
-                <input type="hidden" id="senderId" th:value="${currentUser != null} ? ${currentUser.id} : ''">
+                <input type="hidden" name="propertyId" th:value="${property.id}">
 
                 <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-xl font-semibold transition-colors">
                     <i class="fas fa-paper-plane ml-2"></i>
@@ -525,42 +525,32 @@
         function submitMessage(event) {
             event.preventDefault();
 
-            const propertyId = document.getElementById('propertyId').value;
-            const senderId = document.getElementById('senderId').value;
-            const subject = document.getElementById('messageSubject').value;
-            const content = document.getElementById('messageContent').value;
-
-            if (!subject || !content) {
+            const form = document.getElementById('sendMessageForm');
+            const params = new URLSearchParams(new FormData(form));
+            if (!params.get('subject')?.trim() || !params.get('content')?.trim()) {
                 alert('يرجى ملء جميع الحقول المطلوبة');
                 return;
             }
 
-            const apiUrl = /*[[${apiBaseUrl}]]*/ 'http://localhost:8080';
-            const url = apiUrl + '/api/properties/' + propertyId + '/messages';
-
-            const params = new URLSearchParams({
-                senderId: senderId,
-                subject: subject,
-                content: content
-            });
-
-            fetch(url, {
+            fetch(form.action, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                 },
                 body: params
             })
             .then(response => {
+                if (response.redirected) {
+                    window.location.assign(response.url);
+                    return;
+                }
                 if (response.ok) {
-                    return response.json();
+                    alert('تم إرسال الرسالة بنجاح!');
+                    closeSendMessageDialog();
+                    form.reset();
+                    return;
                 }
                 throw new Error('Failed to send message');
-            })
-            .then(data => {
-                alert('تم إرسال الرسالة بنجاح!');
-                closeSendMessageDialog();
-                document.getElementById('sendMessageForm').reset();
             })
             .catch(error => {
                 console.error('Error:', error);

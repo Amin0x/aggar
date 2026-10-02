@@ -35,10 +35,7 @@ public class PropertyCommentService {
     }
 
     @Transactional
-    public PropertyCommentDto create(Long propertyId, Long authorId, String content) {
-        if (authorId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "An authenticated author is required");
-        }
+    public PropertyCommentDto create(Long propertyId, String authorUsername, String content) {
         if (content == null || content.isBlank() || content.length() > MAX_CONTENT_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment must contain 1 to 2000 characters");
         }
@@ -46,8 +43,8 @@ public class PropertyCommentService {
         PropertyComment comment = new PropertyComment();
         comment.setProperty(propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Property not found")));
-        comment.setAuthor(userRepository.findById(authorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")));
+        comment.setAuthor(userRepository.findByUsername(authorUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user not found")));
         comment.setContent(content.trim());
         return toDto(commentRepository.save(comment));
     }
