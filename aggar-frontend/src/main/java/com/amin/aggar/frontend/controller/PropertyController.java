@@ -140,6 +140,13 @@ public class PropertyController {
                         "property.comments.load.error", null, locale));
             }
 
+            try {
+                model.addAttribute("similarProperties", fetchSimilarProperties(property));
+            } catch (Exception ex) {
+                log.warn("Failed to fetch similar properties for property {}", property.getId(), ex);
+                model.addAttribute("similarProperties", Collections.emptyList());
+            }
+
             // Add required attributes for header fragment
             model.addAttribute("listingTypes", Collections.emptyList());
             model.addAttribute("cities", Collections.emptyList());
@@ -224,6 +231,34 @@ public class PropertyController {
         return new PropertyComments(
                 objectMapper.convertValue(content, new TypeReference<List<PropertyCommentDto>>() {}),
                 totalElements.longValue());
+    }
+
+    private List<PropertyDto> fetchSimilarProperties(PropertyDto property) throws IOException {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(propertiesApiUrl)
+                .queryParam("page", 0)
+                .queryParam("size", 12);
+        if (property.getListingType() != null && !property.getListingType().isBlank()) {
+            uriBuilder.queryParam("listingType", property.getListingType());
+        }
+        if (property.getCategory() != null && !property.getCategory().isBlank()) {
+            uriBuilder.queryParam("category", property.getCategory());
+        }
+
+        String response = restTemplate.getForObject(uriBuilder.build().toUri(), String.class);
+        if (response == null) {
+            throw new IllegalStateException("Properties API returned an empty similar-properties response");
+        }
+
+        JsonNode pageResponse = objectMapper.readTree(response);
+        JsonNode content = pageResponse.path("content");
+        if (!content.isArray()) {
+            throw new IllegalStateException("Properties API returned an invalid similar-properties response");
+        }
+
+        return objectMapper.convertValue(content, new TypeReference<List<PropertyDto>>() {}).stream()
+                .filter(candidate -> !property.getId().equals(candidate.getId()))
+                .limit(4)
+                .toList();
     }
 
     private record PropertyComments(List<PropertyCommentDto> content, long totalElements) {}

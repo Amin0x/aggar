@@ -184,6 +184,108 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Public property comments -->
+                <section class="mt-8 bg-white rounded-2xl shadow-lg p-6 md:p-8" id="comments">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800" th:text="#{property.comments.title}">Comments</h2>
+                        <span class="text-sm text-gray-500"
+                              th:text="#{property.comments.count(${commentsTotal})}">0 comments</span>
+                    </div>
+
+                    <div th:if="${commentSuccess}" class="mb-4 rounded-lg bg-green-50 p-3 text-green-700"
+                         th:text="${commentSuccess}"></div>
+                    <div th:if="${commentError}" class="mb-4 rounded-lg bg-red-50 p-3 text-red-700"
+                         th:text="${commentError}"></div>
+                    <div th:if="${commentLoadError}" class="mb-4 rounded-lg bg-yellow-50 p-3 text-yellow-800"
+                         th:text="${commentLoadError}"></div>
+
+                    <form th:if="${isAuthenticated}"
+                          th:action="@{'/properties/' + ${property.slug != null ? property.slug : property.id} + '/comments'}"
+                          method="post" class="mb-8">
+                        <input type="hidden" name="propertyId" th:value="${property.id}">
+                        <label for="commentContent" class="block text-sm font-semibold text-gray-700 mb-2"
+                               th:text="#{property.comments.write}">Write a comment</label>
+                        <textarea id="commentContent" name="content" rows="4" maxlength="2000" required
+                                  class="w-full rounded-xl border border-gray-300 p-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                  th:placeholder="#{property.comments.placeholder}"></textarea>
+                        <button type="submit"
+                                class="mt-3 rounded-xl bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-dark"
+                                th:text="#{property.comments.submit}">Post comment</button>
+                    </form>
+                    <p th:unless="${isAuthenticated}" class="mb-8 rounded-xl bg-gray-50 p-4 text-gray-600">
+                        <span th:text="#{property.comments.signin.prompt}">Sign in to leave a comment.</span>
+                        <a th:href="@{/login(redirect=${'/properties/' + (property.slug != null ? property.slug : property.id)})}"
+                           class="font-semibold text-primary hover:underline"
+                           th:text="#{property.comments.signin.link}">Sign in</a>
+                    </p>
+
+                    <div th:if="${comments != null and !#lists.isEmpty(comments)}" class="divide-y divide-gray-100">
+                        <article th:each="comment : ${comments}" class="py-5 first:pt-0 last:pb-0">
+                            <div class="mb-2 flex items-center justify-between gap-4">
+                                <h3 class="font-semibold text-gray-800" th:text="${comment.authorName}">User</h3>
+                                <time class="shrink-0 text-xs text-gray-500"
+                                      th:if="${comment.createdAt != null}"
+                                      th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">Date</time>
+                            </div>
+                            <p class="whitespace-pre-wrap break-words text-gray-600" th:text="${comment.content}">Comment</p>
+                        </article>
+                    </div>
+                    <p th:if="${comments == null or #lists.isEmpty(comments)}"
+                       class="rounded-xl bg-gray-50 p-4 text-center text-gray-500"
+                       th:text="#{property.comments.empty}">No comments yet.</p>
+                </section>
+
+                <section th:if="${similarProperties != null and !#lists.isEmpty(similarProperties)}"
+                         class="mt-10" id="similar-properties">
+                    <h2 class="mb-6 text-2xl font-bold text-gray-800" th:text="#{property.similar.title}">
+                        Similar properties
+                    </h2>
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <article th:each="similar : ${similarProperties}"
+                                 class="property-card overflow-hidden rounded-2xl bg-white shadow-lg transition-all hover:shadow-xl">
+                            <a th:href="@{'/properties/' + ${similar.slug != null ? similar.slug : similar.id}}"
+                               class="block">
+                                <div class="relative h-48 bg-gray-200">
+                                    <img th:if="${similar.images != null and !#lists.isEmpty(similar.images)}"
+                                         th:src="${similar.images[0].url}" th:alt="${similar.title}"
+                                         class="h-full w-full object-cover">
+                                    <div th:unless="${similar.images != null and !#lists.isEmpty(similar.images)}"
+                                         class="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40">
+                                        <i class="fas fa-home text-4xl text-primary/50"></i>
+                                    </div>
+                                    <span class="absolute bottom-3 left-3 rounded-full bg-white/95 px-3 py-1 font-bold text-primary">
+                                        <span th:text="${similar.currency}">USD</span>
+                                        <span th:text="${#numbers.formatDecimal(similar.price, 0, 0)}">0</span>
+                                    </span>
+                                </div>
+                                <div class="p-5">
+                                    <h3 class="mb-3 text-lg font-bold text-gray-800" th:text="${similar.title}">
+                                        Property title
+                                    </h3>
+                                    <div class="mb-4 flex flex-wrap gap-4 text-sm text-gray-600">
+                                        <span th:if="${similar.bedrooms != null}">
+                                            <i class="fas fa-bed ml-1 text-primary"></i>
+                                            <span th:text="${similar.bedrooms}">0</span>
+                                            <span th:text="#{home.beds}">beds</span>
+                                        </span>
+                                        <span th:if="${similar.bathrooms != null}">
+                                            <i class="fas fa-bath ml-1 text-primary"></i>
+                                            <span th:text="${similar.bathrooms}">0</span>
+                                            <span th:text="#{home.baths}">baths</span>
+                                        </span>
+                                        <span th:if="${similar.area != null}">
+                                            <i class="fas fa-expand ml-1 text-primary"></i>
+                                            <span th:text="${similar.area}">0</span> م²
+                                        </span>
+                                    </div>
+                                    <span class="block w-full rounded-xl bg-primary py-3 text-center font-semibold text-white"
+                                          th:text="#{home.view}">View details</span>
+                                </div>
+                            </a>
+                        </article>
+                    </div>
+                </section>
             </div>
 
             <!-- Sidebar -->
@@ -221,56 +323,6 @@
                 </div>
             </div>
         </div>
-        <!-- Public property comments -->
-        <section class="mt-8 bg-white rounded-2xl shadow-lg p-6 md:p-8" id="comments">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-800" th:text="#{property.comments.title}">Comments</h2>
-                <span class="text-sm text-gray-500"
-                      th:text="#{property.comments.count(${commentsTotal})}">0 comments</span>
-            </div>
-
-            <div th:if="${commentSuccess}" class="mb-4 rounded-lg bg-green-50 p-3 text-green-700"
-                 th:text="${commentSuccess}"></div>
-            <div th:if="${commentError}" class="mb-4 rounded-lg bg-red-50 p-3 text-red-700"
-                 th:text="${commentError}"></div>
-            <div th:if="${commentLoadError}" class="mb-4 rounded-lg bg-yellow-50 p-3 text-yellow-800"
-                 th:text="${commentLoadError}"></div>
-
-            <form th:if="${isAuthenticated}"
-                  th:action="@{'/properties/' + ${property.slug != null ? property.slug : property.id} + '/comments'}"
-                  method="post" class="mb-8">
-                <input type="hidden" name="propertyId" th:value="${property.id}">
-                <label for="commentContent" class="block text-sm font-semibold text-gray-700 mb-2"
-                       th:text="#{property.comments.write}">Write a comment</label>
-                <textarea id="commentContent" name="content" rows="4" maxlength="2000" required
-                          class="w-full rounded-xl border border-gray-300 p-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                          th:placeholder="#{property.comments.placeholder}"></textarea>
-                <button type="submit"
-                        class="mt-3 rounded-xl bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-dark"
-                        th:text="#{property.comments.submit}">Post comment</button>
-            </form>
-            <p th:unless="${isAuthenticated}" class="mb-8 rounded-xl bg-gray-50 p-4 text-gray-600">
-                <span th:text="#{property.comments.signin.prompt}">Sign in to leave a comment.</span>
-                <a th:href="@{/login(redirect=${'/properties/' + (property.slug != null ? property.slug : property.id)})}"
-                   class="font-semibold text-primary hover:underline"
-                   th:text="#{property.comments.signin.link}">Sign in</a>
-            </p>
-
-            <div th:if="${comments != null and !#lists.isEmpty(comments)}" class="divide-y divide-gray-100">
-                <article th:each="comment : ${comments}" class="py-5 first:pt-0 last:pb-0">
-                    <div class="mb-2 flex items-center justify-between gap-4">
-                        <h3 class="font-semibold text-gray-800" th:text="${comment.authorName}">User</h3>
-                        <time class="shrink-0 text-xs text-gray-500"
-                              th:if="${comment.createdAt != null}"
-                              th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">Date</time>
-                    </div>
-                    <p class="whitespace-pre-wrap break-words text-gray-600" th:text="${comment.content}">Comment</p>
-                </article>
-            </div>
-            <p th:if="${comments == null or #lists.isEmpty(comments)}"
-               class="rounded-xl bg-gray-50 p-4 text-center text-gray-500"
-               th:text="#{property.comments.empty}">No comments yet.</p>
-        </section>
     </div>
 
     <!-- Footer Fragment -->
