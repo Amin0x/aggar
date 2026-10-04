@@ -32,7 +32,7 @@ public class HomeController {
                           @Value("${external.api.properties-url:http://localhost:8080/api/properties}") String propertiesApiUrl) {
         this.restTemplate = restTemplate;
         this.propertiesApiUrl = propertiesApiUrl;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = new ObjectMapper().findAndRegisterModules();
         this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
@@ -111,12 +111,12 @@ public class HomeController {
 
         // Compute categories from the returned properties
         List<String> listingTypes = properties.stream()
-                .map(PropertyDto::getListingType)
+                .map(PropertyDto::listingType)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         List<String> cities = properties.stream()
-                .map(PropertyDto::getCity)
+                .map(PropertyDto::city)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 

@@ -38,18 +38,19 @@ class PropertyCommentsTemplateTest {
     @MockitoBean
     private RestTemplate restTemplate;
 
+    private PropertyDto property(String category) {
+        return new PropertyDto(
+                12L, "Test Home", "test-home", null, java.math.BigDecimal.TEN, null, "USD", "sale",
+                category, null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null);
+    }
+
     @Test
     void propertyDetailShowsCommentSectionAndRequiresSignInToPost() throws Exception {
-        PropertyDto property = new PropertyDto();
-        property.setId(12L);
-        property.setSlug("test-home");
-        property.setTitle("Test Home");
-        property.setPrice(java.math.BigDecimal.TEN);
-        property.setCurrency("USD");
-        property.setListingType("sale");
         when(restTemplate.exchange(
                 contains("/view/test-home"), eq(HttpMethod.GET), isNull(), eq(PropertyDto.class)))
-                .thenReturn(ResponseEntity.ok(property));
+                .thenReturn(ResponseEntity.ok(property(null)));
         when(restTemplate.getForObject(any(URI.class), eq(String.class)))
                 .thenReturn("{\"content\":[],\"totalElements\":0,\"last\":true}");
 
@@ -62,16 +63,9 @@ class PropertyCommentsTemplateTest {
 
     @Test
     void signedInUserCanSeeCommentForm() throws Exception {
-        PropertyDto property = new PropertyDto();
-        property.setId(12L);
-        property.setSlug("test-home");
-        property.setTitle("Test Home");
-        property.setPrice(java.math.BigDecimal.TEN);
-        property.setCurrency("USD");
-        property.setListingType("sale");
         when(restTemplate.exchange(
                 contains("/view/test-home"), eq(HttpMethod.GET), isNull(), eq(PropertyDto.class)))
-                .thenReturn(ResponseEntity.ok(property));
+                .thenReturn(ResponseEntity.ok(property(null)));
         when(restTemplate.getForObject(any(URI.class), eq(String.class)))
                 .thenReturn("{\"content\":[],\"totalElements\":0,\"last\":true}");
 
@@ -90,17 +84,9 @@ class PropertyCommentsTemplateTest {
 
     @Test
     void propertyDetailsShowsSimilarPropertiesBelowComments() throws Exception {
-        PropertyDto property = new PropertyDto();
-        property.setId(12L);
-        property.setSlug("test-home");
-        property.setTitle("Test Home");
-        property.setPrice(java.math.BigDecimal.TEN);
-        property.setCurrency("USD");
-        property.setListingType("sale");
-        property.setCategory("house");
         when(restTemplate.exchange(
                 contains("/view/test-home"), eq(HttpMethod.GET), isNull(), eq(PropertyDto.class)))
-                .thenReturn(ResponseEntity.ok(property));
+                .thenReturn(ResponseEntity.ok(property("house")));
         when(restTemplate.getForObject(any(URI.class), eq(String.class)))
                 .thenReturn("{\"content\":[],\"totalElements\":0,\"last\":true}");
         when(restTemplate.getForObject(

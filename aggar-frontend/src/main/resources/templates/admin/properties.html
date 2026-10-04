@@ -32,7 +32,7 @@
 
     <!-- Properties List -->
     <div th:if="${properties != null and !properties.isEmpty()}" class="space-y-6">
-        <div th:each="property : ${properties}" class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div th:each="property : ${properties}" class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
             <div class="md:flex">
                 <!-- Property Image -->
                 <div class="md:w-1/3">

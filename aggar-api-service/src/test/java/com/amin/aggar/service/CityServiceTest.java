@@ -24,14 +24,20 @@ class CityServiceTest {
 
     @Test
     void createsCityWithoutState() {
-        CityDto dto = new CityDto();
-        dto.setName("Unassigned City");
+        CityDto dto = new CityDto(
+                null,
+                null,
+                "Unassigned City",
+                null,
+                null
+        );
+        dto.name();
         when(cityRepository.save(any(City.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         CityDto created = cityService.create(dto);
 
-        assertNull(created.getStateId());
+        assertNull(created.stateId());
     }
 
     @Test
@@ -40,8 +46,13 @@ class CityServiceTest {
         city.setState(new State());
         when(cityRepository.findById(1)).thenReturn(Optional.of(city));
         when(cityRepository.save(city)).thenReturn(city);
-        CityDto dto = new CityDto();
-        dto.setName("Unassigned City");
+        CityDto dto = new CityDto(
+                null,
+                null,
+                "Unassigned City",
+                null,
+                null
+        );
 
         Optional<CityDto> updated = cityService.update(1, dto);
 

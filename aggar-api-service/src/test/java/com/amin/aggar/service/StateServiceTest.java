@@ -25,21 +25,24 @@ class StateServiceTest {
 
         StateDto dto = new StateService(repository).list().get(0);
 
-        assertEquals("California", dto.getName());
-        assertEquals("كاليفورنيا", dto.getNameAr());
+        assertEquals("California", dto.name());
+        assertEquals("كاليفورنيا", dto.nameAr());
     }
 
     @Test
     void persistsArabicStateNameFromApiDto() {
         StateRepository repository = mock(StateRepository.class);
         when(repository.save(any(State.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        StateDto dto = new StateDto();
-        dto.setName("California");
-        dto.setNameAr("كاليفورنيا");
+        StateDto dto = new StateDto(
+                100,
+                "California",
+                "كاليفورنيا",
+                "CA"
+        );
 
         StateDto created = new StateService(repository).create(dto);
 
-        assertEquals("كاليفورنيا", created.getNameAr());
+        assertEquals("كاليفورنيا", created.nameAr());
         verify(repository).save(any(State.class));
     }
 }

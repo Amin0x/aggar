@@ -26,24 +26,25 @@ public class CityService {
 
     private CityDto toDto(City c) {
         if (c == null) return null;
-        CityDto d = new CityDto();
-        d.setId(c.getId());
-        d.setStateId(c.getState() != null ? c.getState().getId() : null);
-        d.setStateName(c.getState() != null ? c.getState().getName() : null);
-        d.setStateNameAr(c.getState() != null ? c.getState().getNameAr() : null);
-        d.setName(c.getName());
+        CityDto d = new CityDto(
+                c.getId(),
+                c.getState() != null ? c.getState().getId() : null,
+                c.getName(),
+                c.getState() != null ? c.getState().getName() : null,
+                c.getState() != null ? c.getState().getNameAr() : null
+        );
         return d;
     }
 
     private City fromDto(CityDto d) {
         if (d == null) return null;
         City c = new City();
-        c.setId(d.getId());
-        if (d.getStateId() != null) {
-            State s = stateRepository.findById(d.getStateId()).orElse(null);
+        c.setId(d.id());
+        if (d.stateId() != null) {
+            State s = stateRepository.findById(d.stateId()).orElse(null);
             c.setState(s);
         }
-        c.setName(d.getName());
+        c.setName(d.name());
         return c;
     }
 
@@ -70,10 +71,10 @@ public class CityService {
     @Transactional
     public Optional<CityDto> update(Integer id, CityDto dto) {
         return cityRepository.findById(id).map(existing -> {
-            existing.setName(dto.getName());
-            State state = dto.getStateId() == null
+            existing.setName(dto.name());
+            State state = dto.stateId() == null
                     ? null
-                    : stateRepository.findById(dto.getStateId()).orElse(null);
+                    : stateRepository.findById(dto.stateId()).orElse(null);
             existing.setState(state);
             return toDto(cityRepository.save(existing));
         });

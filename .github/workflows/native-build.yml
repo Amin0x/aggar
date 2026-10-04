@@ -1,0 +1,79 @@
+name: Native Builds
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build native apps (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            executable-extension: ""
+          - os: windows-latest
+            executable-extension: ".exe"
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          distribution: graalvm-community
+          java-version: "21"
+          components: native-image
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: "true"
+
+      - name: Set up MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build API native executable (Linux)
+        if: runner.os == 'Linux'
+        run: ./aggar-frontend/mvnw -f aggar-api-service/pom.xml -Pnative -DskipTests native:compile
+
+      - name: Build API native executable (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .\aggar-frontend\mvnw.cmd -f aggar-api-service\pom.xml -Pnative -DskipTests native:compile
+
+      - name: Build frontend native executable (Linux)
+        if: runner.os == 'Linux'
+        run: ./aggar-frontend/mvnw -f aggar-frontend/pom.xml -Pnative -DskipTests native:compile
+
+      - name: Build frontend native executable (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .\aggar-frontend\mvnw.cmd -f aggar-frontend\pom.xml -Pnative -DskipTests native:compile
+
+      - name: Package Linux executables
+        if: runner.os == 'Linux'
+        run: tar -czf aggar-native-linux.tar.gz -C "$GITHUB_WORKSPACE/aggar-api-service/target" aggar-api-service -C "$GITHUB_WORKSPACE/aggar-frontend/target" aggar-frontend
+
+      - name: Upload Linux executables
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggar-native-Linux
+          path: aggar-native-linux.tar.gz
+          if-no-files-found: error
+
+      - name: Upload Windows executables
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggar-native-Windows
+          path: |
+            aggar-api-service/target/aggar-api-service${{ matrix.executable-extension }}
+            aggar-frontend/target/aggar-frontend${{ matrix.executable-extension }}
+          if-no-files-found: error

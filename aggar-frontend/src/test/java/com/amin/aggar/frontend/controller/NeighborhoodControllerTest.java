@@ -37,6 +37,6 @@ class NeighborhoodControllerTest {
         @SuppressWarnings("unchecked")
         List<NeighborhoodDto> neighborhoods = (List<NeighborhoodDto>) model.get("neighborhoods");
         assertEquals(List.of("North", "South"),
-                neighborhoods.stream().map(NeighborhoodDto::getName).toList());
+                neighborhoods.stream().map(NeighborhoodDto::name).toList());
     }
 }

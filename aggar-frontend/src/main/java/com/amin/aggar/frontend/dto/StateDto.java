@@ -1,19 +1,9 @@
 package com.amin.aggar.frontend.dto;
 
-public class StateDto {
-    private Integer id;
-    private String name;
-    private String nameAr;
-    private String code;
-
-    public StateDto() {}
-
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getNameAr() { return nameAr; }
-    public void setNameAr(String nameAr) { this.nameAr = nameAr; }
-    public String getCode() { return code; }
-    public void setCode(String code) { this.code = code; }
+public record StateDto(
+        Integer id,
+        String name,
+        String nameAr,
+        String code
+) {
 }

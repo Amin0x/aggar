@@ -125,7 +125,7 @@
                 </div>
 
                 <!-- Property Features -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
                     <h3 class="text-xl font-bold text-gray-800 mb-6">ميزات العقار</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div class="text-center p-4 bg-gray-50 rounded-xl">
@@ -157,13 +157,13 @@
                 </div>
 
                 <!-- Description -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">وصف العقار</h3>
                     <p class="text-gray-600 leading-relaxed" th:text="${property.description}">Description</p>
                 </div>
 
                 <!-- Amenities -->
-                <div th:if="${property.amenities != null and !#lists.isEmpty(property.amenities)}" class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <div th:if="${property.amenities != null and !#lists.isEmpty(property.amenities)}" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
                     <h3 class="text-xl font-bold text-gray-800 mb-6">المرافق والخدمات</h3>
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div th:each="amenity : ${property.amenities}" class="flex items-center p-3 bg-gray-50 rounded-lg">
@@ -174,7 +174,7 @@
                 </div>
 
                 <!-- Location Map (Placeholder) -->
-                <div th:if="${property.locationLat != null and property.locationLng != null}" class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <div th:if="${property.locationLat != null and property.locationLng != null}" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">الموقع</h3>
                     <div class="bg-gray-200 rounded-xl h-64 flex items-center justify-center">
                         <div class="text-center text-gray-500">
@@ -186,7 +186,7 @@
                 </div>
 
                 <!-- Public property comments -->
-                <section class="mt-8 bg-white rounded-2xl shadow-lg p-6 md:p-8" id="comments">
+                <section class="mt-8 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8" id="comments">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-2xl font-bold text-gray-800" th:text="#{property.comments.title}">Comments</h2>
                         <span class="text-sm text-gray-500"
@@ -243,7 +243,7 @@
                     </h2>
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <article th:each="similar : ${similarProperties}"
-                                 class="property-card overflow-hidden rounded-2xl bg-white shadow-lg transition-all hover:shadow-xl">
+                                 class="property-card overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
                             <a th:href="@{'/properties/' + ${similar.slug != null ? similar.slug : similar.id}}"
                                class="block">
                                 <div class="relative h-48 bg-gray-200">
@@ -291,7 +291,7 @@
             <!-- Sidebar -->
             <div class="lg:col-span-1">
                 <!-- Contact Card -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
+                <div class="sticky top-24 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div class="text-center mb-6">
                         <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-user-tie text-3xl text-primary"></i>
@@ -331,7 +331,7 @@
     <!-- Contact Dialog -->
     <div id="contactDialog" class="fixed inset-0 z-50 hidden items-center justify-center">
         <div class="absolute inset-0 bg-black/50" onclick="closeContactDialog()"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+        <div class="relative mx-4 w-full max-w-md transform rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all">
             <button onclick="closeContactDialog()" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition-colors">
                 <i class="fas fa-times text-xl"></i>
             </button>
@@ -391,7 +391,7 @@
     <!-- Send Message Dialog -->
     <div id="sendMessageDialog" class="fixed inset-0 z-50 hidden items-center justify-center">
         <div class="absolute inset-0 bg-black/50" onclick="closeSendMessageDialog()"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+        <div class="relative mx-4 w-full max-w-md transform rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all">
             <button onclick="closeSendMessageDialog()" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition-colors">
                 <i class="fas fa-times text-xl"></i>
             </button>

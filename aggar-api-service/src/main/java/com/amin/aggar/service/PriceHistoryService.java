@@ -27,25 +27,26 @@ public class PriceHistoryService {
 
     private PriceHistoryDto toDto(PriceHistory p) {
         if (p == null) return null;
-        PriceHistoryDto d = new PriceHistoryDto();
-        d.setId(p.getId());
-        d.setPropertyId(p.getProperty() != null ? p.getProperty().getId() : null);
-        d.setOldPrice(p.getOldPrice());
-        d.setNewPrice(p.getNewPrice());
-        d.setChangedById(p.getChangedBy() != null ? p.getChangedBy().getId() : null);
-        d.setChangedAt(p.getChangedAt());
+        PriceHistoryDto d = new PriceHistoryDto(
+                p.getId(),
+                p.getProperty() != null ? p.getProperty().getId() : null,
+                p.getOldPrice(),
+                p.getNewPrice(),
+                p.getChangedBy() != null ? p.getChangedBy().getId() : null,
+                p.getChangedAt()
+        );
         return d;
     }
 
     private PriceHistory fromDto(PriceHistoryDto d) {
         if (d == null) return null;
         PriceHistory p = new PriceHistory();
-        p.setId(d.getId());
-        if (d.getPropertyId() != null) p.setProperty(propertyRepository.findById(d.getPropertyId()).orElse(null));
-        p.setOldPrice(d.getOldPrice());
-        p.setNewPrice(d.getNewPrice());
-        if (d.getChangedById() != null) p.setChangedBy(userRepository.findById(d.getChangedById()).orElse(null));
-        p.setChangedAt(d.getChangedAt());
+        p.setId(d.id());
+        if (d.propertyId() != null) p.setProperty(propertyRepository.findById(d.propertyId()).orElse(null));
+        p.setOldPrice(d.oldPrice());
+        p.setNewPrice(d.newPrice());
+        if (d.changedById() != null) p.setChangedBy(userRepository.findById(d.changedById()).orElse(null));
+        p.setChangedAt(d.changedAt());
         return p;
     }
 
@@ -66,11 +67,11 @@ public class PriceHistoryService {
     @Transactional
     public Optional<PriceHistoryDto> update(Long id, PriceHistoryDto dto) {
         return priceHistoryRepository.findById(id).map(existing -> {
-            if (dto.getPropertyId() != null) existing.setProperty(propertyRepository.findById(dto.getPropertyId()).orElse(null));
-            existing.setOldPrice(dto.getOldPrice());
-            existing.setNewPrice(dto.getNewPrice());
-            if (dto.getChangedById() != null) existing.setChangedBy(userRepository.findById(dto.getChangedById()).orElse(null));
-            existing.setChangedAt(dto.getChangedAt());
+            if (dto.propertyId() != null) existing.setProperty(propertyRepository.findById(dto.propertyId()).orElse(null));
+            existing.setOldPrice(dto.oldPrice());
+            existing.setNewPrice(dto.newPrice());
+            if (dto.changedById() != null) existing.setChangedBy(userRepository.findById(dto.changedById()).orElse(null));
+            existing.setChangedAt(dto.changedAt());
             return toDto(priceHistoryRepository.save(existing));
         });
     }

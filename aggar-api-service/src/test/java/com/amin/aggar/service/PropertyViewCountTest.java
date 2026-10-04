@@ -41,7 +41,7 @@ class PropertyViewCountTest {
         var result = propertyService.recordViewBySlug("downtown-home");
 
         assertTrue(result.isPresent());
-        assertEquals(5L, result.get().getViewCount());
+        assertEquals(5L, result.get().viewCount());
         verify(propertyRepository).incrementViewCountBySlug("downtown-home");
     }
 

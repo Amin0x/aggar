@@ -23,21 +23,22 @@ public class StateService {
 
     private StateDto toDto(State s) {
         if (s == null) return null;
-        StateDto d = new StateDto();
-        d.setId(s.getId());
-        d.setName(s.getName());
-        d.setNameAr(s.getNameAr());
-        d.setCode(s.getCode());
+        StateDto d = new StateDto(
+                s.getId(),
+                s.getName(),
+                s.getNameAr(),
+                s.getCode()
+        );
         return d;
     }
 
     private State fromDto(StateDto d) {
         if (d == null) return null;
         State s = new State();
-        s.setId(d.getId());
-        s.setName(d.getName());
-        s.setNameAr(d.getNameAr());
-        s.setCode(d.getCode());
+        s.setId(d.id());
+        s.setName(d.name());
+        s.setNameAr(d.nameAr());
+        s.setCode(d.code());
         return s;
     }
 
@@ -60,11 +61,11 @@ public class StateService {
     @Transactional
     public Optional<StateDto> update(Integer id, StateDto dto) {
         return stateRepository.findById(id).map(existing -> {
-            existing.setName(dto.getName());
-            if (dto.getNameAr() != null) {
-                existing.setNameAr(dto.getNameAr());
+            existing.setName(dto.name());
+            if (dto.nameAr() != null) {
+                existing.setNameAr(dto.nameAr());
             }
-            existing.setCode(dto.getCode());
+            existing.setCode(dto.code());
             return toDto(stateRepository.save(existing));
         });
     }

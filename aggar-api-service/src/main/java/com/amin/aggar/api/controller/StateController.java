@@ -33,7 +33,7 @@ public class StateController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StateDto> create(@RequestBody StateDto dto) {
         StateDto created = stateService.create(dto);
-        return ResponseEntity.created(URI.create("/api/states/" + created.getId())).body(created);
+        return ResponseEntity.created(URI.create("/api/states/" + created.id())).body(created);
     }
 
     @PutMapping("/{id}")

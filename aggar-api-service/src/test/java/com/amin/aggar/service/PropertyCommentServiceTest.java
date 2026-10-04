@@ -42,10 +42,10 @@ class PropertyCommentServiceTest {
 
         var result = service.create(4L, "jane", "  Nice home  ");
 
-        assertEquals("Nice home", result.getContent());
-        assertEquals(4L, result.getPropertyId());
-        assertEquals(7L, result.getAuthorId());
-        assertEquals("Jane", result.getAuthorName());
+        assertEquals("Nice home", result.content());
+        assertEquals(4L, result.propertyId());
+        assertEquals(7L, result.authorId());
+        assertEquals("Jane", result.authorName());
     }
 
     @Test

@@ -40,7 +40,7 @@ public class CityController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CityDto> create(@RequestBody CityDto dto) {
         CityDto created = cityService.create(dto);
-        return ResponseEntity.created(URI.create("/api/cities/" + created.getId())).body(created);
+        return ResponseEntity.created(URI.create("/api/cities/" + created.id())).body(created);
     }
 
     @PutMapping("/{id}")

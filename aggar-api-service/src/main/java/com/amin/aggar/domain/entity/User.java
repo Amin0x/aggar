@@ -23,6 +23,9 @@ public class User {
     @Column(length = 30)
     private String phone;
 
+    @Column(length = 30)
+    private String phoneWhatsapp;
+
     @Column(nullable = false, unique = true, length = 250)
     private String username;
 
@@ -134,5 +137,13 @@ public class User {
 
     public void setAgentProperties(List<Property> agentProperties) {
         this.agentProperties = agentProperties;
+    }
+
+    public String getPhoneWhatsapp() {
+        return phoneWhatsapp;
+    }
+
+    public void setPhoneWhatsapp(String phoneWhatsapp) {
+        this.phoneWhatsapp = phoneWhatsapp;
     }
 }

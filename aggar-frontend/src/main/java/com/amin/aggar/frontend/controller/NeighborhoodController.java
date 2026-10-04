@@ -2,6 +2,7 @@ package com.amin.aggar.frontend.controller;
 
 import com.amin.aggar.frontend.dto.NeighborhoodDto;
 import com.amin.aggar.frontend.dto.CityDto;
+import com.amin.aggar.frontend.form.NeighborhoodForm;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +34,7 @@ public class NeighborhoodController {
     private final String apiUrl;
     private final RestTemplate restTemplate;
     private final MessageSource messageSource;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     public NeighborhoodController(
             RestTemplate restTemplate,
@@ -51,8 +52,8 @@ public class NeighborhoodController {
             if (q != null && !q.isBlank()) {
                 String query = q.trim().toLowerCase(Locale.ROOT);
                 neighborhoods = neighborhoods.stream()
-                        .filter(neighborhood -> containsIgnoreCase(neighborhood.getName(), query)
-                                || containsIgnoreCase(neighborhood.getCityName(), query))
+                        .filter(neighborhood -> containsIgnoreCase(neighborhood.name(), query)
+                                || containsIgnoreCase(neighborhood.cityName(), query))
                         .toList();
             }
             model.addAttribute("neighborhoods", neighborhoods);
@@ -99,13 +100,14 @@ public class NeighborhoodController {
     @GetMapping("/neighborhoods/add")
     public String addForm(Model model) {
         addCitiesToModel(model);
-        model.addAttribute("neighborhood", new NeighborhoodDto());
+        model.addAttribute("neighborhood", new NeighborhoodForm());
         return "admin/add-neighborhood";
     }
 
     @PostMapping("/neighborhoods/add")
-    public String create(@ModelAttribute NeighborhoodDto dto, Model model,
+    public String create(@ModelAttribute NeighborhoodForm form, Model model,
                          RedirectAttributes redirectAttributes, Locale locale) {
+        NeighborhoodDto dto = new NeighborhoodDto(null, form.getCityId(), form.getName(), null);
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -124,14 +126,14 @@ public class NeighborhoodController {
             } else {
                 model.addAttribute("error", messageSource.getMessage("neighborhood.error.add", null, locale));
                 addCitiesToModel(model);
-                model.addAttribute("neighborhood", dto);
+                model.addAttribute("neighborhood", form);
                 return "admin/add-neighborhood";
             }
         } catch (Exception ex) {
             log.error("Failed to create neighborhood", ex);
             model.addAttribute("error", messageSource.getMessage("neighborhood.error.add", null, locale));
             addCitiesToModel(model);
-            model.addAttribute("neighborhood", dto);
+            model.addAttribute("neighborhood", form);
             return "admin/add-neighborhood";
         }
     }
@@ -148,7 +150,8 @@ public class NeighborhoodController {
             );
 
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-                model.addAttribute("neighborhood", resp.getBody());
+                NeighborhoodDto dto = resp.getBody();
+                model.addAttribute("neighborhood", new NeighborhoodForm(dto.cityId(), dto.name()));
                 model.addAttribute("neighborhoodId", id);
                 addCitiesToModel(model);
                 return "admin/edit-neighborhood";
@@ -164,12 +167,13 @@ public class NeighborhoodController {
     }
 
     @PostMapping("/neighborhoods/edit/{id}")
-    public String update(@PathVariable("id") Integer id, @ModelAttribute NeighborhoodDto dto, Model model,
+    public String update(@PathVariable("id") Integer id, @ModelAttribute NeighborhoodForm form, Model model,
                          RedirectAttributes redirectAttributes, Locale locale) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
+            NeighborhoodDto dto = new NeighborhoodDto(id, form.getCityId(), form.getName(), null);
             HttpEntity<NeighborhoodDto> request = new HttpEntity<>(dto, headers);
             ResponseEntity<NeighborhoodDto> resp = restTemplate.exchange(
                     apiUrl + "/neighborhoods/" + id,
@@ -184,7 +188,7 @@ public class NeighborhoodController {
             } else {
                 model.addAttribute("error", messageSource.getMessage("neighborhood.error.update", null, locale));
                 addCitiesToModel(model);
-                model.addAttribute("neighborhood", dto);
+                model.addAttribute("neighborhood", form);
                 model.addAttribute("neighborhoodId", id);
                 return "admin/edit-neighborhood";
             }
@@ -192,7 +196,7 @@ public class NeighborhoodController {
             log.error("Failed to update neighborhood {}", id, ex);
             model.addAttribute("error", messageSource.getMessage("neighborhood.error.update", null, locale));
             addCitiesToModel(model);
-            model.addAttribute("neighborhood", dto);
+            model.addAttribute("neighborhood", form);
             model.addAttribute("neighborhoodId", id);
             return "admin/edit-neighborhood";
         }

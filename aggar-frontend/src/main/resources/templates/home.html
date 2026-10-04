@@ -101,7 +101,7 @@
 <body class="font-arabic antialiased">
 
     <!-- ========== NAVBAR ========== -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500" id="navbar">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-sm transition-all duration-500" id="navbar">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-20">
                 <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
@@ -128,7 +128,7 @@
                 </div>
 
                 <div class="flex items-center space-x-3 space-x-reverse">
-                    <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-lg">
+                    <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-sm">
                         <i class="fas fa-plus-circle ml-1"></i>
                         <span th:text="#{header.add.property}">Add Property</span>
                     </a>
@@ -181,7 +181,7 @@
             </p>
 
             <!-- Search Bar -->
-            <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-3xl mx-auto animate-fade-in-up animation-delay-100">
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-sm max-w-3xl mx-auto animate-fade-in-up animation-delay-100">
                 <form th:action="@{/search}" method="get" class="flex flex-col md:flex-row gap-4">
                     <div class="flex-1">
                         <div class="relative">
@@ -225,7 +225,7 @@
 
             <!-- Properties Grid -->
             <div th:if="${properties != null and !#lists.isEmpty(properties)}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div th:each="prop : ${properties}" class="property-card bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 reveal">
+                <div th:each="prop : ${properties}" class="property-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 reveal">
                     <!-- Property Image -->
                     <div class="relative h-56 bg-gray-200">
                         <img th:if="${prop.images != null and !#lists.isEmpty(prop.images)}"
@@ -297,36 +297,12 @@
         </div>
     </section>
 
-    <!-- Stats Section (EXACTLY as-is from original) -->
-    <section class="bg-primary py-16">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div class="text-center text-white reveal">
-                    <div class="text-4xl md:text-5xl font-bold mb-2">1,200+</div>
-                    <div class="text-lg opacity-90">عقار متاح</div>
-                </div>
-                <div class="text-center text-white reveal animation-delay-100">
-                    <div class="text-4xl md:text-5xl font-bold mb-2">850+</div>
-                    <div class="text-lg opacity-90">عميل سعيد</div>
-                </div>
-                <div class="text-center text-white reveal animation-delay-200">
-                    <div class="text-4xl md:text-5xl font-bold mb-2">15+</div>
-                    <div class="text-lg opacity-90">مدينة</div>
-                </div>
-                <div class="text-center text-white reveal animation-delay-300">
-                    <div class="text-4xl md:text-5xl font-bold mb-2">98%</div>
-                    <div class="text-lg opacity-90">رضا العملاء</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- CTA Section (EXACTLY as-is from original) -->
     <section class="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
         <div class="container mx-auto px-4 text-center">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">هل تريد بيع أو تأجير عقارك؟</h2>
             <p class="text-gray-600 mb-8 max-w-2xl mx-auto">انضم إلى آلاف الملاك الذين يثقون بنا لإدارة وبيع عقاراتهم</p>
-            <a th:href="@{/properties/add}" class="inline-flex items-center bg-accent hover:bg-yellow-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300">
+            <a th:href="@{/properties/add}" class="inline-flex items-center bg-accent hover:bg-yellow-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-sm hover:shadow-md transition-all duration-300">
                 <i class="fas fa-plus-circle ml-2"></i>
                 <span>أضف عقارك الآن</span>
             </a>
@@ -348,9 +324,9 @@
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
-                navbar.classList.add('shadow-2xl');
+                navbar.classList.add('shadow-sm');
             } else {
-                navbar.classList.remove('shadow-2xl');
+                navbar.classList.remove('shadow-sm');
             }
         });
 

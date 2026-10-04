@@ -34,7 +34,7 @@ public class NeighborhoodController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<NeighborhoodDto> create(@RequestBody NeighborhoodDto dto) {
         NeighborhoodDto created = neighborhoodService.create(dto);
-        return ResponseEntity.created(URI.create("/api/neighborhoods/" + created.getId())).body(created);
+        return ResponseEntity.created(URI.create("/api/neighborhoods/" + created.id())).body(created);
     }
 
     @PutMapping("/{id}")

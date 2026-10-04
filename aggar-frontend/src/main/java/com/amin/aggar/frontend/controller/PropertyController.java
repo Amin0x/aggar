@@ -4,6 +4,7 @@ import com.amin.aggar.frontend.dto.CityDto;
 import com.amin.aggar.frontend.dto.PropertyCommentDto;
 import com.amin.aggar.frontend.dto.PropertyDto;
 import com.amin.aggar.frontend.dto.StateDto;
+import com.amin.aggar.frontend.form.PropertyForm;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -65,7 +66,7 @@ public class PropertyController {
         this.restTemplate = restTemplate;
         this.propertiesApiUrl = propertiesApiUrl;
         this.locationApiUrl = locationApiUrl;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = new ObjectMapper().findAndRegisterModules();
         this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         this.messageSource = messageSource;
     }
@@ -130,11 +131,11 @@ public class PropertyController {
 
             model.addAttribute("property", property);
             try {
-                PropertyComments comments = fetchComments(property.getId());
+                PropertyComments comments = fetchComments(property.id());
                 model.addAttribute("comments", comments.content());
                 model.addAttribute("commentsTotal", comments.totalElements());
             } catch (Exception ex) {
-                log.error("Failed to fetch comments for property {}", property.getId(), ex);
+                log.error("Failed to fetch comments for property {}", property.id(), ex);
                 model.addAttribute("comments", Collections.emptyList());
                 model.addAttribute("commentLoadError", messageSource.getMessage(
                         "property.comments.load.error", null, locale));
@@ -143,7 +144,7 @@ public class PropertyController {
             try {
                 model.addAttribute("similarProperties", fetchSimilarProperties(property));
             } catch (Exception ex) {
-                log.warn("Failed to fetch similar properties for property {}", property.getId(), ex);
+                log.warn("Failed to fetch similar properties for property {}", property.id(), ex);
                 model.addAttribute("similarProperties", Collections.emptyList());
             }
 
@@ -190,8 +191,7 @@ public class PropertyController {
         }
 
         try {
-            PropertyCommentDto comment = new PropertyCommentDto();
-            comment.setContent(content.trim());
+            PropertyCommentDto comment = new PropertyCommentDto(null, null, null, null, content.trim(), null);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             restTemplate.exchange(
@@ -279,11 +279,11 @@ public class PropertyController {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(propertiesApiUrl)
                 .queryParam("page", 0)
                 .queryParam("size", 12);
-        if (property.getListingType() != null && !property.getListingType().isBlank()) {
-            uriBuilder.queryParam("listingType", property.getListingType());
+        if (property.listingType() != null && !property.listingType().isBlank()) {
+            uriBuilder.queryParam("listingType", property.listingType());
         }
-        if (property.getCategory() != null && !property.getCategory().isBlank()) {
-            uriBuilder.queryParam("category", property.getCategory());
+        if (property.category() != null && !property.category().isBlank()) {
+            uriBuilder.queryParam("category", property.category());
         }
 
         String response = restTemplate.getForObject(uriBuilder.build().toUri(), String.class);
@@ -298,7 +298,7 @@ public class PropertyController {
         }
 
         return objectMapper.convertValue(content, new TypeReference<List<PropertyDto>>() {}).stream()
-                .filter(candidate -> !property.getId().equals(candidate.getId()))
+                .filter(candidate -> !property.id().equals(candidate.id()))
                 .limit(4)
                 .toList();
     }
@@ -348,8 +348,8 @@ public class PropertyController {
         List<CityDto> cities = new ArrayList<>();
         if (state != null && !state.isEmpty()) {
             cities = allCities.stream()
-                    .filter(candidate -> candidate.getStateId() != null
-                            && candidate.getStateId().toString().equals(state))
+                    .filter(candidate -> candidate.stateId() != null
+                            && candidate.stateId().toString().equals(state))
                     .toList();
         }
 
@@ -402,26 +402,26 @@ public class PropertyController {
 
         if (state != null && !states.isEmpty()) {
             selectedStateName = states.stream()
-                    .filter(s -> s.getId() != null && s.getId().toString().equals(state))
+                    .filter(s -> s.id() != null && s.id().toString().equals(state))
                     .map(s -> "ar".equals(locale.getLanguage())
-                            && s.getNameAr() != null && !s.getNameAr().isBlank()
-                            ? s.getNameAr()
-                            : s.getName())
+                            && s.nameAr() != null && !s.nameAr().isBlank()
+                            ? s.nameAr()
+                            : s.name())
                     .findFirst()
                     .orElse(null);
         }
 
         if (city != null && !allCities.isEmpty()) {
             selectedCityName = allCities.stream()
-                    .filter(c -> c.getId() != null && c.getId().toString().equals(city))
-                    .map(CityDto::getName)
+                    .filter(c -> c.id() != null && c.id().toString().equals(city))
+                    .map(CityDto::name)
                     .findFirst()
                     .orElse(null);
         }
 
         // Build listing types from properties
         List<String> listingTypes = properties.stream()
-                .map(PropertyDto::getListingType)
+                .map(PropertyDto::listingType)
                 .filter(java.util.Objects::nonNull)
                 .distinct()
                 .collect(java.util.stream.Collectors.toList());
@@ -480,7 +480,7 @@ public class PropertyController {
 
     @GetMapping("/properties/add")
     public String addPropertyForm(Model model) {
-        model.addAttribute("property", new PropertyDto());
+        model.addAttribute("propertyForm", new PropertyForm());
         populateLocationOptions(model, null);
         model.addAttribute("listingTypes", Collections.emptyList());
         return "add-property";
@@ -498,7 +498,7 @@ public class PropertyController {
     }
 
     @PostMapping("/properties/add")
-    public String addProperty(@ModelAttribute("property") PropertyDto property, 
+    public String addProperty(@ModelAttribute("propertyForm") PropertyForm property,
                              BindingResult result,
                              @RequestParam(value = "images", required = false) MultipartFile[] images,
                              Model model,
@@ -553,7 +553,7 @@ public class PropertyController {
             headers.setContentType(MediaType.APPLICATION_JSON);
             
             // Create request entity
-            HttpEntity<PropertyDto> request = new HttpEntity<>(property, headers);
+            HttpEntity<PropertyDto> request = new HttpEntity<>(property.toDto(), headers);
 
             // Call backend API to create property
             ResponseEntity<PropertyDto> response = restTemplate.exchange(
@@ -566,27 +566,27 @@ public class PropertyController {
             if (response.getStatusCode().is2xxSuccessful()) {
                 PropertyDto createdProperty = response.getBody();
                 if (createdProperty == null
-                        || ((createdProperty.getSlug() == null || createdProperty.getSlug().isBlank())
-                        && createdProperty.getId() == null)) {
+                        || ((createdProperty.slug() == null || createdProperty.slug().isBlank())
+                        && createdProperty.id() == null)) {
                     log.error("Property API returned success without a property identifier");
                     return showPropertyCreationError(
                             property, model, "property.error.add", locale);
                 }
-                String redirectIdentifier = createdProperty.getSlug() != null
-                        && !createdProperty.getSlug().isBlank()
-                        ? createdProperty.getSlug()
-                        : createdProperty.getId().toString();
+                String redirectIdentifier = createdProperty.slug() != null
+                        && !createdProperty.slug().isBlank()
+                        ? createdProperty.slug()
+                        : createdProperty.id().toString();
                 if (!selectedImages.isEmpty()) {
-                    if (createdProperty.getId() == null) {
+                    if (createdProperty.id() == null) {
                         log.error("Created property has no ID; images cannot be uploaded");
                         return showPropertyCreationError(
                                 property, model, "property.error.images.upload", locale);
                     }
                     try {
-                        uploadPropertyImages(createdProperty.getId(), selectedImages);
+                        uploadPropertyImages(createdProperty.id(), selectedImages);
                     } catch (RestClientException ex) {
                         log.error("Property {} was created but image upload failed",
-                                createdProperty.getId(), ex);
+                                createdProperty.id(), ex);
                         String language = locale.getLanguage();
                         model.addAttribute("createdPropertyUrl",
                                 "/" + (language.equals("en") ? "en" : "ar") + "/properties/" + redirectIdentifier);
@@ -628,7 +628,7 @@ public class PropertyController {
         };
     }
 
-    private String showPropertyCreationError(PropertyDto property, Model model, String messageKey, Locale locale) {
+    private String showPropertyCreationError(PropertyForm property, Model model, String messageKey, Locale locale) {
         model.addAttribute("error", messageSource.getMessage(messageKey, null, locale));
         model.addAttribute("listingTypes", Collections.emptyList());
         try {
@@ -641,7 +641,7 @@ public class PropertyController {
         return "add-property";
     }
 
-    private void convertNeighborhoodNameToId(PropertyDto property) {
+    private void convertNeighborhoodNameToId(PropertyForm property) {
         if (property.getNeighborhood() != null && !property.getNeighborhood().trim().isEmpty()) {
             switch (property.getNeighborhood().toLowerCase()) {
                 case "beverly hills": property.setNeighborhoodId(1); break;

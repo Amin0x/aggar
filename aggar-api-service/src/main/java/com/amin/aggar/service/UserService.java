@@ -35,29 +35,30 @@ public class UserService {
 
     private UserDto toDto(User u) {
         if (u == null) return null;
-        UserDto d = new UserDto();
-        d.setId(u.getId());
-        d.setUsername(u.getUsername());
-        d.setPassword(u.getPassword());
-        d.setName(u.getName());
-        d.setEmail(u.getEmail());
-        d.setPhone(u.getPhone());
-        d.setRole(u.getRole());
-        d.setCreatedAt(u.getCreatedAt());
+        UserDto d = new UserDto(
+                u.getId(),
+                u.getUsername(),
+                u.getPassword(),
+                u.getName(),
+                u.getEmail(),
+                u.getPhone(),
+                u.getRole(),
+                u.getCreatedAt()
+        );
         return d;
     }
 
     private User fromDto(UserDto d) {
         if (d == null) return null;
         User u = new User();
-        u.setId(d.getId());
-        u.setUsername(d.getUsername());
-        u.setPassword(d.getPassword());
-        u.setName(d.getName());
-        u.setEmail(d.getEmail());
-        u.setPhone(d.getPhone());
-        u.setRole(d.getRole());
-        u.setCreatedAt(d.getCreatedAt() == null ? LocalDateTime.now() : d.getCreatedAt());
+        u.setId(d.id());
+        u.setUsername(d.username());
+        u.setPassword(d.password());
+        u.setName(d.name());
+        u.setEmail(d.email());
+        u.setPhone(d.phone());
+        u.setRole(d.role());
+        u.setCreatedAt(d.createdAt() == null ? LocalDateTime.now() : d.createdAt());
         return u;
     }
 
@@ -114,20 +115,28 @@ public class UserService {
 
     @Transactional
     public UserDto create(UserDto dto) {
-        if (dto == null || dto.getUsername() == null || dto.getUsername().isBlank()
-                || dto.getPassword() == null || dto.getPassword().length() < 8
-                || dto.getName() == null || dto.getName().isBlank()) {
+        if (dto == null || dto.username() == null || dto.username().isBlank()
+                || dto.password() == null || dto.password().length() < 8
+                || dto.name() == null || dto.name().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username, name, and an 8-character password are required");
         }
-        if (userRepository.findByUsername(dto.getUsername().trim()).isPresent()
-                || dto.getEmail() != null && userRepository.findByEmailIgnoreCase(dto.getEmail().trim()).isPresent()) {
+        if (userRepository.findByUsername(dto.username().trim()).isPresent()
+                || dto.email() != null && userRepository.findByEmailIgnoreCase(dto.email().trim()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username or email is already registered");
         }
-        dto.setUsername(dto.getUsername().trim());
-        dto.setRole("owner");
+        dto = new UserDto(
+                null,
+                dto.username(),
+                passwordEncoder.encode(dto.password()),
+                dto.username().trim(),
+                dto.email(),
+                dto.phone(),
+                "owner",
+                dto.createdAt()
+        );
+
         User u = fromDto(dto);
-        u.setId(null);
-        u.setPassword(passwordEncoder.encode(dto.getPassword()));
+
         User saved = userRepository.save(u);
         return toDto(saved);
     }
@@ -135,11 +144,11 @@ public class UserService {
     @Transactional
     public Optional<UserDto> update(Long id, UserDto dto, boolean admin) {
         return userRepository.findById(id).map(existing -> {
-            existing.setName(dto.getName());
-            existing.setEmail(dto.getEmail());
-            existing.setPhone(dto.getPhone());
-            if (admin && dto.getRole() != null) {
-                existing.setRole(dto.getRole());
+            existing.setName(dto.name());
+            existing.setEmail(dto.email());
+            existing.setPhone(dto.phone());
+            if (admin && dto.role() != null) {
+                existing.setRole(dto.role());
             }
             User saved = userRepository.save(existing);
             return toDto(saved);

@@ -184,7 +184,7 @@
         .step-indicator.active {
             background: #3B82F6;
             color: white;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.18);
         }
 
         .step-indicator.completed {
@@ -326,7 +326,7 @@
 <body class="bg-gray-50 font-arabic antialiased">
 
     <!-- ========== NAVBAR ========== -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500" id="navbar">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-sm transition-all duration-500" id="navbar">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-20">
                 <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
@@ -357,7 +357,7 @@
                         <i class="fas fa-user-circle text-xl text-primary"></i>
                         <span th:if="${currentUser != null}" th:text="${currentUser.name}" class="text-sm font-medium text-gray-700">User</span>
                     </a>
-                    <a th:href="@{/properties/add}" class="bg-primary text-white px-5 py-2.5 rounded-full font-semibold hover:bg-primary-dark transition-all duration-300 text-sm shadow-lg">
+                    <a th:href="@{/properties/add}" class="bg-primary text-white px-5 py-2.5 rounded-full font-semibold hover:bg-primary-dark transition-all duration-300 text-sm shadow-sm">
                         <i class="fas fa-plus-circle ml-1"></i>
                         <span th:text="#{header.add.property}">Add Property</span>
                     </a>
@@ -437,7 +437,7 @@
                 </div>
 
                 <!-- Progress Indicator -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 reveal">
+                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 mb-8 reveal">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center space-x-6 space-x-reverse">
                             <div class="step-indicator active" data-step="1">1</div>
@@ -476,7 +476,7 @@
                 </div>
 
                 <!-- Form -->
-                <form th:action="@{/properties/add}" th:object="${property}" method="post" enctype="multipart/form-data" id="propertyForm" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <form th:action="@{/properties/add}" th:object="${propertyForm}" method="post" enctype="multipart/form-data" id="propertyForm" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
 
                     <!-- Step 1: Basic Information -->
                     <div class="form-step active" id="step-1">
@@ -679,7 +679,7 @@
                                         <div class="text-3xl font-black text-gray-900" id="pricePreview">0.00 USD</div>
                                         <div class="text-sm text-gray-500 mt-1" id="pricePeriodPreview"></div>
                                     </div>
-                                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow">
+                                    <div class="w-16 h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center shadow-sm">
                                         <i class="fas fa-receipt text-2xl text-primary"></i>
                                     </div>
                                 </div>
@@ -876,11 +876,11 @@
                             السابق
                         </button>
                         <div class="flex-1"></div>
-                        <button type="button" id="nextBtn" class="px-8 py-3 rounded-xl font-semibold text-white bg-primary hover:bg-primary-dark transition-all duration-300 shadow-lg hover:shadow-xl" onclick="nextStep()">
+                        <button type="button" id="nextBtn" class="px-8 py-3 rounded-xl font-semibold text-white bg-primary hover:bg-primary-dark transition-all duration-300 shadow-sm hover:shadow-md" onclick="nextStep()">
                             التالي
                             <i class="fas fa-arrow-left mr-2"></i>
                         </button>
-                        <button type="submit" id="submitBtn" class="px-10 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl hidden">
+                        <button type="submit" id="submitBtn" class="px-10 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md hidden">
                             <i class="fas fa-check-circle ml-2"></i>
                             نشر العقار
                         </button>
@@ -1154,7 +1154,7 @@
                 image.className = 'image-preview w-full rounded-lg border border-gray-200';
                 const removeButton = document.createElement('button');
                 removeButton.type = 'button';
-                removeButton.className = 'absolute top-2 left-2 rounded-full bg-white px-2 py-1 text-sm text-red-600 shadow';
+                removeButton.className = 'absolute top-2 left-2 rounded-full bg-white px-2 py-1 text-sm text-red-600 shadow-sm';
                 removeButton.textContent = imageMessages.remove;
                 removeButton.addEventListener('click', () => {
                     const transfer = new DataTransfer();

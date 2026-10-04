@@ -120,13 +120,13 @@
             border-radius: 1.5rem;
             overflow: hidden;
             background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .property-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
         }
 
         /* Filter sidebar sticky */
@@ -226,7 +226,7 @@
 <body class="bg-gray-50 font-arabic antialiased">
 
     <!-- ========== NAVBAR ========== -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-500" id="navbar">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-sm transition-all duration-500" id="navbar">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-20">
                 <a th:href="@{/}" class="flex items-center space-x-3 space-x-reverse">
@@ -257,7 +257,7 @@
                 </div>
 
                 <div class="flex items-center space-x-3 space-x-reverse">
-                    <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-lg">
+                    <a th:if="${isAuthenticated}" th:href="@{/properties/add}" class="hidden md:flex items-center bg-primary text-white px-5 py-2.5 rounded-full hover:bg-primary-dark transition-all duration-300 text-sm font-semibold shadow-sm">
                         <i class="fas fa-plus-circle ml-1"></i>
                         <span th:text="#{header.add.property}">Add Property</span>
                     </a>
@@ -320,7 +320,7 @@
                     <input type="hidden" name="minPrice" th:value="${minPrice}">
                     <input type="hidden" name="maxPrice" th:value="${maxPrice}">
                     <input type="hidden" name="order" th:value="${selectedOrder}">
-                    <div class="flex items-center bg-white rounded-2xl shadow-2xl overflow-hidden p-2">
+                    <div class="flex items-center bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-2">
                         <input type="text" name="q" th:value="${q}"
                                class="flex-1 px-6 py-4 text-gray-800 text-lg outline-none font-medium"
                                placeholder="ابحث عن عقار، مدينة، أو منطقة...">
@@ -347,7 +347,7 @@
 
                 <!-- Filters Sidebar -->
                 <div class="lg:w-1/4 animate-slide-in-right">
-                    <div class="bg-white rounded-3xl shadow-lg p-6 filter-sidebar reveal">
+                    <div class="bg-white border border-gray-200 rounded-3xl shadow-sm p-6 filter-sidebar reveal">
                         <div class="flex items-center justify-between mb-8">
                             <h3 class="text-xl font-bold text-gray-900 flex items-center">
                                 <i class="fas fa-filter text-primary ml-2"></i>
@@ -494,7 +494,7 @@
                                 </select>
                             </div>
 
-                            <button type="submit" class="w-full bg-gradient-to-r from-primary to-primary-light text-white py-4 rounded-xl font-bold hover:from-primary-dark hover:to-primary transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center">
+                            <button type="submit" class="w-full bg-gradient-to-r from-primary to-primary-light text-white py-4 rounded-xl font-bold hover:from-primary-dark hover:to-primary transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center">
                                 <i class="fas fa-filter ml-2"></i>
                                 <span>تطبيق الفلاتر</span>
                             </button>
@@ -520,7 +520,7 @@
                     </div>
 
                     <!-- No Results -->
-                    <div th:if="${properties == null or #lists.isEmpty(properties)}" class="text-center py-16 bg-white rounded-3xl shadow-lg reveal">
+                    <div th:if="${properties == null or #lists.isEmpty(properties)}" class="text-center py-16 bg-white border border-gray-200 rounded-3xl shadow-sm reveal">
                         <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                             <i class="fas fa-search text-4xl text-gray-300"></i>
                         </div>
@@ -736,9 +736,9 @@
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
-                navbar.classList.add('shadow-2xl');
+                navbar.classList.add('shadow-sm');
             } else {
-                navbar.classList.remove('shadow-2xl');
+                navbar.classList.remove('shadow-sm');
             }
         });
 

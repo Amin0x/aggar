@@ -58,7 +58,7 @@ public class PropertyController {
     public ResponseEntity<PropertyDto> create(@RequestBody PropertyDto dto, Authentication authentication) {
         boolean admin = isAdmin(authentication);
         PropertyDto created = service.create(dto, authentication.getName(), admin);
-        return ResponseEntity.created(URI.create("/api/properties/" + created.getId())).body(created);
+        return ResponseEntity.created(URI.create("/api/properties/" + created.id())).body(created);
     }
 
     @PutMapping("/{id}")
@@ -120,7 +120,7 @@ public class PropertyController {
             @PathVariable("id") Long id,
             @RequestBody PropertyCommentDto comment,
             Authentication authentication) {
-        PropertyCommentDto created = commentService.create(id, authentication.getName(), comment.getContent());
+        PropertyCommentDto created = commentService.create(id, authentication.getName(), comment.content());
         return ResponseEntity.status(201).body(created);
     }
 

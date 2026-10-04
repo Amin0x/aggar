@@ -30,7 +30,7 @@ public class PriceHistoryController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PriceHistoryDto> create(@RequestBody PriceHistoryDto dto) { PriceHistoryDto created = service.create(dto); return ResponseEntity.created(URI.create("/api/price-history/" + created.getId())).body(created); }
+    public ResponseEntity<PriceHistoryDto> create(@RequestBody PriceHistoryDto dto) { PriceHistoryDto created = service.create(dto); return ResponseEntity.created(URI.create("/api/price-history/" + created.id())).body(created); }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

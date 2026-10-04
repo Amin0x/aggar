@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -101,93 +102,80 @@ public class PropertyService {
 
     private PropertyDto toDto(Property p) {
         if (p == null) return null;
-        PropertyDto d = new PropertyDto();
-        d.setId(p.getId());
-        d.setTitle(p.getTitle());
-        d.setSlug(p.getSlug());
-        d.setDescription(p.getDescription());
-        d.setPrice(p.getPrice());
-        d.setViewCount(p.getViewCount());
-        d.setCurrency(p.getCurrency());
-        d.setListingType(p.getListingType() != null ? p.getListingType().getValue() : null);
-        d.setCategory(p.getCategory());
-        d.setPricePeriod(p.getPricePeriod() != null ? p.getPricePeriod().getValue() : null);
-        d.setBedrooms(p.getBedrooms());
-        d.setBathrooms(p.getBathrooms());
-        d.setArea(p.getArea());
-        d.setStateId(p.getState() != null ? p.getState().getId() : null);
-        d.setCityId(p.getCity() != null ? p.getCity().getId() : null);
-        d.setNeighborhoodId(p.getNeighborhood() != null ? p.getNeighborhood().getId() : null);
-        d.setOwnerId(p.getOwner() != null ? p.getOwner().getId() : null);
-        d.setAgentId(p.getAgent() != null ? p.getAgent().getId() : null);
-        // Set owner contact info
-        if (p.getOwner() != null) {
-            d.setOwnerName(p.getOwner().getName());
-            d.setOwnerPhone(p.getOwner().getPhone());
-        }
-        // Set agent contact info
-        if (p.getAgent() != null) {
-            d.setAgentName(p.getAgent().getName());
-            d.setAgentPhone(p.getAgent().getPhone());
-        }
-        d.setStatus(p.getStatus());
-        d.setLocationLat(p.getLocationLat());
-        d.setLocationLng(p.getLocationLng());
-        d.setPublishedAt(p.getPublishedAt());
-        d.setCreatedAt(p.getCreatedAt());
-        d.setUpdatedAt(p.getUpdatedAt());
-        d.setIsDeleted(p.getIsDeleted());
-        // images
-        if (p.getImages() != null) {
-            d.setImages(p.getImages().stream().map(img -> {
-                PropertyImageDto idto = new PropertyImageDto();
-                idto.setId(img.getId());
-                idto.setPropertyId(p.getId());
-                idto.setUrl(buildFullImageUrl(img.getUrl()));
-                idto.setIsPrimary(img.getIsPrimary());
-                idto.setSortOrder(img.getSortOrder());
-                return idto;
-            }).collect(Collectors.toList()));
-        }
-        // amenities
-        if (p.getAmenities() != null) {
-            d.setAmenities(p.getAmenities().stream().map(a -> {
-                AmenityDto ad = new AmenityDto();
-                ad.setId(a.getId());
-                ad.setName(a.getName());
-                return ad;
-            }).collect(Collectors.toSet()));
-        }
-        // price history omitted (can add similarly)
-        return d;
+        List<PropertyImageDto> images = p.getImages() == null ? null : p.getImages().stream()
+                .map(img -> new PropertyImageDto(
+                        img.getId(),
+                        p.getId(),
+                        buildFullImageUrl(img.getUrl()),
+                        img.getIsPrimary(),
+                        img.getSortOrder()
+                ))
+                .collect(Collectors.toList());
+        Set<AmenityDto> amenities = p.getAmenities() == null ? null : p.getAmenities().stream()
+                .map(a -> new AmenityDto(a.getId(), a.getName()))
+                .collect(Collectors.toSet());
+        return new PropertyDto(
+                p.getId(),
+                p.getTitle(),
+                p.getSlug(),
+                p.getDescription(),
+                p.getPrice(),
+                p.getViewCount(),
+                p.getCurrency(),
+                p.getListingType() != null ? p.getListingType().getValue() : null,
+                p.getCategory(),
+                p.getPricePeriod() != null ? p.getPricePeriod().getValue() : null,
+                p.getBedrooms(),
+                p.getBathrooms(),
+                p.getArea(),
+                p.getState() != null ? p.getState().getId() : null,
+                p.getCity() != null ? p.getCity().getId() : null,
+                p.getNeighborhood() != null ? p.getNeighborhood().getId() : null,
+                p.getOwner() != null ? p.getOwner().getId() : null,
+                p.getAgent() != null ? p.getAgent().getId() : null,
+                p.getStatus(),
+                p.getLocationLat(),
+                p.getLocationLng(),
+                p.getPublishedAt(),
+                p.getCreatedAt(),
+                p.getUpdatedAt(),
+                p.getIsDeleted(),
+                images,
+                amenities,
+                null,
+                p.getOwner() != null ? p.getOwner().getName() : null,
+                p.getOwner() != null ? p.getOwner().getPhone() : null,
+                p.getAgent() != null ? p.getAgent().getName() : null,
+                p.getAgent() != null ? p.getAgent().getPhone() : null
+        );
     }
 
     private Property fromDto(PropertyDto d) {
         if (d == null) return null;
         Property p = new Property();
-        p.setId(d.getId());
-        p.setTitle(d.getTitle());
-        p.setSlug(d.getSlug());
-        p.setDescription(d.getDescription());
-        p.setPrice(d.getPrice());
-        p.setCurrency(d.getCurrency());
-        if (d.getListingType() != null) p.setListingType(ListingType.fromValue(d.getListingType()));
-        p.setCategory(d.getCategory());
+        p.setId(d.id());
+        p.setTitle(d.title());
+        p.setSlug(d.slug());
+        p.setDescription(d.description());
+        p.setPrice(d.price());
+        p.setCurrency(d.currency());
+        if (d.listingType() != null) p.setListingType(ListingType.fromValue(d.listingType()));
+        p.setCategory(d.category());
         // pricePeriod mapping omitted for brevity
-        p.setBedrooms(d.getBedrooms());
-        p.setBathrooms(d.getBathrooms());
-        p.setArea(d.getArea());
-        if (d.getStateId() != null) p.setState(stateRepository.findById(d.getStateId()).orElse(null));
-        if (d.getCityId() != null) p.setCity(cityRepository.findById(d.getCityId()).orElse(null));
-        if (d.getNeighborhoodId() != null)
-            p.setNeighborhood(neighborhoodRepository.findById(d.getNeighborhoodId()).orElse(null));
-        if (d.getOwnerId() != null) p.setOwner(userRepository.findById(d.getOwnerId()).orElse(null));
-        if (d.getAgentId() != null) p.setAgent(userRepository.findById(d.getAgentId()).orElse(null));
-        p.setStatus(d.getStatus());
-        p.setLocationLat(d.getLocationLat());
-        p.setLocationLng(d.getLocationLng());
-        p.setPublishedAt(d.getPublishedAt());
-        p.setIsDeleted(d.getIsDeleted());
+        p.setBedrooms(d.bedrooms());
+        p.setBathrooms(d.bathrooms());
+        p.setArea(d.area());
+        if (d.stateId() != null) p.setState(stateRepository.findById(d.stateId()).orElse(null));
+        if (d.cityId() != null) p.setCity(cityRepository.findById(d.cityId()).orElse(null));
+        if (d.neighborhoodId() != null)
+            p.setNeighborhood(neighborhoodRepository.findById(d.neighborhoodId()).orElse(null));
+        if (d.ownerId() != null) p.setOwner(userRepository.findById(d.ownerId()).orElse(null));
+        if (d.agentId() != null) p.setAgent(userRepository.findById(d.agentId()).orElse(null));
+        p.setStatus(d.status());
+        p.setLocationLat(d.locationLat());
+        p.setLocationLng(d.locationLng());
+        p.setPublishedAt(d.publishedAt());
+        p.setIsDeleted(d.isDeleted());
         // images, amenities, priceHistory not fully created here — use separate endpoints or extend mapping
         return p;
     }
@@ -341,28 +329,28 @@ public class PropertyService {
     @Transactional
     public Optional<PropertyDto> update(Long id, PropertyDto dto, boolean admin) {
         return propertyRepository.findById(id).map(existing -> {
-            existing.setTitle(dto.getTitle());
-            existing.setDescription(dto.getDescription());
-            existing.setPrice(dto.getPrice());
-            existing.setCurrency(dto.getCurrency());
-            if (dto.getListingType() != null) existing.setListingType(ListingType.fromValue(dto.getListingType()));
-            existing.setCategory(dto.getCategory());
-            existing.setBedrooms(dto.getBedrooms());
-            existing.setBathrooms(dto.getBathrooms());
-            existing.setArea(dto.getArea());
-            if (dto.getStateId() != null) existing.setState(stateRepository.findById(dto.getStateId()).orElse(null));
-            if (dto.getCityId() != null) existing.setCity(cityRepository.findById(dto.getCityId()).orElse(null));
-            if (dto.getNeighborhoodId() != null)
-                existing.setNeighborhood(neighborhoodRepository.findById(dto.getNeighborhoodId()).orElse(null));
+            existing.setTitle(dto.title());
+            existing.setDescription(dto.description());
+            existing.setPrice(dto.price());
+            existing.setCurrency(dto.currency());
+            if (dto.listingType() != null) existing.setListingType(ListingType.fromValue(dto.listingType()));
+            existing.setCategory(dto.category());
+            existing.setBedrooms(dto.bedrooms());
+            existing.setBathrooms(dto.bathrooms());
+            existing.setArea(dto.area());
+            if (dto.stateId() != null) existing.setState(stateRepository.findById(dto.stateId()).orElse(null));
+            if (dto.cityId() != null) existing.setCity(cityRepository.findById(dto.cityId()).orElse(null));
+            if (dto.neighborhoodId() != null)
+                existing.setNeighborhood(neighborhoodRepository.findById(dto.neighborhoodId()).orElse(null));
             if (admin) {
-                existing.setOwner(dto.getOwnerId() == null ? null : userRepository.findById(dto.getOwnerId()).orElse(null));
-                existing.setAgent(dto.getAgentId() == null ? null : userRepository.findById(dto.getAgentId()).orElse(null));
-                existing.setStatus(dto.getStatus());
+                existing.setOwner(dto.ownerId() == null ? null : userRepository.findById(dto.ownerId()).orElse(null));
+                existing.setAgent(dto.agentId() == null ? null : userRepository.findById(dto.agentId()).orElse(null));
+                existing.setStatus(dto.status());
             }
-            existing.setLocationLat(dto.getLocationLat());
-            existing.setLocationLng(dto.getLocationLng());
-            if (dto.getSlug() != null && !dto.getSlug().trim().isEmpty()) {
-                existing.setSlug(uniqueSlug(dto.getSlug(), existing.getId()));
+            existing.setLocationLat(dto.locationLat());
+            existing.setLocationLng(dto.locationLng());
+            if (dto.slug() != null && !dto.slug().trim().isEmpty()) {
+                existing.setSlug(uniqueSlug(dto.slug(), existing.getId()));
             }
             Property saved = propertyRepository.save(existing);
             return toDto(saved);

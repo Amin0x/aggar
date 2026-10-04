@@ -34,7 +34,7 @@ public class AmenityController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AmenityDto> create(@RequestBody AmenityDto dto) {
         AmenityDto created = amenityService.create(dto);
-        return ResponseEntity.created(URI.create("/api/amenities/" + created.getId())).body(created);
+        return ResponseEntity.created(URI.create("/api/amenities/" + created.id())).body(created);
     }
 
     @PutMapping("/{id}")

@@ -1,6 +1,7 @@
 package com.amin.aggar.frontend.controller;
 
 import com.amin.aggar.frontend.dto.StateDto;
+import com.amin.aggar.frontend.form.StateForm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -34,7 +35,7 @@ public class StateController {
             MessageSource messageSource) {
         this.restTemplate = restTemplate;
         this.apiUrl = apiUrl;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = new ObjectMapper().findAndRegisterModules();
         this.messageSource = messageSource;
     }
 
@@ -62,13 +63,14 @@ public class StateController {
 
     @GetMapping("/states/add")
     public String addForm(Model model) {
-        model.addAttribute("state", new StateDto());
+        model.addAttribute("state", new StateForm());
         return "admin/add-state";
     }
 
     @PostMapping("/states/add")
-    public String create(@ModelAttribute StateDto stateDto, Model model,
+    public String create(@ModelAttribute StateForm stateForm, Model model,
                          RedirectAttributes redirectAttributes, Locale locale) {
+        StateDto stateDto = new StateDto(null, stateForm.getName(), stateForm.getNameAr(), stateForm.getCode());
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -86,13 +88,13 @@ public class StateController {
                 return "redirect:/states/list";
             } else {
                 model.addAttribute("error", messageSource.getMessage("state.error.add", null, locale));
-                model.addAttribute("state", stateDto);
+                model.addAttribute("state", stateForm);
                 return "admin/add-state";
             }
         } catch (Exception ex) {
             log.error("Failed to create state", ex);
             model.addAttribute("error", messageSource.getMessage("state.error.add", null, locale));
-            model.addAttribute("state", stateDto);
+            model.addAttribute("state", stateForm);
             return "admin/add-state";
         }
     }
@@ -109,7 +111,8 @@ public class StateController {
             );
 
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-                model.addAttribute("state", resp.getBody());
+                StateDto stateDto = resp.getBody();
+                model.addAttribute("state", new StateForm(stateDto.name(), stateDto.nameAr(), stateDto.code()));
                 model.addAttribute("stateId", id);
                 return "admin/edit-state";
             } else {
@@ -124,12 +127,13 @@ public class StateController {
     }
 
     @PostMapping("/states/edit/{id}")
-    public String update(@PathVariable("id") Integer id, @ModelAttribute StateDto stateDto, Model model,
+    public String update(@PathVariable("id") Integer id, @ModelAttribute StateForm stateForm, Model model,
                          RedirectAttributes redirectAttributes, Locale locale) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
+            StateDto stateDto = new StateDto(id, stateForm.getName(), stateForm.getNameAr(), stateForm.getCode());
             HttpEntity<StateDto> request = new HttpEntity<>(stateDto, headers);
             ResponseEntity<StateDto> resp = restTemplate.exchange(
                     apiUrl + "/states/" + id,
@@ -143,14 +147,14 @@ public class StateController {
                 return "redirect:/states/list";
             } else {
                 model.addAttribute("error", messageSource.getMessage("state.error.update", null, locale));
-                model.addAttribute("state", stateDto);
+                model.addAttribute("state", stateForm);
                 model.addAttribute("stateId", id);
                 return "admin/edit-state";
             }
         } catch (Exception ex) {
             log.error("Failed to update state {}", id, ex);
             model.addAttribute("error", messageSource.getMessage("state.error.update", null, locale));
-            model.addAttribute("state", stateDto);
+            model.addAttribute("state", stateForm);
             model.addAttribute("stateId", id);
             return "admin/edit-state";
         }

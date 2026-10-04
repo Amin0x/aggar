@@ -21,17 +21,14 @@ public class AmenityService {
 
     private AmenityDto toDto(Amenity a) {
         if (a == null) return null;
-        AmenityDto d = new AmenityDto();
-        d.setId(a.getId());
-        d.setName(a.getName());
-        return d;
+        return new AmenityDto(a.getId(), a.getName());
     }
 
     private Amenity fromDto(AmenityDto d) {
         if (d == null) return null;
         Amenity a = new Amenity();
-        a.setId(d.getId());
-        a.setName(d.getName());
+        a.setId(d.id());
+        a.setName(d.name());
         return a;
     }
 
@@ -54,7 +51,7 @@ public class AmenityService {
     @Transactional
     public Optional<AmenityDto> update(Integer id, AmenityDto dto) {
         return amenityRepository.findById(id).map(existing -> {
-            existing.setName(dto.getName());
+            existing.setName(dto.name());
             return toDto(amenityRepository.save(existing));
         });
     }

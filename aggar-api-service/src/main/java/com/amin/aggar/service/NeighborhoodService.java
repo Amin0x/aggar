@@ -25,23 +25,23 @@ public class NeighborhoodService {
 
     private NeighborhoodDto toDto(Neighborhood n) {
         if (n == null) return null;
-        NeighborhoodDto d = new NeighborhoodDto();
-        d.setId(n.getId());
-        d.setCityId(n.getCity() != null ? n.getCity().getId() : null);
-        d.setCityName(n.getCity() != null ? n.getCity().getName() : null);
-        d.setName(n.getName());
+        NeighborhoodDto d = new NeighborhoodDto(
+                n.getId(),
+                n.getCity() != null ? n.getCity().getId() : null,
+                n.getCity() != null ? n.getCity().getName() : null,
+                n.getName());
         return d;
     }
 
     private Neighborhood fromDto(NeighborhoodDto d) {
         if (d == null) return null;
         Neighborhood n = new Neighborhood();
-        n.setId(d.getId());
-        if (d.getCityId() != null) {
-            City c = cityRepository.findById(d.getCityId()).orElse(null);
+        n.setId(d.id());
+        if (d.cityId() != null) {
+            City c = cityRepository.findById(d.cityId()).orElse(null);
             n.setCity(c);
         }
-        n.setName(d.getName());
+        n.setName(d.name());
         return n;
     }
 
@@ -64,9 +64,9 @@ public class NeighborhoodService {
     @Transactional
     public Optional<NeighborhoodDto> update(Integer id, NeighborhoodDto dto) {
         return neighborhoodRepository.findById(id).map(existing -> {
-            existing.setName(dto.getName());
-            if (dto.getCityId() != null) {
-                City c = cityRepository.findById(dto.getCityId()).orElse(null);
+            existing.setName(dto.name());
+            if (dto.cityId() != null) {
+                City c = cityRepository.findById(dto.cityId()).orElse(null);
                 existing.setCity(c);
             }
             return toDto(neighborhoodRepository.save(existing));

@@ -50,13 +50,14 @@ public class PropertyCommentService {
     }
 
     private PropertyCommentDto toDto(PropertyComment comment) {
-        PropertyCommentDto dto = new PropertyCommentDto();
-        dto.setId(comment.getId());
-        dto.setPropertyId(comment.getProperty().getId());
-        dto.setAuthorId(comment.getAuthor().getId());
-        dto.setAuthorName(comment.getAuthor().getName());
-        dto.setContent(comment.getContent());
-        dto.setCreatedAt(comment.getCreatedAt());
+        PropertyCommentDto dto = new PropertyCommentDto(
+                comment.getId(),
+                comment.getProperty().getId(),
+                comment.getAuthor().getId(),
+                comment.getAuthor().getName(),
+                comment.getContent(),
+                comment.getCreatedAt()
+        );
         return dto;
     }
 }

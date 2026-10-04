@@ -69,21 +69,26 @@ class UserServiceTest {
 
     @Test
     void registrationHashesPasswordAndIgnoresRequestedRole() {
-        UserDto request = new UserDto();
-        request.setUsername("new-user");
-        request.setName("New User");
-        request.setEmail("new@example.com");
-        request.setPassword("secret123");
-        request.setRole("admin");
+        UserDto request = new UserDto(
+                null,
+                "new-user",
+                "secret123",
+                "New User",
+                "new@example.com",
+                null,
+                "admin",
+                null
+        );
+
         when(userRepository.findByUsername("new-user")).thenReturn(Optional.empty());
         when(userRepository.findByEmailIgnoreCase("new@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UserDto created = userService.create(request);
 
-        assertEquals("owner", created.getRole());
-        assertFalse("secret123".equals(created.getPassword()));
-        assertTrue(created.getPassword().startsWith("$2"));
+        assertEquals("owner", created.role());
+        assertFalse("secret123".equals(created.password()));
+        assertTrue(created.password().startsWith("$2"));
     }
 
     private User user(String username, String email, String password) {

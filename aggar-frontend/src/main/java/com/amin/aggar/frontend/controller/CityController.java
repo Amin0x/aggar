@@ -1,6 +1,7 @@
 package com.amin.aggar.frontend.controller;
 
 import com.amin.aggar.frontend.dto.CityDto;
+import com.amin.aggar.frontend.form.CityForm;
 import com.amin.aggar.frontend.dto.StateDto;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,7 +34,7 @@ public class CityController {
     private final String apiUrl;
     private final RestTemplate restTemplate;
     private final MessageSource messageSource;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     public CityController(
             RestTemplate restTemplate,
@@ -51,9 +52,9 @@ public class CityController {
             if (q != null && !q.isBlank()) {
                 String query = q.trim().toLowerCase(Locale.ROOT);
                 cities = cities.stream()
-                        .filter(city -> containsIgnoreCase(city.getName(), query)
-                                || containsIgnoreCase(city.getStateName(), query)
-                                || containsIgnoreCase(city.getStateNameAr(), query))
+                        .filter(city -> containsIgnoreCase(city.name(), query)
+                                || containsIgnoreCase(city.stateName(), query)
+                                || containsIgnoreCase(city.stateNameAr(), query))
                         .toList();
             }
             model.addAttribute("cities", cities);
@@ -108,13 +109,14 @@ public class CityController {
             log.error("Failed to fetch states from API", ex);
             model.addAttribute("states", Collections.emptyList());
         }
-        model.addAttribute("city", new CityDto());
+        model.addAttribute("city", new CityForm());
         return "admin/add-city";
     }
 
     @PostMapping("/cities/add")
-    public String create(@ModelAttribute CityDto cityDto, Model model,
+    public String create(@ModelAttribute CityForm cityForm, Model model,
                          RedirectAttributes redirectAttributes, Locale locale) {
+        CityDto cityDto = new CityDto(null, cityForm.getStateId(), cityForm.getName(), null, null);
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -133,14 +135,14 @@ public class CityController {
             } else {
                 model.addAttribute("error", messageSource.getMessage("city.error.add", null, locale));
                 addStatesToModel(model);
-                model.addAttribute("city", cityDto);
+                model.addAttribute("city", cityForm);
                 return "admin/add-city";
             }
         } catch (Exception ex) {
             log.error("Failed to create city", ex);
             model.addAttribute("error", messageSource.getMessage("city.error.add", null, locale));
             addStatesToModel(model);
-            model.addAttribute("city", cityDto);
+            model.addAttribute("city", cityForm);
             return "admin/add-city";
         }
     }
@@ -157,7 +159,8 @@ public class CityController {
             );
 
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-                model.addAttribute("city", resp.getBody());
+                CityDto cityDto = resp.getBody();
+                model.addAttribute("city", new CityForm(cityDto.stateId(), cityDto.name()));
                 model.addAttribute("cityId", id);
                 addStatesToModel(model);
                 return "admin/edit-city";
@@ -173,12 +176,13 @@ public class CityController {
     }
 
     @PostMapping("/cities/edit/{id}")
-    public String update(@PathVariable("id") Integer id, @ModelAttribute CityDto cityDto, Model model,
+    public String update(@PathVariable("id") Integer id, @ModelAttribute CityForm cityForm, Model model,
                          RedirectAttributes redirectAttributes, Locale locale) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
+            CityDto cityDto = new CityDto(id, cityForm.getStateId(), cityForm.getName(), null, null);
             HttpEntity<CityDto> request = new HttpEntity<>(cityDto, headers);
             ResponseEntity<CityDto> resp = restTemplate.exchange(
                     apiUrl + "/cities/" + id,
@@ -193,7 +197,7 @@ public class CityController {
             } else {
                 model.addAttribute("error", messageSource.getMessage("city.error.update", null, locale));
                 addStatesToModel(model);
-                model.addAttribute("city", cityDto);
+                model.addAttribute("city", cityForm);
                 model.addAttribute("cityId", id);
                 return "admin/edit-city";
             }
@@ -201,7 +205,7 @@ public class CityController {
             log.error("Failed to update city {}", id, ex);
             model.addAttribute("error", messageSource.getMessage("city.error.update", null, locale));
             addStatesToModel(model);
-            model.addAttribute("city", cityDto);
+            model.addAttribute("city", cityForm);
             model.addAttribute("cityId", id);
             return "admin/edit-city";
         }
